@@ -1,38 +1,25 @@
-require("dotenv").config()
+require("dotenv").config();
 
-const app=require('./src/config/app')
-const sequelize=require('./src/config/database')
+const app = require("./src/config/app");
+const { sequelize } = require("./src/models");
 
-require ('./src/models/User');
-require ('./src/models/Center');
-require ('./src/models/Halakat');
-require ('./src/models/Student');
-require ('./src/models/StudentPlane');
-require ('./src/models/StudentPlane');
+const port = process.env.PORT || 8000;
 
-const port=process.env.PORT || 8000;
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    console.log("Database connected");
 
+    console.log("Registered models:", Object.keys(sequelize.models));
+    await sequelize.sync({ alter: true });
+    console.log("Database synced successfully!");
 
-async function startServer()
-{
-    try{
-        await sequelize.authenticate();
-        console.log('Database connected');
-
-        await sequelize.sync({alter:true});
-        console.log('Database synced');
-
-
-        app.listen(port,()=>
-        {
-            console.log(`The server is listening on port ${port}`);
-        })
-
-    }
-    catch(error)
-    {
-        console.error(error);
-    }
+    app.listen(port, () => {
+      console.log(`The server is listening on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+  }
 }
 
 startServer();

@@ -1,7 +1,6 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-const User = require("./User");
-const Center = require("./Center");
+
 class Halakat extends Model {}
 
 Halakat.init(
@@ -19,15 +18,29 @@ Halakat.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    TeacherId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "Id",
+      },
+    },
+    CenterId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "centers",
+        key: "Id",
+      },
+    },
   },
   {
     sequelize,
     tableName: "halakat",
     modelName: "Halakat",
     timestamps: true,
-  },
+  }
 );
-Halakat.belongsTo(User, { foreignkay: "TeacherId", as: "Teacher" });
-Halakat.belongsTo(Center, { foreignkay: "CenterId", as: "Center" });
 
 module.exports = Halakat;

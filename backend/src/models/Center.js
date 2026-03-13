@@ -1,6 +1,5 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-const User = require("./User");
 
 class Center extends Model {}
 
@@ -11,15 +10,21 @@ Center.init(
       primaryKey: true,
       autoIncrement: true,
     },
-
     Name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-
     Location: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    ManagerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "Id",
+      },
     },
   },
   {
@@ -27,12 +32,7 @@ Center.init(
     tableName: "centers",
     modelName: "Center",
     timestamps: true,
-  },
+  }
 );
-
-Center.belongsTo(User, {
-  foreignKey: "ManagerId",
-  as: "Manager",
-});
 
 module.exports = Center;
