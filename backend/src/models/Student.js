@@ -14,6 +14,18 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    Gender: {
+      type: DataTypes.ENUM("ذكر", "أنثى"),
+      allowNull: false,
+    },
+    Username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Password: {
+      type: DataTypes.STRING(256),
+      allowNull: false,
+    },
     Age: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -36,15 +48,16 @@ Student.init(
     },
     Category: {
       type: DataTypes.ENUM(
-        "child",
-        "5_parts",
-        "10_parts",
-        "15_parts",
-        "20_parts",
-        "25_parts",
-        "30_parts"
+        "اطفال",
+        "أقل من 5 أجزاء",
+        "5 أجزاء",
+        "10 أجزاء",
+        "15 جزء",
+        "20 جزء",
+        "25 جزء",
+        "المصجف كامل"
       ),
-      defaultValue: "child",
+      defaultValue: "أقل من 5 أجزاء",
       allowNull: false,
     },
     HalakatId: {
