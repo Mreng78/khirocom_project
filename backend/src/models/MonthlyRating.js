@@ -1,8 +1,6 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-const Student = require("./Student");
-
 class MonthlyRating extends Model {}
 
 MonthlyRating.init(
@@ -12,59 +10,61 @@ MonthlyRating.init(
       autoIncrement: true,
       primaryKey: true,
     },
+    Month:
+    {
+      type: DataTypes.STRING,
+      validate: { notEmpty: true },
+      allowNull: false,
+    },
+    Year:
+    {
+      type: DataTypes.INTEGER,
+      validate: { notEmpty: true },
+      allowNull: false,
+    },
     Memoisation_degree: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      validate: {
-        min: 0,
-        max: 100,
-      },
+      validate: { min: 0, max: 100 },
     },
     Telawah_degree: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      validate: {
-        min: 0,
-        max: 100,
-      },
+      validate: { min: 0, max: 100 },
     },
     Tajweed_degree: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      validate: {
-        min: 0,
-        max: 60,
-      },
+      validate: { min: 0, max: 60 },
     },
     Motoon_degree: {
       type: DataTypes.FLOAT,
       allowNull: false,
-      validate: {
-        min: 0,
-        max: 400,
-      },
+      validate: { min: 0, max: 400 },
     },
     Total_degree: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    Avarage: {
+    Average: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
     StudentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: "students",
+        key: "Id",
+      },
     },
   },
   {
     sequelize,
     modelName: "MonthlyRating",
-    tableName: "MonthlyRating",
+    tableName: "monthly_rating",
     timestamps: true,
   }
 );
-
-MonthlyRating.belongsTo(Student, { foreignKey: "StudentId", as: "Student" });
 
 module.exports = MonthlyRating;
