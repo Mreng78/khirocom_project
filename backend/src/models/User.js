@@ -42,8 +42,8 @@ User.init(
   },
 
   Role: {
-    type: DataTypes.ENUM("admin", "teacher", "supervisor", "manager"),
-    defaultValue: "teacher",
+      type: DataTypes.ENUM("admin", "مدرس", "مشرف", "موجه", "طالب", "مدير"),
+    defaultValue: "مدرس",
     allowNull: false,
   },
 

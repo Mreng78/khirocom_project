@@ -10,13 +10,13 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("Database connected");
 
-    console.log("Registered models:", Object.keys(sequelize.models));
-    await sequelize.sync({ alter: true });
-    console.log("Database synced successfully!");
-
     app.listen(port, () => {
       console.log(`The server is listening on port ${port}`);
     });
+
+    console.log("Registered models:", Object.keys(sequelize.models));
+    await sequelize.sync({ alter: true });
+    console.log("Database synced successfully!");
   } catch (error) {
     console.error("Failed to start server:", error);
   }

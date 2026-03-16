@@ -1,6 +1,6 @@
 const sequelize = require("../config/database");
 
-// استيراد جميع الموديلات
+
 const User = require("./User");
 const Center = require("./Center");
 const Halakat = require("./Halakat");
@@ -9,12 +9,17 @@ const StudentPlane = require("./StudentPlane");
 const MonthlyRating = require("./MonthlyRating");
 const DailyProgress = require("./DailyProgress");
 const Notification = require("./Notification");
+const Teacher = require("./Teacher");
+const Supervisor = require("./Supervisor");
+const Mentor = require("./Mentor");
+const Manager = require("./Manager");
 
-// تعريف العلاقات بين الموديلات ?
+
+
 
 //? User ↔ Center (One-to-one)
-User.hasOne(Center, { foreignKey: "ManagerId", as: "Center" });
-Center.belongsTo(User, { foreignKey: "ManagerId", as: "Manager" });
+User.hasOne(Center, { foreignKey: "ManagerId", as: "center" });
+Center.belongsTo(User, { foreignKey: "ManagerId", as: "manager" });
 
 //? User ↔ Halakat (One-to-one)
 User.hasOne(Halakat, { foreignKey: "TeacherId", as: "TeacherHalakat" });
@@ -49,6 +54,35 @@ Notification.belongsTo(User, { foreignKey: "UserId", as: "NotificationUser" });
 Student.hasMany(Notification, { foreignKey: "StudentId", as: "StudentNotifications" });
 Notification.belongsTo(Student, { foreignKey: "StudentId", as: "NotificationStudent" });
 
+//? Student ↔ Users (One-to-Many)
+User.hasMany(Student, { foreignKey: "User_Id", as: "Students" });
+Student.belongsTo(User, { foreignKey: "User_Id", as: "User" });
+
+//? teacher ↔ User (One-to-Many)
+User.hasMany(Teacher, { foreignKey: "User_Id", as: "Teacher" });
+Teacher.belongsTo(User, { foreignKey: "User_Id", as: "Teacher" });
+
+//? Supervisor ↔ User (one to many)
+User.hasMany(Supervisor, { foreignKey: "User_Id", as: "Supervisors" });
+Supervisor.belongsTo(User, { foreignKey: "User_Id", as: "User" });
+
+//? Mentor ↔ User (one to many)
+User.hasMany(Mentor, { foreignKey: "User_Id", as: "Mentors" });
+Mentor.belongsTo(User, { foreignKey: "User_Id", as: "User" });
+//? Manager ↔ User (one to many)
+User.hasMany(Manager, { foreignKey: "User_Id", as: "Managers" });
+Manager.belongsTo(User, { foreignKey: "User_Id", as: "User" });
+
+//? Halakat ↔ Supervisor (One-to-Many)
+Supervisor.hasMany(Halakat, { foreignKey: "SupervisorId", as: "Halakat" });
+Halakat.belongsTo(Supervisor, { foreignKey: "SupervisorId", as: "Supervisor" });
+
+
+//? Halakat ↔ Mentor (One-to-Many)
+Mentor.hasMany(Halakat, { foreignKey: "MentorId", as: "Halakat" });
+Halakat.belongsTo(Mentor, { foreignKey: "MentorId", as: "Mentor" });
+
+
 
 module.exports = {
   sequelize,
@@ -60,4 +94,8 @@ module.exports = {
   MonthlyRating,
   DailyProgress,
   Notification,
+  Teacher,
+  Supervisor,
+  Mentor,
+  Manager,
 };

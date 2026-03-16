@@ -26,6 +26,22 @@ Halakat.init(
         key: "Id",
       },
     },
+    SupervisorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "supervisors",
+        key: "Id",
+      },
+    },
+    MentorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "mentors",
+        key: "Id",
+      },
+    },
     CenterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
