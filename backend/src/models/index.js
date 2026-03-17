@@ -9,12 +9,13 @@ const StudentPlane = require("./StudentPlane");
 const MonthlyRating = require("./MonthlyRating");
 const DailyProgress = require("./DailyProgress");
 const Notification = require("./Notification");
-const Teacher = require("./Teacher");
-const Supervisor = require("./Supervisor");
-const Mentor = require("./Mentor");
-const Manager = require("./Manager");
+const Aria = require("./Aria");
 
 
+
+//? Area ↔ Center (One-to-many)
+Center.hasMany(Aria, { foreignKey: "CenterId", as: "CenterArias" });
+Aria.belongsTo(Center, { foreignKey: "CenterId", as: "Center" });
 
 
 //? User ↔ Center (One-to-one)
@@ -25,9 +26,18 @@ Center.belongsTo(User, { foreignKey: "ManagerId", as: "manager" });
 User.hasOne(Halakat, { foreignKey: "TeacherId", as: "TeacherHalakat" });
 Halakat.belongsTo(User, { foreignKey: "TeacherId", as: "Teacher" });
 
-//? Center ↔ Halakat (One-to-many)
-Center.hasMany(Halakat, { foreignKey: "CenterId", as: "CenterHalakat" });
-Halakat.belongsTo(Center, { foreignKey: "CenterId", as: "Center" });
+//? Aria ↔ Halakat (One-to-many)
+Aria.hasMany(Halakat, { foreignKey: "AriaId", as: "AriaHalakat" });
+Halakat.belongsTo(Aria, { foreignKey: "AriaId", as: "Aria" });
+
+//? Area ↔  User <supervisor> (many-to-many)
+Aria.belongsToMany(User, { through: "SupervisorArias", foreignKey: "AriaId" });
+User.belongsToMany(Aria, { through: "SupervisorArias", foreignKey: "UserId" });
+
+
+//? User ↔  Area <mentor> (many-to-many)
+User.belongsToMany(Aria, { through: "MentorArias", foreignKey: "UserId" });
+Aria.belongsToMany(User, { through: "MentorArias", foreignKey: "AriaId" });
 
 //? Halakat ↔ Student (One-to-Many)
 Halakat.hasMany(Student, { foreignKey: "HalakatId", as: "HalakatStudents" });
@@ -58,29 +68,9 @@ Notification.belongsTo(Student, { foreignKey: "StudentId", as: "NotificationStud
 User.hasMany(Student, { foreignKey: "User_Id", as: "Students" });
 Student.belongsTo(User, { foreignKey: "User_Id", as: "User" });
 
-//? teacher ↔ User (One-to-Many)
-User.hasMany(Teacher, { foreignKey: "User_Id", as: "Teacher" });
-Teacher.belongsTo(User, { foreignKey: "User_Id", as: "Teacher" });
-
-//? Supervisor ↔ User (one to many)
-User.hasMany(Supervisor, { foreignKey: "User_Id", as: "Supervisors" });
-Supervisor.belongsTo(User, { foreignKey: "User_Id", as: "User" });
-
-//? Mentor ↔ User (one to many)
-User.hasMany(Mentor, { foreignKey: "User_Id", as: "Mentors" });
-Mentor.belongsTo(User, { foreignKey: "User_Id", as: "User" });
-//? Manager ↔ User (one to many)
-User.hasMany(Manager, { foreignKey: "User_Id", as: "Managers" });
-Manager.belongsTo(User, { foreignKey: "User_Id", as: "User" });
-
-//? Halakat ↔ Supervisor (One-to-Many)
-Supervisor.hasMany(Halakat, { foreignKey: "SupervisorId", as: "Halakat" });
-Halakat.belongsTo(Supervisor, { foreignKey: "SupervisorId", as: "Supervisor" });
 
 
-//? Halakat ↔ Mentor (One-to-Many)
-Mentor.hasMany(Halakat, { foreignKey: "MentorId", as: "Halakat" });
-Halakat.belongsTo(Mentor, { foreignKey: "MentorId", as: "Mentor" });
+
 
 
 
@@ -94,8 +84,5 @@ module.exports = {
   MonthlyRating,
   DailyProgress,
   Notification,
-  Teacher,
-  Supervisor,
-  Mentor,
-  Manager,
+  Aria,
 };

@@ -1,9 +1,8 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-class Halakat extends Model {}
-
-Halakat.init(
+class Aria extends Model {}
+Aria.init(
   {
     Id: {
       type: DataTypes.INTEGER,
@@ -14,33 +13,25 @@ Halakat.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    studentsCount: {
-      type: DataTypes.INTEGER,
+    Location: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    TeacherId: {
+    CenterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
-        key: "Id",
-      },
-    },
-    AriaId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "arias",
+        model: "centers",
         key: "Id",
       },
     },
   },
   {
     sequelize,
-    tableName: "halakat",
-    modelName: "Halakat",
-    timestamps: true,
+    modelName: "Aria",
+    tableName: "arias",
+    timestamps: false,
   }
 );
 
-module.exports = Halakat;
+module.exports = Aria;

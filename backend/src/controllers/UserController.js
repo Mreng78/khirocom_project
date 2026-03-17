@@ -3,211 +3,111 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
-const Student = require("../models/student");
-const Manager = require("../models/Manager");
-const Supervisor = require("../models/Supervisor");
-const Mentor = require("../models/Mentor");
-const Teacher = require("../models/Teacher");
 
-exports.Adduser = async (req, res) => {
+
+exports.AddUser = async (req, res) =>
+{
   try {
-    const { role, Username, Password, Name, Email, PhoneNumber, Role: userRole } = req.body;
-
-    if (role === "مشرف") {
-      const { Supervisor: supervisorData } = req.body;
-      const hashedPassword = await bcrypt.hash(Password, 10);
-
-      const user = await User.create({
-        Name,
-        Username,
-        Password: hashedPassword,
-        Email,
-        PhoneNumber,
-        Role: userRole,
-      });
-
-      const supervisor = await Supervisor.create({
-        ...supervisorData,
-        User_Id: user.Id,
-      });
-
-      return res.status(201).json({
-        message: "User and Supervisor created successfully",
-        user,
-        supervisor,
-      });
-    } else if (role === "طالب") {
-      const { Student: studentData } = req.body;
-      const hashedPassword = await bcrypt.hash(Password, 10);
-
-      const user = await User.create({
-        Name,
-        Username,
-        Password: hashedPassword,
-        Email,
-        PhoneNumber,
-        Role: userRole,
-      });
-
-      const student = await Student.create({
-        ...studentData,
-        User_Id: user.Id,
-      });
-
-      return res.status(201).json({
-        message: "User and Student created successfully",
-        user,
-        student,
-      });
-    } else if (role === "موجه") {
-      const { Mentor: mentorData } = req.body;
-      const hashedPassword = await bcrypt.hash(Password, 10);
-
-      const user = await User.create({
-        Name,
-        Username,
-        Password: hashedPassword,
-        Email,
-        PhoneNumber,
-        Role: userRole,
-      });
-
-      const mentor = await Mentor.create({
-        ...mentorData,
-        User_Id: user.Id,
-      });
-
-      return res.status(201).json({
-        message: "User and Mentor created successfully",
-        user,
-        mentor,
-      });
-    } else if (role === "مدرس") {
-      const { Teacher: teacherData } = req.body;
-      const hashedPassword = await bcrypt.hash(Password, 10);
-
-      const user = await User.create({
-        Name,
-        Username,
-        Password: hashedPassword,
-        Email,
-        PhoneNumber,
-        Role: userRole,
-      });
-
-      const teacher = await Teacher.create({
-        ...teacherData,
-        User_Id: user.Id,
-      });
-
-      return res.status(201).json({
-        message: "User and Teacher created successfully",
-        user,
-        teacher,
-      });
-    } else {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
-
-exports.getsupervisor = async (req, res) => {
-  try {
-    const supervisors = await Supervisor.findAll({
-      include: [
-        {
-          model: User,
-          as: "User",
-        },
-      ],
+    const hashedPassword = await bcrypt.hash(req.body.Password, 10);
+    const user = await User.create({
+      Username: req.body.Username,
+      Password: hashedPassword,
+      Name: req.body.Name,
+      PhoneNumber: req.body.PhoneNumber,
+      AvtarUrl: req.body.AvtarUrl,
+      Gender: req.body.Gender,
+      Age: req.body.Age,
+      EducationLevel: req.body.EducationLevel,
+      Role: req.body.Role,
+      Salary: req.body.Salary || 0,
+      Address: req.body.Address || "",
+      AvtarUrl: req.body.AvtarUrl || "",
+      Gender: req.body.Gender || "ذكر",
+      Age: req.body.Age || 0,
+      EducationLevel: req.body.EducationLevel || "",
+      AreaId: req.body.AreaId || null,
     });
-    return res.status(200).json({ supervisors });
+    return res.status(201).json({ message:`تم إضافة ${req.body.Name} بنجاح`, user });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
+
 exports.Login = async (req, res) => {
   try {
-    const role = req.body.role;
-
+    
+    
     const { Username, Password } = req.body;
-
-    let user;
-
-    if (role === "admin") {
-      user = await User.findOne({
-        where: { Username: Username },
-      });
-    } else if (role === "manager") {
-      user = await User.findOne({
-        where: { Username: Username },
-        include: [
-          {
-            model: Manager,
-            as: "Managers",
-          },
-        ],
-      });
-    } else if (role === "student") {
-      user = await User.findOne({
-        where: { Username: Username },
-        include: [
-          {
-            model: Student,
-            as: "Students",
-          },
-        ],
-      });
-    } else if (role === "supervisor") {
-      user = await User.findOne({
-        where: { Username: Username },
-        include: [
-          {
-            model: Supervisor,
-            as: "Supervisors",
-          },
-        ],
-      });
-    } else if (role === "mentor") {
-      user = await User.findOne({
-        where: { Username: Username },
-        include: [
-          {
-            model: Mentor,
-            as: "Mentors",
-          },
-        ],
-      });
-    } else {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
+    
+    const user = await User.findOne({
+      where: { Username: Username },
+    });
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
-
     const isPasswordMatch = await bcrypt.compare(Password, user.Password);
 
     if (!isPasswordMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
-
     const token = jwt.sign({ Id: user.Id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "7d",
     });
-
-    console.log(token);
-
-    return res.status(200).json({
-      message: "Login successful",
-      user,
-      token,
-    });
-  } catch (err) {
-    res.status(500).json({
-      error: err.message,
-    });
+    return res.status(200).json({ message: "Login successful", user, token });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
+
+
+exports.GetUsers=async(req,res)=>{
+  try {
+    const users = await User.findAll();
+    return res.status(200).json({ users });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+exports.GetUserByName=async(req,res)=>{
+  try {
+    const name = req.body.Name;
+    const user = await User.findOne({
+      where: { Name:name },
+    });
+    return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+
+exports.UpdateUser=async(req,res)=>{
+  try{
+    const user = await User.findOne({
+      where: { Id: req.params.Id },
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const updatedUser = await User.update(req.body, {
+      where: { Id: req.params.Id },
+    });
+    return res.status(200).json({ message: "User updated successfully", updatedUser: user.toJSON() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.DeleteUser=async(req,res)=>{
+  try{
+    const id = req.body.Id;
+    const user = await User.destroy({
+      where: { Id: id },
+    });
+    return res.status(200).json({ message: "User deleted successfully", user });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}

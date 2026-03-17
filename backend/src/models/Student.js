@@ -10,22 +10,25 @@ Student.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    // Name: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false,
-    // },
-    Gender: {
-      type: DataTypes.ENUM("ذكر", "أنثى"),
+    Name: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    // Username: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false,
-    // },
-    // Password: {
-    //   type: DataTypes.STRING(256),
-    //   allowNull: false,
-    // },
+    Gender: {
+      type: DataTypes.ENUM("ذكر", "أنثى"),
+      defaultValue: "ذكر",
+      allowNull: false,
+    },
+    Username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      
+    },
+    Password: {
+      type: DataTypes.STRING(256),
+      defaultValue: "12345",
+      allowNull: false,
+    },
     Age: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -38,7 +41,7 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    imageUrl: {
+    ImageUrl: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -83,7 +86,14 @@ Student.init(
     tableName: "students",
     modelName: "Student",
     timestamps: true,
-  }
+    hooks: {
+      beforeCreate: (student) => {
+        if (!student.Username) {
+          student.Username = student.phoneNumber;
+        }
+      },
+    },
+  },
 );
 
 module.exports = Student;
