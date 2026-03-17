@@ -24,35 +24,66 @@ User.init(
   Password: {
     type: DataTypes.STRING(255),
     allowNull: false,
+    defaultValue: "12345",
   },
-
-  Email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-
   PhoneNumber: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 
-  Avatar: {
+  AvatarUrl: {
     type: DataTypes.STRING,
     allowNull: true,
   },
 
   Role: {
-    type: DataTypes.ENUM("admin", "teacher", "supervisor", "manager"),
-    defaultValue: "teacher",
+      type: DataTypes.ENUM("admin", "مدرس", "مشرف", "موجه", "طالب", "مدير"),
+    defaultValue: "مدرس",
     allowNull: false,
   },
-
+  Gender: {
+        type: DataTypes.ENUM("ذكر", "أنثى"),
+        allowNull: false,
+    },
+    Age: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    EducationLevel: {
+        type: DataTypes.STRING(256),
+        allowNull: false,
+    },
+    Salary: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+    },
+    AreaId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+        references: {
+            model: "arias",
+            key: "Id",
+        },
+    },
+    Address: {
+        type: DataTypes.STRING(256),
+        allowNull: false,
+    },
 },
 {
   sequelize,
   tableName: "users",
   modelName: "User",
-  timestamps: true
+  timestamps: true,
+  hooks: {
+    beforeCreate: (user) => {
+      if (!user.Username) {
+        user.Username = user.PhoneNumber;
+      }
+    },
+  },
 }
 );
 

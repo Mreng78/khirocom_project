@@ -16,14 +16,17 @@ Student.init(
     },
     Gender: {
       type: DataTypes.ENUM("ذكر", "أنثى"),
+      defaultValue: "ذكر",
       allowNull: false,
     },
     Username: {
       type: DataTypes.STRING,
       allowNull: false,
+      
     },
     Password: {
       type: DataTypes.STRING(256),
+      defaultValue: "12345",
       allowNull: false,
     },
     Age: {
@@ -38,7 +41,7 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    imageUrl: {
+    ImageUrl: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -60,6 +63,15 @@ Student.init(
       defaultValue: "أقل من 5 أجزاء",
       allowNull: false,
     },
+    User_Id:
+    {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "Id",
+      },
+    },
     HalakatId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -74,7 +86,14 @@ Student.init(
     tableName: "students",
     modelName: "Student",
     timestamps: true,
-  }
+    hooks: {
+      beforeCreate: (student) => {
+        if (!student.Username) {
+          student.Username = student.phoneNumber;
+        }
+      },
+    },
+  },
 );
 
 module.exports = Student;

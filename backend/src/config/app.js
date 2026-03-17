@@ -3,9 +3,11 @@ const express = require('express');
 const app =express();
 
 const UserRoutes = require('../routes/userRoutes');
+const CenterRoutes = require('../routes/centerRoutes');
 
 app.use(express.json());
-app.use('/api/users', UserRoutes);
+app.use('/users', UserRoutes);
+app.use('/centers', CenterRoutes);
 
 app.get('/',(req,res)=>
 {

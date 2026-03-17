@@ -1,6 +1,6 @@
 const sequelize = require("../config/database");
 
-// استيراد جميع الموديلات
+
 const User = require("./User");
 const Center = require("./Center");
 const Halakat = require("./Halakat");
@@ -9,20 +9,35 @@ const StudentPlane = require("./StudentPlane");
 const MonthlyRating = require("./MonthlyRating");
 const DailyProgress = require("./DailyProgress");
 const Notification = require("./Notification");
+const Aria = require("./Aria");
 
-// تعريف العلاقات بين الموديلات ?
+
+
+//? Area ↔ Center (One-to-many)
+Center.hasMany(Aria, { foreignKey: "CenterId", as: "CenterArias" });
+Aria.belongsTo(Center, { foreignKey: "CenterId", as: "Center" });
+
 
 //? User ↔ Center (One-to-one)
-User.hasOne(Center, { foreignKey: "ManagerId", as: "Center" });
-Center.belongsTo(User, { foreignKey: "ManagerId", as: "Manager" });
+User.hasOne(Center, { foreignKey: "ManagerId", as: "center" });
+Center.belongsTo(User, { foreignKey: "ManagerId", as: "manager" });
 
 //? User ↔ Halakat (One-to-one)
 User.hasOne(Halakat, { foreignKey: "TeacherId", as: "TeacherHalakat" });
 Halakat.belongsTo(User, { foreignKey: "TeacherId", as: "Teacher" });
 
-//? Center ↔ Halakat (One-to-many)
-Center.hasMany(Halakat, { foreignKey: "CenterId", as: "CenterHalakat" });
-Halakat.belongsTo(Center, { foreignKey: "CenterId", as: "Center" });
+//? Aria ↔ Halakat (One-to-many)
+Aria.hasMany(Halakat, { foreignKey: "AriaId", as: "AriaHalakat" });
+Halakat.belongsTo(Aria, { foreignKey: "AriaId", as: "Aria" });
+
+//? Area ↔  User <supervisor> (many-to-many)
+Aria.belongsToMany(User, { through: "SupervisorArias", foreignKey: "AriaId" });
+User.belongsToMany(Aria, { through: "SupervisorArias", foreignKey: "UserId" });
+
+
+//? User ↔  Area <mentor> (many-to-many)
+User.belongsToMany(Aria, { through: "MentorArias", foreignKey: "UserId" });
+Aria.belongsToMany(User, { through: "MentorArias", foreignKey: "AriaId" });
 
 //? Halakat ↔ Student (One-to-Many)
 Halakat.hasMany(Student, { foreignKey: "HalakatId", as: "HalakatStudents" });
@@ -49,6 +64,15 @@ Notification.belongsTo(User, { foreignKey: "UserId", as: "NotificationUser" });
 Student.hasMany(Notification, { foreignKey: "StudentId", as: "StudentNotifications" });
 Notification.belongsTo(Student, { foreignKey: "StudentId", as: "NotificationStudent" });
 
+//? Student ↔ Users (One-to-Many)
+User.hasMany(Student, { foreignKey: "User_Id", as: "Students" });
+Student.belongsTo(User, { foreignKey: "User_Id", as: "User" });
+
+
+
+
+
+
 
 module.exports = {
   sequelize,
@@ -60,4 +84,5 @@ module.exports = {
   MonthlyRating,
   DailyProgress,
   Notification,
+  Aria,
 };
