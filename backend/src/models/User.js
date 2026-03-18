@@ -58,15 +58,6 @@ User.init(
         allowNull: false,
         defaultValue: 0,
     },
-    AreaId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: null,
-        references: {
-            model: "arias",
-            key: "Id",
-        },
-    },
     Address: {
         type: DataTypes.STRING(256),
         allowNull: false,
