@@ -10,7 +10,7 @@ const MonthlyRating = require("./MonthlyRating");
 const DailyProgress = require("./DailyProgress");
 const Notification = require("./Notification");
 const Aria = require("./Aria");
-
+const Graduate=require('./Graduate')
 
 
 //? Area ↔ Center (One-to-many)
@@ -30,14 +30,13 @@ Halakat.belongsTo(User, { foreignKey: "TeacherId", as: "Teacher" });
 Aria.hasMany(Halakat, { foreignKey: "AriaId", as: "AriaHalakat" });
 Halakat.belongsTo(Aria, { foreignKey: "AriaId", as: "Aria" });
 
-//? Area ↔  User <supervisor> (many-to-many)
-Aria.belongsToMany(User, { through: "SupervisorArias", foreignKey: "AriaId" });
-User.belongsToMany(Aria, { through: "SupervisorArias", foreignKey: "UserId" });
+//? Area ↔  User <supervisor> (one-to-one)
+User.hasOne(Aria, { foreignKey: "SupervisorId", as: "SupervisedAria" });
+Aria.belongsTo(User, { foreignKey: "SupervisorId", as: "Supervisor" });
 
-
-//? User ↔  Area <mentor> (many-to-many)
-User.belongsToMany(Aria, { through: "MentorArias", foreignKey: "UserId" });
-Aria.belongsToMany(User, { through: "MentorArias", foreignKey: "AriaId" });
+//? User ↔  Area <mentor> (one-to-one)
+User.hasOne(Aria, { through: "MentorArias", foreignKey: "UserId" });
+Aria.belongsTo(User, { through: "MentorArias", foreignKey: "AriaId" });
 
 //? Halakat ↔ Student (One-to-Many)
 Halakat.hasMany(Student, { foreignKey: "HalakatId", as: "HalakatStudents" });
@@ -68,7 +67,9 @@ Notification.belongsTo(Student, { foreignKey: "StudentId", as: "NotificationStud
 User.hasMany(Student, { foreignKey: "User_Id", as: "Students" });
 Student.belongsTo(User, { foreignKey: "User_Id", as: "User" });
 
-
+//? Student ↔ Graduate (One-to-One)
+Student.hasOne(Graduate, { foreignKey: "StudentId", as: "Graduate" });
+Graduate.belongsTo(Student, { foreignKey: "StudentId", as: "Student" });
 
 
 
@@ -85,4 +86,5 @@ module.exports = {
   DailyProgress,
   Notification,
   Aria,
+  Graduate
 };

@@ -25,7 +25,6 @@ exports.AddUser = async (req, res) =>
       Gender: req.body.Gender || "ذكر",
       Age: req.body.Age || 0,
       EducationLevel: req.body.EducationLevel || "",
-      AreaId: req.body.AreaId || null,
     });
     return res.status(201).json({ message:`تم إضافة ${req.body.Name} بنجاح`, user });
   } catch (error) {
@@ -33,10 +32,18 @@ exports.AddUser = async (req, res) =>
   }
 };
 
+exports.GetUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    return res.status(200).json({ users });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 exports.Login = async (req, res) => {
   try {
-    
-    
+
     const { Username, Password } = req.body;
     
     const user = await User.findOne({
@@ -53,21 +60,24 @@ exports.Login = async (req, res) => {
     const token = jwt.sign({ Id: user.Id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    return res.status(200).json({ message: "Login successful", user, token });
+    return res.status(200).json({ message: "Login successful",
+       userId: user.Id,
+       Name: user.Name,
+       PhoneNumber: user.PhoneNumber,
+       Role: user.Role,
+       AvatarUrl: user.AvtarUrl,
+       Gender: user.Gender,
+       Age: user.Age,
+       EducationLevel: user.EducationLevel,
+       Address: user.Address,
+       token });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
 
-exports.GetUsers=async(req,res)=>{
-  try {
-    const users = await User.findAll();
-    return res.status(200).json({ users });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
+
 
 exports.GetUserByName=async(req,res)=>{
   try {
@@ -81,9 +91,32 @@ exports.GetUserByName=async(req,res)=>{
   }
 }
 
+exports.updateme=async(req,res)=>{
+  try{
+    if (req.body.Password) {
+      req.body.Password = await bcrypt.hash(req.body.Password, 10);
+    }
+    const allowedUpdates = ["Name","Username","Password","PhoneNumber", "AvtarUrl", "Gender", "Age", "EducationLevel", "Address"];
+    const updates = {};
+    for (let key of allowedUpdates) {
+      if (req.body[key]) {
+        updates[key] = req.body[key];
+      }
+    }
+    const user = req.user;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    await user.update(updates);
+    return res.status(200).json({ message: "User updated successfully", user: user.toJSON() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
 
 exports.UpdateUser=async(req,res)=>{
   try{
+    const allowedUpdates = ["Name", "PhoneNumber", "AvtarUrl", "Gender", "Age", "EducationLevel", "Role", "Salary", "Address"];
     const user = await User.findOne({
       where: { Id: req.params.Id },
     });

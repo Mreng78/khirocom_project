@@ -25,6 +25,27 @@ Aria.init(
         key: "Id",
       },
     },
+    SupervisorId:
+    {
+      type:DataTypes.INTEGER,
+      allowNull:false,
+      references:
+      {
+        model:"users",
+        key:"Id",
+      }
+      
+    },
+    MentorId:
+    {
+      type:DataTypes.INTEGER,
+      allowNull:false,
+      references:
+      {
+        model:"users",
+        key:"Id"
+      }
+    }
   },
   {
     sequelize,
