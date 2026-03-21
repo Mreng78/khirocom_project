@@ -14,9 +14,16 @@ Halakat.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    studentsCount: {
-      type: DataTypes.INTEGER,
+    studentsGender: {
+      type: DataTypes.ENUM("ذكور","إناث"),
+      defaultValue:"ذكور",
       allowNull: false,
+    },
+    type:
+    {
+      type:DataTypes.ENUM("قراءة وكتاية","حفظ ومراجعة","إجازة","قراءات"),
+      defaultValue:"حفظ ومراجعة",
+      allowNull:false
     },
     TeacherId: {
       type: DataTypes.INTEGER,

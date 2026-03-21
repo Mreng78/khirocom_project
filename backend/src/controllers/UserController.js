@@ -4,9 +4,57 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
+//* update me endpoint
 
-exports.AddUser = async (req, res) =>
-{
+exports.updateme = async (req, res) => {
+  try {
+    const allowedUpdates = [
+      "Name",
+      "Username",
+      "Password",
+      "PhoneNumber",
+      "AvtarUrl",
+      "Gender",
+      "Age",
+      "EducationLevel",
+      "Address",
+    ];
+    const updates = {};
+
+    for (let key of allowedUpdates) {
+    
+      if (req.body.hasOwnProperty(key)) {
+        
+        if (key === "Password" && req.body[key]) {
+          updates[key] = await bcrypt.hash(req.body[key], 10);
+        } else {
+          updates[key] = req.body[key];
+        }
+      }
+    }
+
+    const user = req.user;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
+    await user.update(updates);
+    return res
+      .status(200)
+      .json({ message: "User updated successfully", user: user.toJSON() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// !for admin to control users information
+
+// *Add User
+exports.AddUser = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.Password, 10);
     const user = await User.create({
@@ -26,12 +74,15 @@ exports.AddUser = async (req, res) =>
       Age: req.body.Age || 0,
       EducationLevel: req.body.EducationLevel || "",
     });
-    return res.status(201).json({ message:`تم إضافة ${req.body.Name} بنجاح`, user });
+    return res
+      .status(201)
+      .json({ message: `تم إضافة ${req.body.Name} بنجاح`, user });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
+// *Get All Users
 exports.GetUsers = async (req, res) => {
   try {
     const users = await User.findAll();
@@ -41,11 +92,11 @@ exports.GetUsers = async (req, res) => {
   }
 };
 
+// *Login
 exports.Login = async (req, res) => {
   try {
-
     const { Username, Password } = req.body;
-    
+
     const user = await User.findOne({
       where: { Username: Username },
     });
@@ -60,81 +111,55 @@ exports.Login = async (req, res) => {
     const token = jwt.sign({ Id: user.Id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    return res.status(200).json({ message: "Login successful",
-       userId: user.Id,
-       Name: user.Name,
-       PhoneNumber: user.PhoneNumber,
-       Role: user.Role,
-       AvatarUrl: user.AvtarUrl,
-       Gender: user.Gender,
-       Age: user.Age,
-       EducationLevel: user.EducationLevel,
-       Address: user.Address,
-       token });
+    return res
+      .status(200)
+      .json({
+        message: "Login successful",
+        userId: user.Id,
+        Name: user.Name,
+        PhoneNumber: user.PhoneNumber,
+        Role: user.Role,
+        AvatarUrl: user.AvtarUrl,
+        Gender: user.Gender,
+        Age: user.Age,
+        EducationLevel: user.EducationLevel,
+        Address: user.Address,
+        token,
+      });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-
-
-
-exports.GetUserByName=async(req,res)=>{
+// *Get User By Name
+exports.GetUserByName = async (req, res) => {
   try {
     const name = req.body.Name;
     const user = await User.findOne({
-      where: { Name:name },
+      where: { Name: name },
     });
     return res.status(200).json({ user });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-}
+};
 
-exports.updateme=async(req,res)=>{
-  try{
-    if (req.body.Password) {
-      req.body.Password = await bcrypt.hash(req.body.Password, 10);
-    }
-    const allowedUpdates = ["Name","Username","Password","PhoneNumber", "AvtarUrl", "Gender", "Age", "EducationLevel", "Address"];
-    const updates = {};
-    for (let key of allowedUpdates) {
-      if (req.body[key]) {
-        updates[key] = req.body[key];
-      }
-    }
-    const user = req.user;
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    await user.update(updates);
-    return res.status(200).json({ message: "User updated successfully", user: user.toJSON() });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
-
-exports.UpdateUser=async(req,res)=>{
-  try{
-    const allowedUpdates = ["Name", "PhoneNumber", "AvtarUrl", "Gender", "Age", "EducationLevel", "Role", "Salary", "Address"];
-    const user = await User.findOne({
-      where: { Id: req.params.Id },
+// *Update User
+exports.UpdateUser = async (req, res) => {
+  try {
+    const id = req.body.Id;
+    const user = await User.update(req.body, {
+      where: { Id: id },
     });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const updatedUser = await User.update(req.body, {
-      where: { Id: req.params.Id },
-    });
-    return res.status(200).json({ message: "User updated successfully", updatedUser: user.toJSON() });
+    return res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 
-
-exports.DeleteUser=async(req,res)=>{
-  try{
+// *Delete User
+exports.DeleteUser = async (req, res) => {
+  try {
     const id = req.body.Id;
     const user = await User.destroy({
       where: { Id: id },
@@ -143,4 +168,19 @@ exports.DeleteUser=async(req,res)=>{
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-}
+};
+
+// *get user by role and areaid
+
+exports.getusersbyroleandareaid = async (req, res) => {
+  try {
+    const role = req.body.Role;
+    const areaId = req.body.AreaId;
+    const users = await User.findAll({
+      where: { Role: role, AreaId: areaId },
+    });
+    return res.status(200).json({ users });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
