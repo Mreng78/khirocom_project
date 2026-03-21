@@ -11,7 +11,7 @@ router.get('/getusers',auth, usercontroller.GetUsers);
 router.get('/getuserbyname',auth, usercontroller.GetUserByName);
 router.put('/updateuser',auth, usercontroller.UpdateUser);
 router.put('/updateme',auth, usercontroller.updateme);
-
+router.get('/getusersbyroleandareaid',auth, usercontroller.getusersbyroleandareaid)
 
 
 module.exports = router;
