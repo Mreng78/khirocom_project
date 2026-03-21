@@ -1,30 +1,25 @@
-require("dotenv").config()
+require("dotenv").config();
 
-const app=require('./src/config/app')
-const sequelize=require('./src/config/database')
+const app = require("./src/config/app");
+const { sequelize } = require("./src/models");
 
+const port = process.env.PORT || 8000;
 
-const port=process.env.PORT || 8000;
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    console.log("Database connected");
 
+    app.listen(port, () => {
+      console.log(`The server is listening on port ${port}`);
+    });
 
-async function startServer()
-{
-    try{
-        await sequelize.authenticate();
-        console.log('Database connected');
-
-        await sequelize.sync({alter:true});
-
-        app.listen(port,()=>
-        {
-            console.log(`The server is listening on port ${port}`);
-        })
-
-    }
-    catch(error)
-    {
-        console.error(error);
-    }
+    console.log("Registered models:", Object.keys(sequelize.models));
+    await sequelize.sync({ alter: true });
+    console.log("Database synced successfully!");
+  } catch (error) {
+    console.error("Failed to start server:", error);
+  }
 }
 
 startServer();
