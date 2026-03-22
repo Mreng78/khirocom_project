@@ -30,13 +30,13 @@ Halakat.belongsTo(User, { foreignKey: "TeacherId", as: "Teacher" });
 Aria.hasMany(Halakat, { foreignKey: "AriaId", as: "AriaHalakat" });
 Halakat.belongsTo(Aria, { foreignKey: "AriaId", as: "Aria" });
 
-//? Area ↔  User <supervisor> (one-to-one)
-User.hasOne(Aria, { foreignKey: "SupervisorId", as: "SupervisedAria" });
+//? Area ↔  User <supervisor> ( many-to-one)
+User.hasMany(Aria, { foreignKey: "SupervisorId", as: "SupervisedAria" });
 Aria.belongsTo(User, { foreignKey: "SupervisorId", as: "Supervisor" });
 
-//? User ↔  Area <mentor> (one-to-one)
-User.hasOne(Aria, { through: "MentorArias", foreignKey: "UserId" });
-Aria.belongsTo(User, { through: "MentorArias", foreignKey: "AriaId" });
+//? User ↔  Area <mentor> (many-to-one)
+User.hasMany(Aria, { foreignKey: "MentorId", as: "MentoredAria" });
+Aria.belongsTo(User, { foreignKey: "MentorId", as: "Mentor" });
 
 //? Halakat ↔ Student (One-to-Many)
 Halakat.hasMany(Student, { foreignKey: "HalakatId", as: "HalakatStudents" });

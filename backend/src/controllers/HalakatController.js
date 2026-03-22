@@ -244,8 +244,10 @@ exports.gethalaqahbyareaid=async (req, res) => {
 exports.deletehalaqah = async (req, res) => {
   try {
     const id = req.body.Id;
-    const halaqah = await Halakat.destroy({ where: { id: id } });
-    return res.status(200).json({ message: "تم حذف الحلقة", halaqah });
+    const halaqah = await Halakat.destroy({
+      where: { id: id }
+    });
+    return res.status(200).json({ message: "تم حذف الحلقه بنجاح", halaqah });
   } catch (error) {
     return res.status(500).json({ message: "خطأ أثناء حذف الحلقة", error });
   }
