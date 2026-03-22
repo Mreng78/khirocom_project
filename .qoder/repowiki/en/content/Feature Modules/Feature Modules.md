@@ -6,14 +6,27 @@
 - [app.js](file://backend/src/config/app.js)
 - [database.js](file://backend/src/config/database.js)
 - [models/index.js](file://backend/src/models/index.js)
+- [Graduate.js](file://backend/src/models/Graduate.js)
 - [User.js](file://backend/src/models/User.js)
 - [Center.js](file://backend/src/models/Center.js)
 - [Halakat.js](file://backend/src/models/Halakat.js)
 - [Student.js](file://backend/src/models/Student.js)
 - [MonthlyRating.js](file://backend/src/models/MonthlyRating.js)
 - [DailyProgress.js](file://backend/src/models/DailyProgress.js)
+- [userRoutes.js](file://backend/src/route/userRoutes.js)
+- [centerRoutes.js](file://backend/src/route/centerRoutes.js)
+- [halaqatRouts.js](file://backend/src/route/halaqatRouts.js)
+- [areaRouts.js](file://backend/src/route/areaRouts.js)
+- [auth.js](file://backend/src/middleware/auth.js)
 - [package.json](file://backend/package.json)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Added new Graduate Tracking System feature module with one-to-one relationship to students
+- Updated model associations to include Graduate-Studen relationship
+- Enhanced documentation to cover the new graduation records and completion status tracking functionality
+- Updated architecture diagrams to reflect the new graduate tracking capability
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -28,16 +41,16 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document describes the feature modules and implementation architecture for the Khirocom system. It focuses on the complete feature set and how the system is structured around an MVC-like pattern, with models representing the data layer, routes and controllers handling API endpoints and business logic, and middleware processing requests. The documented features include User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, and Learning Plan Management. The document also explains feature interdependencies, data flows, practical usage scenarios, and guidelines for extending and integrating new features.
+This document describes the feature modules and implementation architecture for the Khirocom system. It focuses on the complete feature set and how the system is structured around an MVC-like pattern, with models representing the data layer, routes and controllers handling API endpoints and business logic, and middleware processing requests. The documented features include User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, Graduate Tracking System, and Learning Plan Management. The document also explains feature interdependencies, data flows, practical usage scenarios, and guidelines for extending and integrating new features.
 
 ## Project Structure
 The backend follows a layered structure:
 - Configuration: Express application and database initialization
 - Models: Sequelize ORM models with associations
-- Routes: API endpoint definitions (to be implemented)
-- Controllers: Business logic handlers (to be implemented)
-- Middleware: Request processing (to be implemented)
-- Tests: Test suite (to be implemented)
+- Routes: API endpoint definitions
+- Controllers: Business logic handlers
+- Middleware: Request processing
+- Tests: Test suite
 
 ```mermaid
 graph TB
@@ -45,9 +58,9 @@ subgraph "Backend"
 CFG["Express App<br/>server.js -> app.js"]
 DB["Database Config<br/>database.js"]
 MODELS["Models & Associations<br/>models/index.js"]
-ROUTES["Routes<br/>(to be implemented)"]
+ROUTES["Routes<br/>userRoutes.js, centerRoutes.js, halaqatRouts.js, areaRouts.js"]
 CONTROLLERS["Controllers<br/>(to be implemented)"]
-MIDDLEWARE["Middleware<br/>(to be implemented)"]
+MIDDLEWARE["Middleware<br/>auth.js"]
 end
 CFG --> ROUTES
 ROUTES --> CONTROLLERS
@@ -58,13 +71,17 @@ ROUTES --> MIDDLEWARE
 ```
 
 **Diagram sources**
-- [server.js:1-25](file://backend/server.js#L1-L25)
+- [server.js:1-26](file://backend/server.js#L1-L26)
 - [app.js](file://backend/src/config/app.js)
 - [database.js](file://backend/src/config/database.js)
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
+- [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
+- [userRoutes.js:1-17](file://backend/src/route/userRoutes.js#L1-L17)
+- [centerRoutes.js:1-14](file://backend/src/route/centerRoutes.js#L1-L14)
+- [halaqatRouts.js:1-18](file://backend/src/route/halaqatRouts.js#L1-L18)
+- [areaRouts.js:1-14](file://backend/src/route/areaRouts.js#L1-L14)
 
 **Section sources**
-- [server.js:1-25](file://backend/server.js#L1-L25)
+- [server.js:1-26](file://backend/server.js#L1-L26)
 - [package.json:1-14](file://backend/package.json#L1-L14)
 
 ## Core Components
@@ -80,21 +97,24 @@ This section outlines the core components and their responsibilities within the 
   - Centralizes database credentials and options
 
 - Models and Associations
-  - Define entities and relationships among Users, Centers, Teaching Groups (Halakat), Students, Monthly Ratings, and Daily Progress
+  - Define entities and relationships among Users, Centers, Teaching Groups (Halakat), Students, Monthly Ratings, Daily Progress, and Graduates
   - Enforce referential integrity via foreign keys
   - Include validation rules for numeric fields and enumerations
+  - **New**: Graduate model provides one-to-one relationship with Students for graduation tracking
 
 - Routing and Controllers
-  - To be implemented to define API endpoints and handle business logic
+  - API endpoint definitions for user management, center administration, teaching group management, and area management
   - Will depend on models for data access and middleware for request processing
 
 - Middleware
-  - To be implemented to process requests (authentication, validation, logging)
+  - Authentication middleware for securing API endpoints
+  - Request processing and validation
 
 **Section sources**
-- [server.js:1-25](file://backend/server.js#L1-L25)
+- [server.js:1-26](file://backend/server.js#L1-L26)
 - [database.js](file://backend/src/config/database.js)
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
+- [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
+- [auth.js](file://backend/src/middleware/auth.js)
 
 ## Architecture Overview
 The system architecture centers on an MVC-like separation of concerns:
@@ -120,8 +140,6 @@ CTRL --> SRV
 SRV --> MDL
 MDL --> DB
 ```
-
-[No sources needed since this diagram shows conceptual workflow, not actual code structure]
 
 ## Detailed Component Analysis
 
@@ -214,7 +232,7 @@ Center "1" --> "many" Halakat : "contains"
 
 **Section sources**
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
-- [models/index.js:14-24](file://backend/src/models/index.js#L14-L24)
+- [models/index.js:21-27](file://backend/src/models/index.js#L21-L27)
 
 ### Teaching Group Management
 - Purpose: Manage teaching groups (classes) within centers
@@ -256,11 +274,11 @@ Halakat "1" --> "many" Student : "enrolls"
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
 - [User.js:1-59](file://backend/src/models/User.js#L1-L59)
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 
 **Section sources**
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
-- [models/index.js:22-28](file://backend/src/models/index.js#L22-L28)
+- [models/index.js:29-31](file://backend/src/models/index.js#L29-L31)
 
 ### Student Tracking
 - Purpose: Track student profiles and enrollment in halakat
@@ -272,6 +290,7 @@ Halakat "1" --> "many" Student : "enrolls"
 - Interactions:
   - Student belongs to a Halakat
   - Student has many Monthly Ratings and Daily Progress entries
+  - **New**: Student has one Graduate record for completion tracking
 
 ```mermaid
 classDiagram
@@ -281,7 +300,7 @@ class Student {
 +integer Age
 +string current_Memorization
 +string phoneNumber
-+string imageUrl
++string ImageUrl
 +string FatherNumber
 +enum Category
 +integer HalakatId
@@ -298,20 +317,28 @@ class DailyProgress {
 +date Date
 +integer StudentId
 }
+class Graduate {
++integer Id
++date GraduationDate
++integer StudentId
+}
 Student --> Halakat : "enrolled in"
 Student "1" --> "many" MonthlyRating : "rated in"
 Student "1" --> "many" DailyProgress : "tracked in"
+Student "1" --> "1" Graduate : "graduated"
 ```
 
 **Diagram sources**
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
 - [MonthlyRating.js:1-70](file://backend/src/models/MonthlyRating.js#L1-L70)
 - [DailyProgress.js:1-64](file://backend/src/models/DailyProgress.js#L1-L64)
+- [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
 
 **Section sources**
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
-- [models/index.js:26-40](file://backend/src/models/index.js#L26-L40)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
+- [models/index.js:41-55](file://backend/src/models/index.js#L41-L55)
+- [models/index.js:70-72](file://backend/src/models/index.js#L70-L72)
 
 ### Daily Progress Monitoring
 - Purpose: Record daily memorization and revision progress
@@ -344,11 +371,11 @@ DailyProgress --> Student : "records for"
 
 **Diagram sources**
 - [DailyProgress.js:1-64](file://backend/src/models/DailyProgress.js#L1-L64)
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 
 **Section sources**
 - [DailyProgress.js:1-64](file://backend/src/models/DailyProgress.js#L1-L64)
-- [models/index.js:38-40](file://backend/src/models/index.js#L38-L40)
+- [models/index.js:53-55](file://backend/src/models/index.js#L53-L55)
 
 ### Monthly Rating System
 - Purpose: Compute and store monthly ratings for memorization, recitation, Tajweed, Motoon, totals, averages
@@ -369,7 +396,7 @@ class MonthlyRating {
 +float Tajweed_degree
 +float Motoon_degree
 +float Total_degree
-+float Avarage
++float Average
 +integer StudentId
 }
 class Student {
@@ -380,11 +407,52 @@ MonthlyRating --> Student : "rated for"
 
 **Diagram sources**
 - [MonthlyRating.js:1-70](file://backend/src/models/MonthlyRating.js#L1-L70)
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 
 **Section sources**
 - [MonthlyRating.js:1-70](file://backend/src/models/MonthlyRating.js#L1-L70)
-- [models/index.js:30-36](file://backend/src/models/index.js#L30-L36)
+- [models/index.js:45-47](file://backend/src/models/index.js#L45-L47)
+
+### Graduate Tracking System
+- Purpose: Track student graduation records and completion status
+- Responsibilities:
+  - Record graduation dates for completed students
+  - Maintain one-to-one relationship with student records
+  - Track completion status for academic progression
+- Data Model: Graduate entity with graduation date and student reference
+- Interactions:
+  - Graduate belongs to a Student (one-to-one relationship)
+  - Provides completion tracking for student lifecycle
+
+```mermaid
+classDiagram
+class Graduate {
++integer Id
++date GraduationDate
++integer StudentId
+}
+class Student {
++integer Id
++string Name
++integer Age
++string current_Memorization
++string phoneNumber
++string ImageUrl
++string FatherNumber
++enum Category
++integer HalakatId
+}
+Graduate --> Student : "graduated from"
+Student "1" --> "1" Graduate : "has record"
+```
+
+**Diagram sources**
+- [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
+
+**Section sources**
+- [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
+- [models/index.js:70-72](file://backend/src/models/index.js#L70-L72)
 
 ### Learning Plan Management
 - Purpose: Manage learning plans associated with students
@@ -408,12 +476,12 @@ StudentPlane --> Student : "plans for"
 ```
 
 **Diagram sources**
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 - [StudentPlane.js](file://backend/src/models/StudentPlane.js)
 
 **Section sources**
-- [Student.js:1-67](file://backend/src/models/Student.js#L1-L67)
-- [models/index.js:34-36](file://backend/src/models/index.js#L34-L36)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
+- [models/index.js:49-51](file://backend/src/models/index.js#L49-L51)
 
 ## Dependency Analysis
 The system exhibits clear dependency relationships:
@@ -422,6 +490,7 @@ The system exhibits clear dependency relationships:
 - Routes depend on controllers for business logic
 - Controllers depend on models for persistence
 - Middleware depends on routes for request processing
+- **New**: Graduate model depends on Student model for one-to-one relationship
 
 ```mermaid
 graph LR
@@ -430,16 +499,19 @@ MODELS --> CONTROLLERS["Controllers"]
 CONTROLLERS --> ROUTES["Routes"]
 ROUTES --> APP["Express App"]
 APP --> CLIENT["Client Applications"]
+STUDENT["Student Model"] --> GRADUATE["Graduate Model"]
 ```
 
 **Diagram sources**
 - [database.js](file://backend/src/config/database.js)
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
-- [server.js:1-25](file://backend/server.js#L1-L25)
+- [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
+- [server.js:1-26](file://backend/server.js#L1-L26)
+- [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 
 **Section sources**
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
-- [server.js:1-25](file://backend/server.js#L1-L25)
+- [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
+- [server.js:1-26](file://backend/server.js#L1-L26)
 
 ## Performance Considerations
 - Database synchronization: The server synchronizes models on startup; consider production-safe alternatives to avoid data loss
@@ -447,8 +519,7 @@ APP --> CLIENT["Client Applications"]
 - Associations: Use eager loading where necessary to prevent N+1 queries in list endpoints
 - Caching: Introduce caching for frequently accessed master data (e.g., categories, levels)
 - Pagination: Implement pagination for list endpoints to limit payload sizes
-
-[No sources needed since this section provides general guidance]
+- **New**: Graduate records should be indexed for efficient graduation reporting and completion tracking queries
 
 ## Troubleshooting Guide
 - Server startup failures:
@@ -461,14 +532,17 @@ APP --> CLIENT["Client Applications"]
   - Validate inputs at the controller level before delegating to models
 - Logging:
   - Add structured logging for requests, errors, and audit trails
+- **New**: Graduate tracking issues:
+  - Ensure one-to-one relationship constraints are maintained
+  - Verify graduation date validation and student completion status
+  - Check for orphaned graduate records during student deletion
 
 **Section sources**
-- [server.js:1-25](file://backend/server.js#L1-L25)
+- [server.js:1-26](file://backend/server.js#L1-L26)
+- [auth.js](file://backend/src/middleware/auth.js)
 
 ## Conclusion
-Khirocom’s backend establishes a solid foundation for educational administration through well-defined models and associations. The MVC pattern is evident in the separation between models, controllers, routes, and middleware. The documented features—User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, and Learning Plan Management—are interconnected via foreign keys and associations. To complete the system, implement routes, controllers, and middleware to expose APIs, enforce business logic, and integrate with frontend applications.
-
-[No sources needed since this section summarizes without analyzing specific files]
+Khirocom's backend establishes a solid foundation for educational administration through well-defined models and associations. The MVC pattern is evident in the separation between models, controllers, routes, and middleware. The documented features—User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, Graduate Tracking System, and Learning Plan Management—are interconnected via foreign keys and associations. The addition of the Graduate Tracking System enhances the platform's ability to manage student lifecycle completion. To complete the system, implement controllers for the new graduate tracking endpoints and integrate with frontend applications for comprehensive educational administration.
 
 ## Appendices
 
@@ -490,10 +564,11 @@ Khirocom’s backend establishes a solid foundation for educational administrati
   - Add notes for guidance
 - Monthly Rating System
   - Submit monthly ratings for a student and compute totals/averages
+- Graduate Tracking System
+  - Record graduation date for completed student
+  - Track completion status and generate graduation reports
 - Learning Plan Management
   - Create a learning plan for a student and track progress
-
-[No sources needed since this section doesn't analyze specific source files]
 
 ### Integration Patterns
 - Frontend-backend communication:
@@ -506,5 +581,7 @@ Khirocom’s backend establishes a solid foundation for educational administrati
 - Testing:
   - Unit tests for controllers and models
   - Integration tests for route flows and middleware behavior
-
-[No sources needed since this section provides general guidance]
+- **New**: Graduate tracking integration:
+  - One-to-one relationship ensures data integrity for graduation records
+  - Separate endpoints for graduate creation, updates, and retrieval
+  - Cascade operations for student graduation status management

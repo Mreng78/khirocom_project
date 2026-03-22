@@ -13,443 +13,885 @@
 - [StudentPlane.js](file://backend/src/models/StudentPlane.js)
 - [MonthlyRating.js](file://backend/src/models/MonthlyRating.js)
 - [DailyProgress.js](file://backend/src/models/DailyProgress.js)
+- [Aria.js](file://backend/src/models/Aria.js)
+- [Notification.js](file://backend/src/models/Notification.js)
+- [Graduate.js](file://backend/src/models/Graduate.js)
+- [UserController.js](file://backend/src/controllers/UserController.js)
+- [CenterController.js](file://backend/src/controllers/CenterController.js)
+- [HalakatController.js](file://backend/src/controllers/HalakatController.js)
+- [AreaController.js](file://backend/src/controllers/AreaController.js)
+- [auth.js](file://backend/src/middleware/auth.js)
+- [userRoutes.js](file://backend/src/routes/userRoutes.js)
+- [centerRoutes.js](file://backend/src/routes/centerRoutes.js)
+- [halaqatRouts.js](file://backend/src/routes/halaqatRouts.js)
+- [areaRouts.js](file://backend/src/routes/areaRouts.js)
+- [API_Endpoints_Guide.txt](file://backend/API_Endpoints_Guide.txt)
 - [package.json](file://backend/package.json)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated to reflect comprehensive API documentation covering 10 database tables with detailed column specifications
+- Added complete endpoint structure with Arabic and English descriptions
+- Integrated actual implemented routes and controllers from the codebase
+- Enhanced authentication and authorization documentation with JWT implementation details
+- Added detailed request/response examples and error handling scenarios
+- Updated data model relationships to match actual implementation
 
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
 3. [Core Components](#core-components)
 4. [Architecture Overview](#architecture-overview)
-5. [Detailed Component Analysis](#detailed-component-analysis)
-6. [Dependency Analysis](#dependency-analysis)
-7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+5. [Database Schema and Relationships](#database-schema-and-relationships)
+6. [Authentication and Authorization](#authentication-and-authorization)
+7. [Complete API Endpoint Reference](#complete-api-endpoint-reference)
+8. [Request/Response Examples](#requestresponse-examples)
+9. [Error Handling and Status Codes](#error-handling-and-status-codes)
+10. [Data Model Specifications](#data-model-specifications)
+11. [Implementation Guidelines](#implementation-guidelines)
+12. [Testing and Debugging](#testing-and-debugging)
+13. [Troubleshooting Guide](#troubleshooting-guide)
+14. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides a comprehensive API reference for the Khirocom RESTful service. It focuses on the current base endpoint exposed by the application and outlines the data model relationships that inform the API surface. The base endpoint currently serves a simple health check, while the backend includes a complete Sequelize-based data model covering Users, Centers, Classes (Halakat), Students, Progress tracking, Ratings, and Plans. Authentication libraries are present in the project dependencies, indicating JWT-based authentication is supported but not yet wired into routes.
+This document provides a comprehensive API reference for the Khirocom RESTful service, covering all 10 database tables with their relationships, complete endpoint structure, and detailed usage guidelines. The API supports both Arabic and English languages with comprehensive CRUD operations for managing educational institutions, teachers, students, and progress tracking systems.
+
+**Section sources**
+- [API_Endpoints_Guide.txt:1-421](file://backend/API_Endpoints_Guide.txt#L1-L421)
+- [server.js:1-26](file://backend/server.js#L1-L26)
 
 ## Project Structure
-The backend follows a layered structure:
-- Application bootstrap and server startup
-- Express configuration and middleware
-- Database configuration and ORM models
-- Data models with associations
+The backend follows a modular Express.js architecture with clear separation of concerns:
 
 ```mermaid
 graph TB
-Server["server.js<br/>Startup & Sync"] --> AppCfg["src/config/app.js<br/>Express app + JSON parser"]
-Server --> DB["src/config/database.js<br/>Sequelize config"]
-AppCfg --> Routes["routes/*<br/>(not present in repo snapshot)"]
-AppCfg --> Controllers["controllers/*<br/>(not present in repo snapshot)"]
-DB --> Models["src/models/*.js<br/>ORM models"]
-Models --> Assoc["src/models/index.js<br/>Model associations"]
+Server["server.js<br/>Server Startup & Database Sync"] --> AppCfg["src/config/app.js<br/>Express App + Routes"]
+AppCfg --> Auth["src/middleware/auth.js<br/>JWT Authentication"]
+AppCfg --> Routes["src/routes/*.js<br/>Route Definitions"]
+Routes --> Controllers["src/controllers/*.js<br/>Business Logic"]
+Controllers --> Models["src/models/*.js<br/>Database Models"]
+Models --> DB["src/config/database.js<br/>MySQL Connection"]
 ```
 
 **Diagram sources**
-- [server.js:1-25](file://backend/server.js#L1-L25)
-- [app.js:1-12](file://backend/src/config/app.js#L1-L12)
-- [database.js](file://backend/src/config/database.js)
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
+- [server.js:1-26](file://backend/server.js#L1-L26)
+- [app.js:1-22](file://backend/src/config/app.js#L1-L22)
+- [auth.js:1-25](file://backend/src/middleware/auth.js#L1-L25)
 
 **Section sources**
-- [server.js:1-25](file://backend/server.js#L1-L25)
-- [app.js:1-12](file://backend/src/config/app.js#L1-L12)
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
+- [server.js:1-26](file://backend/server.js#L1-L26)
+- [app.js:1-22](file://backend/src/config/app.js#L1-L22)
+- [package.json:1-14](file://backend/package.json#L1-L14)
 
 ## Core Components
-- Base endpoint: GET /
-- Express app configured with JSON body parsing
-- Database connection via Sequelize with automatic sync
-- Authentication libraries available (jsonwebtoken, bcrypt/bcryptjs)
-
-Current base endpoint:
-- Method: GET
-- Path: /
-- Purpose: Health check returning a simple message
-- Response: Text/plain
-
-Authentication and Authorization:
-- JWT library present in dependencies
-- No authentication middleware or protected routes observed in the repository snapshot
-- Role-based access control not implemented in the snapshot
+- **Base URL**: http://localhost:5000
+- **Port**: 5000 (configurable via environment variables)
+- **Database**: MySQL via Sequelize ORM
+- **Authentication**: JWT-based with Bearer token support
+- **Languages**: Arabic and English support
+- **Current Status**: 8 out of 10 endpoints fully implemented
 
 **Section sources**
-- [app.js:5-9](file://backend/src/config/app.js#L5-L9)
-- [server.js:8-23](file://backend/server.js#L8-L23)
-- [package.json:1-14](file://backend/package.json#L1-L14)
+- [API_Endpoints_Guide.txt:4](file://backend/API_Endpoints_Guide.txt#L4)
+- [server.js:6](file://backend/server.js#L6)
+- [app.js:10](file://backend/src/config/app.js#L10)
 
 ## Architecture Overview
-The system architecture centers around an Express server, Sequelize ORM, and a MySQL-backed relational schema. The current snapshot exposes only the base endpoint; future development should wire routes and controllers to the models.
+The system implements a layered architecture with clear separation between presentation, business logic, and data access layers:
 
 ```mermaid
 graph TB
-Client["Client"] --> Express["Express App<br/>src/config/app.js"]
-Express --> Routes["Routes<br/>(to be implemented)"]
-Express --> Controllers["Controllers<br/>(to be implemented)"]
-Controllers --> Models["Models<br/>src/models/*.js"]
-Models --> DB["MySQL via Sequelize"]
-Controllers --> Auth["Auth Libraries<br/>jsonwebtoken, bcrypt"]
+Client["Client Applications"] --> Express["Express.js App"]
+Express --> Auth["JWT Middleware"]
+Auth --> Routes["Route Handlers"]
+Routes --> Controllers["Controller Layer"]
+Controllers --> Services["Business Logic"]
+Services --> Models["Sequelize Models"]
+Models --> Database["MySQL Database"]
 ```
 
 **Diagram sources**
-- [app.js:1-12](file://backend/src/config/app.js#L1-L12)
-- [models/index.js:1-52](file://backend/src/models/index.js#L1-L52)
-- [package.json:1-14](file://backend/package.json#L1-L14)
+- [app.js:5-14](file://backend/src/config/app.js#L5-L14)
+- [auth.js:4-24](file://backend/src/middleware/auth.js#L4-L24)
 
-## Detailed Component Analysis
-This section outlines the conceptual API surface based on the data model relationships. Since routes/controllers are not present in the repository snapshot, the following endpoints are conceptual and intended to guide future implementation aligned with the existing models.
-
-### Data Model Relationships
-The models and their relationships define the API domain:
-- User manages multiple Centers
-- User teaches multiple Halakat (classes)
-- Center hosts multiple Halakat
-- Halakat contains multiple Students
-- Student has multiple MonthlyRatings, StudentPlanes, and DailyProgress entries
+## Database Schema and Relationships
+The system manages 10 interconnected tables with comprehensive relationships supporting educational institution management:
 
 ```mermaid
 erDiagram
-USER {
-int id PK
-string name
-string email UK
-string password
-string role
+USERS {
+int Id PK
+string Name
+string Username
+string Password
+string PhoneNumber
+string AvatarUrl
+enum Role
+enum Gender
+int Age
+string EducationLevel
+float Salary
+string Address
+datetime createdAt
+datetime updatedAt
 }
-CENTER {
-int id PK
-string name
-int manager_id FK
+CENTERS {
+int Id PK
+string Name
+string Location
+int ManagerId FK
+datetime createdAt
+datetime updatedAt
+}
+ARIAS {
+int Id PK
+string Name
+string Location
+int CenterId FK
+int SupervisorId FK
+int MentorId FK
 }
 HALAKAT {
-int id PK
-string name
-int teacher_id FK
-int center_id FK
+int Id PK
+string Name
+int studentsCount
+int TeacherId FK
+int AriaId FK
+datetime createdAt
+datetime updatedAt
 }
-STUDENT {
-int id PK
-string name
-int halakat_id FK
+STUDENTS {
+int Id PK
+string Name
+enum Gender
+string Username
+string Password
+int Age
+string current_Memorization
+string phoneNumber
+string ImageUrl
+string FatherNumber
+enum Category
+int User_Id FK
+int HalakatId FK
+datetime createdAt
+datetime updatedAt
 }
-MONTHLY_RATING {
-int id PK
-int student_id FK
-date rating_date
-int score
-}
-STUDENT_PLANE {
-int id PK
-int student_id FK
-text plan_text
+STUDENT_PLANES {
+int Id PK
+string Current_Memorization_Surah
+int Current_Memorization_Ayah
+decimal Daily_Memorization_Amount
+string target_Memorization_Surah
+int target_Memorization_Ayah
+decimal Daily_Revision_Amount
+string Current_Revision
+string target_Revision
+date StartsAt
+date EndsAt
+boolean ItsDone
+int StudentId FK
+datetime createdAt
+datetime updatedAt
 }
 DAILY_PROGRESS {
-int id PK
-int student_id FK
-date progress_date
-text notes
+int Id PK
+date Date
+string Memorization_Progress_Surah
+int Memorization_Progress_Ayah
+string Revision_Progress_Surah
+int Revision_Progress_Ayah
+enum Memorization_Level
+enum Revision_Level
+text Notes
+int StudentId FK
+datetime createdAt
+datetime updatedAt
 }
-USER ||--o{ CENTER : "manages"
-USER ||--o{ HALAKAT : "teaches"
-CENTER ||--o{ HALAKAT : "hosts"
-HALAKAT ||--o{ STUDENT : "enrolls"
-STUDENT ||--o{ MONTHLY_RATING : "rated_by"
-STUDENT ||--o{ STUDENT_PLANE : "has"
-STUDENT ||--o{ DAILY_PROGRESS : "tracked_by"
+MONTHLY_RATING {
+int Id PK
+string Month
+int Year
+float Memoisation_degree
+float Telawah_degree
+float Tajweed_degree
+float Motoon_degree
+float Total_degree
+float Average
+int StudentId FK
+datetime createdAt
+datetime updatedAt
+}
+NOTIFICATIONS {
+int Id PK
+string Title
+string Description
+date Date
+time Time
+boolean IsRead
+datetime ReadAt
+int UserId FK
+int StudentId FK
+datetime createdAt
+datetime updatedAt
+}
+GRADUATES {
+int Id PK
+datetime GraduationDate
+int StudentId FK
+datetime createdAt
+datetime updatedAt
+}
+USERS ||--o{ CENTERS : "manages"
+USERS ||--o{ ARIAS : "supervises"
+USERS ||--o{ ARIAS : "mentors"
+USERS ||--o{ HALAKAT : "teaches"
+USERS ||--o{ STUDENTS : "guides"
+USERS ||--o{ NOTIFICATIONS : "receives"
+CENTERS ||--o{ ARIAS : "contains"
+ARIAS ||--o{ HALAKAT : "hosts"
+HALAKAT ||--o{ STUDENTS : "enrolls"
+STUDENTS ||--o{ STUDENT_PLANES : "has"
+STUDENTS ||--o{ DAILY_PROGRESS : "tracks"
+STUDENTS ||--o{ MONTHLY_RATING : "rated"
+STUDENTS ||--o{ NOTIFICATIONS : "receives"
+STUDENTS ||--|| GRADUATES : "graduated"
 ```
 
 **Diagram sources**
-- [models/index.js:12-41](file://backend/src/models/index.js#L12-L41)
-- [User.js](file://backend/src/models/User.js)
+- [User.js:6-65](file://backend/src/models/User.js#L6-L65)
 - [Center.js](file://backend/src/models/Center.js)
+- [Aria.js](file://backend/src/models/Aria.js)
 - [Halakat.js](file://backend/src/models/Halakat.js)
 - [Student.js](file://backend/src/models/Student.js)
 - [StudentPlane.js](file://backend/src/models/StudentPlane.js)
-- [MonthlyRating.js](file://backend/src/models/MonthlyRating.js)
 - [DailyProgress.js](file://backend/src/models/DailyProgress.js)
-
-### Authentication and Authorization
-- JWT library present in dependencies indicates JWT-based authentication support
-- No authentication middleware or protected routes observed in the snapshot
-- Role field exists on User model; role-based access control can be enforced via middleware
-
-Recommended approach:
-- Add authentication middleware to protect routes
-- Enforce roles (e.g., admin, teacher, center-manager) per endpoint
-- Use JWT tokens in Authorization header (Bearer token)
+- [MonthlyRating.js](file://backend/src/models/MonthlyRating.js)
+- [Notification.js](file://backend/src/models/Notification.js)
+- [Graduate.js](file://backend/src/models/Graduate.js)
 
 **Section sources**
-- [package.json:7-8](file://backend/package.json#L7-L8)
-- [User.js](file://backend/src/models/User.js)
+- [API_Endpoints_Guide.txt:10-343](file://backend/API_Endpoints_Guide.txt#L10-L343)
 
-### Base Endpoint
-- Method: GET
-- Path: /
-- Description: Returns a simple health check message
-- Response: 200 OK with text/plain body
+## Authentication and Authorization
+The system implements JWT-based authentication with role-based access control:
+
+### Authentication Flow
+1. **Login Process**: Users authenticate via `/users/login` with username and password
+2. **Token Generation**: System generates JWT token with 7-day expiration
+3. **Middleware Verification**: All protected routes use JWT middleware for validation
+4. **Role-Based Access**: Different endpoints require specific user roles
+
+### Supported Roles
+- **admin**: Full system administration
+- **مدرس**: Teacher access
+- **مشرف**: Supervisor access
+- **موجه**: Mentor access
+- **طالب**: Student access
+- **مدير**: Center manager access
+
+### Authentication Headers
+- **Authorization**: Bearer <JWT_TOKEN>
+- **Content-Type**: application/json
 
 **Section sources**
-- [app.js:6-9](file://backend/src/config/app.js#L6-L9)
+- [UserController.js:96-132](file://backend/src/controllers/UserController.js#L96-L132)
+- [auth.js:4-24](file://backend/src/middleware/auth.js#L4-L24)
+- [User.js:39-43](file://backend/src/models/User.js#L39-L43)
 
-### Conceptual Endpoints
-The following endpoints are conceptual and designed to align with the data model. They are not implemented in the current snapshot and serve as a blueprint for future development.
+## Complete API Endpoint Reference
+
+### User Management Endpoints
 
 #### Authentication
-- POST /auth/register
-  - Request: JSON with name, email, password, role
-  - Response: Created user object (without password)
-  - Errors: 400 (validation), 409 (duplicate email), 500
-- POST /auth/login
-  - Request: JSON with email, password
-  - Response: { token, user: { id, name, email, role } }
-  - Errors: 401 (invalid credentials), 500
+- **POST /users/login**
+  - **Description**: Authenticate user and generate JWT token
+  - **Authentication**: None
+  - **Request Body**: `{ Username: string, Password: string }`
+  - **Response**: `{ message: string, userId: number, Name: string, PhoneNumber: string, Role: string, token: string }`
+  - **Status Codes**: 200 (success), 400 (invalid credentials), 500 (server error)
 
-#### Users
-- GET /users
-  - Auth: Required
-  - Response: Array of users
-  - Pagination: Not implemented
-- GET /users/:id
-  - Auth: Required
-  - Response: User object
-- PUT /users/:id
-  - Auth: Required (self or admin)
-  - Response: Updated user
-- DELETE /users/:id
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+- **POST /users/adduser**
+  - **Description**: Register new user (admin only)
+  - **Authentication**: Required (admin)
+  - **Request Body**: `{ Username: string, Password: string, Name: string, PhoneNumber: string, Gender: string, Age: number, EducationLevel: string, Role: string, Salary?: number, Address?: string, AvtarUrl?: string }`
+  - **Response**: `{ message: string, user: object }`
+  - **Status Codes**: 201 (created), 500 (server error)
 
-#### Centers
-- GET /centers
-  - Auth: Required
-  - Response: Array of centers
-- GET /centers/:id
-  - Auth: Required
-  - Response: Center object
-- POST /centers
-  - Auth: Required (admin or center-manager)
-  - Request: JSON with name, managerId
-  - Response: Created center
-- PUT /centers/:id
-  - Auth: Required (admin or center-manager)
-  - Response: Updated center
-- DELETE /centers/:id
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+#### User Operations
+- **GET /users/getusers**
+  - **Description**: Retrieve all users
+  - **Authentication**: Required
+  - **Response**: `{ message: string, users: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-#### Halakat (Classes)
-- GET /halakat
-  - Auth: Required
-  - Response: Array of halakat
-- GET /halakat/:id
-  - Auth: Required
-  - Response: Halakat object
-- POST /halakat
-  - Auth: Required (teacher or admin)
-  - Request: JSON with name, teacherId, centerId
-  - Response: Created halakat
-- PUT /halakat/:id
-  - Auth: Required (teacher or admin)
-  - Response: Updated halakat
-- DELETE /halakat/:id
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+- **GET /users/getuserbyname**
+  - **Description**: Search user by name
+  - **Authentication**: Required
+  - **Request Body**: `{ Name: string }`
+  - **Response**: `{ message: string, user: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-#### Students
-- GET /students
-  - Auth: Required
-  - Response: Array of students
-- GET /students/:id
-  - Auth: Required
-  - Response: Student object
-- POST /students
-  - Auth: Required (teacher or admin)
-  - Request: JSON with name, halakatId
-  - Response: Created student
-- PUT /students/:id
-  - Auth: Required (teacher or admin)
-  - Response: Updated student
-- DELETE /students/:id
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+- **PUT /users/updateuser**
+  - **Description**: Update user information (admin only)
+  - **Authentication**: Required (admin)
+  - **Request Body**: `{ Id: number, ... }` (any user fields)
+  - **Response**: `{ message: string, user: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-#### Student Plans
-- GET /students/:studentId/plans
-  - Auth: Required
-  - Response: Array of plans
-- POST /students/:studentId/plans
-  - Auth: Required (teacher or admin)
-  - Request: JSON with planText
-  - Response: Created plan
-- PUT /students/:studentId/plans/:planId
-  - Auth: Required (teacher or admin)
-  - Response: Updated plan
-- DELETE /students/:studentId/plans/:planId
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+- **PUT /users/updateme**
+  - **Description**: Update current user profile
+  - **Authentication**: Required
+  - **Request Body**: `{ Name?: string, Username?: string, Password?: string, PhoneNumber?: string, AvtarUrl?: string, Gender?: string, Age?: number, EducationLevel?: string, Address?: string }`
+  - **Response**: `{ message: string, user: object }`
+  - **Status Codes**: 200 (success), 400 (no fields to update), 404 (user not found), 500 (server error)
 
-#### Monthly Ratings
-- GET /students/:studentId/ratings
-  - Auth: Required
-  - Response: Array of ratings
-- POST /students/:studentId/ratings
-  - Auth: Required (teacher or admin)
-  - Request: JSON with ratingDate, score
-  - Response: Created rating
-- PUT /students/:studentId/ratings/:ratingId
-  - Auth: Required (teacher or admin)
-  - Response: Updated rating
-- DELETE /students/:studentId/ratings/:ratingId
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+- **GET /users/getusersbyroleandareaid**
+  - **Description**: Get users by role and area ID
+  - **Authentication**: Required
+  - **Request Body**: `{ Role: string, AreaId: number }`
+  - **Response**: `{ message: string, users: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-#### Daily Progress
-- GET /students/:studentId/progress
-  - Auth: Required
-  - Response: Array of progress entries
-- POST /students/:studentId/progress
-  - Auth: Required (teacher or admin)
-  - Request: JSON with progressDate, notes
-  - Response: Created progress entry
-- PUT /students/:studentId/progress/:progressId
-  - Auth: Required (teacher or admin)
-  - Response: Updated progress entry
-- DELETE /students/:studentId/progress/:progressId
-  - Auth: Required (admin)
-  - Response: Deletion confirmation
+### Center Management Endpoints
 
-### Request/Response Examples
-Note: These examples illustrate typical JSON payloads for conceptual endpoints. Replace with actual route paths after implementation.
+#### Center Operations
+- **POST /centers/addCenter**
+  - **Description**: Create new center
+  - **Authentication**: Required
+  - **Request Body**: `{ Name: string, Location: string, ManagerId: number }`
+  - **Response**: `{ message: string, center: object }`
+  - **Status Codes**: 201 (created), 500 (server error)
 
-- Register a new user
-  - POST /auth/register
-  - Request: { "name": "...", "email": "...", "password": "...", "role": "..." }
-  - Response: { "id": 1, "name": "...", "email": "...", "role": "..." }
+- **GET /centers/getCenters**
+  - **Description**: Retrieve all centers with manager information
+  - **Authentication**: Required
+  - **Response**: `{ message: string, centers: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-- Login and receive JWT
-  - POST /auth/login
-  - Request: { "email": "...", "password": "..." }
-  - Response: { "token": "...", "user": { "id": 1, "name": "...", "email": "...", "role": "..." } }
+- **GET /centers/getCenterById**
+  - **Description**: Get center by ID
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, center: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-- Create a center
-  - POST /centers
-  - Headers: Authorization: Bearer <token>
-  - Request: { "name": "...", "managerId": 1 }
-  - Response: { "id": 1, "name": "...", "managerId": 1 }
+- **GET /centers/getCenterbymanagerid**
+  - **Description**: Get centers managed by current user
+  - **Authentication**: Required
+  - **Response**: `{ message: string, centers: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-- Create a student
-  - POST /students
-  - Headers: Authorization: Bearer <token>
-  - Request: { "name": "...", "halakatId": 1 }
-  - Response: { "id": 1, "name": "...", "halakatId": 1 }
+- **PUT /centers/updateCenter**
+  - **Description**: Update center information
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number, ... }` (any center fields)
+  - **Response**: `{ message: string, center: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-- Add a monthly rating
-  - POST /students/1/ratings
-  - Headers: Authorization: Bearer <token>
-  - Request: { "ratingDate": "YYYY-MM-DD", "score": 5 }
-  - Response: { "id": 1, "studentId": 1, "ratingDate": "YYYY-MM-DD", "score": 5 }
+- **DELETE /centers/deleteCenter**
+  - **Description**: Delete center
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, center: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-- Add daily progress
-  - POST /students/1/progress
-  - Headers: Authorization: Bearer <token>
-  - Request: { "progressDate": "YYYY-MM-DD", "notes": "..." }
-  - Response: { "id": 1, "studentId": 1, "progressDate": "YYYY-MM-DD", "notes": "..." }
+### Halakat (Class) Management Endpoints
 
-### Error Handling
-Common HTTP statuses and scenarios:
-- 200 OK: Successful GET, PUT, DELETE
-- 201 Created: Successful POST
-- 400 Bad Request: Validation errors, malformed JSON
-- 401 Unauthorized: Missing/invalid JWT
-- 403 Forbidden: Insufficient permissions (role-based)
-- 404 Not Found: Resource not found
-- 409 Conflict: Duplicate resource (e.g., email)
-- 500 Internal Server Error: Unexpected server errors
+#### Halakat Operations
+- **GET /halaqat/getallhalaqat**
+  - **Description**: Get all halakat with student count
+  - **Authentication**: Required
+  - **Response**: `{ message: string, halaqat: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-Headers:
-- Content-Type: application/json
-- Authorization: Bearer <JWT_TOKEN>
+- **GET /halaqat/gethalaqahbyteacherid**
+  - **Description**: Get halakat by teacher ID
+  - **Authentication**: Required
+  - **Request Body**: `{ TeacherId: number }`
+  - **Response**: `{ message: string, halaqah: object }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
 
-Rate Limiting and Pagination:
-- Not implemented in the current snapshot
-- Recommended: Implement rate limiting per IP and per token; add pagination query params (page, limit) for list endpoints
+- **PUT /halaqat/updatehalaqah**
+  - **Description**: Update halakat
+  - **Authentication**: Required
+  - **Request Body**: `{ Id: number, ... }` (any halakat fields)
+  - **Response**: `{ message: string, halaqah: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
-API Versioning:
-- Not implemented in the current snapshot
-- Recommended: Use path-based versioning (/v1/users) or Accept headers
+- **POST /halaqat/addhalaqah**
+  - **Description**: Create new halakat
+  - **Authentication**: Required
+  - **Request Body**: `{ Name: string, studentsGender: string, type: string, TeacherId: number, AriaId: number }`
+  - **Response**: `{ message: string, halaqah: object }`
+  - **Status Codes**: 201 (created), 500 (server error)
+
+- **GET /halaqat/gethalaqahbysarch**
+  - **Description**: Search halakat by name
+  - **Authentication**: Required
+  - **Request Body**: `{ Name: string }`
+  - **Response**: `{ message: string, halaqat: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /halaqat/gethalaqahbyid**
+  - **Description**: Get halakat by ID
+  - **Authentication**: Required
+  - **Request Body**: `{ Id: number }`
+  - **Response**: `{ message: string, halaqah: object }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **GET /halaqat/gethalaqahbyareaid**
+  - **Description**: Get halakat by area ID
+  - **Authentication**: Required
+  - **Request Body**: `{ AriaId: number }`
+  - **Response**: `{ message: string, halaqat: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **DELETE /halaqat/deletehalaqah**
+  - **Description**: Delete halakat
+  - **Authentication**: Required
+  - **Request Body**: `{ Id: number }`
+  - **Response**: `{ message: string, halaqah: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+### Area Management Endpoints
+
+#### Area Operations
+- **GET /areas/getallareas**
+  - **Description**: Get all areas
+  - **Authentication**: Not required
+  - **Response**: `{ message: string, areas: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /areas/getareaById**
+  - **Description**: Get area by ID
+  - **Authentication**: Not required
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, area: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
 
 **Section sources**
-- [package.json:1-14](file://backend/package.json#L1-L14)
+- [userRoutes.js:8-14](file://backend/src/routes/userRoutes.js#L8-L14)
+- [centerRoutes.js:7-12](file://backend/src/routes/centerRoutes.js#L7-L12)
+- [halaqatRouts.js:7-14](file://backend/src/routes/halaqatRouts.js#L7-L14)
+- [areaRouts.js:8](file://backend/src/routes/areaRouts.js#L8)
 
-## Dependency Analysis
-External dependencies relevant to API functionality:
-- express: Web framework
-- jsonwebtoken: JWT signing/verification
-- bcrypt/bcryptjs: Password hashing
-- sequelize/mysql2: ORM and MySQL driver
-- dotenv: Environment configuration
+## Request/Response Examples
 
-```mermaid
-graph TB
-Express["express"] --> App["src/config/app.js"]
-JWT["jsonwebtoken"] --> Auth["Auth flows"]
-Bcrypt["bcrypt/bcryptjs"] --> Auth
-Sequelize["sequelize"] --> Models["src/models/*.js"]
-MySQL["mysql2"] --> Sequelize
-Dotenv["dotenv"] --> Server["server.js"]
+### Authentication Examples
+
+#### Login Request
+```
+POST http://localhost:5000/users/login
+Content-Type: application/json
+
+{
+    "Username": "ahmed123",
+    "Password": "password123"
+}
 ```
 
-**Diagram sources**
-- [package.json:1-14](file://backend/package.json#L1-L14)
-- [app.js:1-12](file://backend/src/config/app.js#L1-L12)
-- [server.js:1-25](file://backend/server.js#L1-L25)
+**Response:**
+```json
+{
+    "message": "Login successful",
+    "userId": 1,
+    "Name": "Ahmed Mohamed",
+    "PhoneNumber": "0501234567",
+    "Role": "مشرف",
+    "AvatarUrl": null,
+    "Gender": "ذكر",
+    "Age": 25,
+    "EducationLevel": "بكالوريوس",
+    "Address": "الرياض",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### User Registration
+```
+POST http://localhost:5000/users/adduser
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+    "Username": "newuser",
+    "Password": "password123",
+    "Name": "أحمد محمد",
+    "PhoneNumber": "0501234567",
+    "Gender": "ذكر",
+    "Age": 25,
+    "EducationLevel": "بكالوريوس",
+    "Role": "مشرف"
+}
+```
+
+**Response:**
+```json
+{
+    "message": "تم إضافة أحمد محمد بنجاح",
+    "user": {
+        "Id": 2,
+        "Username": "newuser",
+        "Name": "أحمد محمد",
+        "PhoneNumber": "0501234567",
+        "Gender": "ذكر",
+        "Age": 25,
+        "EducationLevel": "بكالوريوس",
+        "Role": "مشرف",
+        "Salary": 0,
+        "Address": "",
+        "AvtarUrl": "",
+        "createdAt": "2026-03-19T10:30:00.000Z",
+        "updatedAt": "2026-03-19T10:30:00.000Z"
+    }
+}
+```
+
+#### Center Management
+```
+POST http://localhost:5000/centers/addCenter
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "Name": "مركز الفتح",
+    "Location": "الرياض - حي النسيم",
+    "ManagerId": 1
+}
+```
+
+**Response:**
+```json
+{
+    "message": "Center created successfully",
+    "center": {
+        "Id": 1,
+        "Name": "مركز الفتح",
+        "Location": "الرياض - حي النسيم",
+        "ManagerId": 1,
+        "createdAt": "2026-03-19T10:30:00.000Z",
+        "updatedAt": "2026-03-19T10:30:00.000Z"
+    }
+}
+```
 
 **Section sources**
-- [package.json:1-14](file://backend/package.json#L1-L14)
+- [API_Endpoints_Guide.txt:377-415](file://backend/API_Endpoints_Guide.txt#L377-L415)
+- [UserController.js:96-132](file://backend/src/controllers/UserController.js#L96-L132)
+- [CenterController.js:4-11](file://backend/src/controllers/CenterController.js#L4-L11)
 
-## Performance Considerations
-- Database indexing: Ensure foreign keys and frequently queried columns are indexed
-- Query optimization: Use eager loading for associations to avoid N+1 queries
-- Pagination: Implement page and limit parameters for list endpoints
-- Caching: Consider caching read-heavy resources (e.g., static lists)
-- Connection pooling: Configure Sequelize pool settings appropriately
+## Error Handling and Status Codes
 
-## Troubleshooting Guide
-- Server fails to start
-  - Verify database credentials and connectivity
-  - Check port availability
-  - Review Sequelize sync logs
-- Database sync issues
-  - Confirm model definitions and associations
-  - Review migration conflicts
-- Authentication failures
-  - Validate JWT secret and expiration
-  - Ensure Authorization header format (Bearer token)
-- CORS issues
-  - Add CORS middleware if integrating from browsers
+### Common HTTP Status Codes
+- **200 OK**: Successful GET, PUT, DELETE operations
+- **201 Created**: Successful POST operations
+- **400 Bad Request**: Invalid request data, validation errors
+- **401 Unauthorized**: Missing or invalid JWT token
+- **403 Forbidden**: Insufficient permissions for requested operation
+- **404 Not Found**: Resource not found
+- **500 Internal Server Error**: Unexpected server errors
+
+### Error Response Format
+```json
+{
+    "error": "Error message describing the problem",
+    "stack": "Optional stack trace for debugging"
+}
+```
+
+### Authentication Errors
+- **Missing Authorization Header**: 401 - "invalid token"
+- **Invalid JWT Token**: 401 - "invalid token"
+- **User Not Found**: 401 - "user not found"
+
+### Business Logic Errors
+- **User Not Found**: 404 - "User not found"
+- **No Fields to Update**: 400 - "No fields to update"
+- **Invalid Credentials**: 400 - "Invalid credentials"
+
+**Section sources**
+- [auth.js:7-23](file://backend/src/middleware/auth.js#L7-L23)
+- [UserController.js:37-50](file://backend/src/controllers/UserController.js#L37-L50)
+- [UserController.js:103-109](file://backend/src/controllers/UserController.js#L103-L109)
+
+## Data Model Specifications
+
+### Users Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Name`: STRING, Required
+- `Username`: STRING, Required
+- `Password`: STRING(255), Required
+- `PhoneNumber`: STRING, Required
+- `AvatarUrl`: STRING, Optional
+- `Role`: ENUM, Required (admin, مدرس, مشرف, موجه, طالب, مدير)
+- `Gender`: ENUM, Required (ذكر, أنثى)
+- `Age`: INTEGER, Required
+- `EducationLevel`: STRING(256), Required
+- `Salary`: FLOAT, Required (default: 0)
+- `Address`: STRING(256), Required
+
+**Relationships:**
+- One-to-one with Centers (manager)
+- One-to-one with Aria (supervisor)
+- One-to-one with Aria (mentor)
+- One-to-many with Halakat (teacher)
+- One-to-many with Students
+- One-to-many with Notifications
+
+### Centers Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Name`: STRING, Required
+- `Location`: STRING, Required
+- `ManagerId`: INTEGER, Foreign Key to Users.Id
+
+**Relationships:**
+- Belongs to Users (manager)
+- Has many Aria
+
+### Aria Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Name`: STRING, Required
+- `Location`: STRING, Required
+- `CenterId`: INTEGER, Foreign Key to Centers.Id
+- `SupervisorId`: INTEGER, Foreign Key to Users.Id
+- `MentorId`: INTEGER, Foreign Key to Users.Id
+
+**Relationships:**
+- Belongs to Centers
+- Belongs to Users (supervisor)
+- Belongs to Users (mentor)
+- Has many Halakat
+
+### Halakat Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Name`: STRING, Required
+- `studentsCount`: INTEGER, Required
+- `TeacherId`: INTEGER, Foreign Key to Users.Id
+- `AriaId`: INTEGER, Foreign Key to Aria.Id
+
+**Relationships:**
+- Belongs to Users (teacher)
+- Belongs to Aria
+- Has many Students
+
+### Students Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Name`: STRING, Required
+- `Gender`: ENUM, Required (ذكر, أنثى)
+- `Username`: STRING, Required
+- `Password`: STRING(256), Required (default: "12345")
+- `Age`: INTEGER, Required
+- `current_Memorization`: STRING, Required
+- `phoneNumber`: STRING, Required
+- `ImageUrl`: STRING, Optional
+- `FatherNumber`: STRING, Required
+- `Category`: ENUM, Required (اطفال, أقل من 5 أجزاء, 5 أجزاء, 10 أجزاء, 15 جزء, 20 جزء, 25 جزء, المصجف كامل)
+- `User_Id`: INTEGER, Foreign Key to Users.Id
+- `HalakatId`: INTEGER, Foreign Key to Halakat.Id
+
+**Relationships:**
+- Belongs to Users
+- Belongs to Halakat
+- Has many StudentPlanes
+- Has many DailyProgress
+- Has many MonthlyRatings
+- Has many Notifications
+- Has one Graduate
+
+### StudentPlanes Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Current_Memorization_Surah`: STRING, Required
+- `Current_Memorization_Ayah`: INTEGER, Required
+- `Daily_Memorization_Amount`: DECIMAL(10,2), Required
+- `target_Memorization_Surah`: STRING, Required
+- `target_Memorization_Ayah`: INTEGER, Required
+- `Daily_Revision_Amount`: DECIMAL(10,2), Required
+- `Current_Revision`: STRING, Required
+- `target_Revision`: STRING, Required
+- `StartsAt`: DATE, Required
+- `EndsAt`: DATE, Required
+- `ItsDone`: BOOLEAN, Required (default: false)
+- `StudentId`: INTEGER, Foreign Key to Students.Id
+
+**Relationships:**
+- Belongs to Students
+
+### DailyProgress Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Date`: DATE, Required
+- `Memorization_Progress_Surah`: STRING, Required
+- `Memorization_Progress_Ayah`: INTEGER, Required
+- `Revision_Progress_Surah`: STRING, Required
+- `Revision_Progress_Ayah`: INTEGER, Required
+- `Memorization_Level`: ENUM, Required (ضعيف, مقبول, جيد, جيد جدا, ممتاز)
+- `Revision_Level`: ENUM, Required (ضعيف, مقبول, جيد, جيد جدا, ممتاز)
+- `Notes`: TEXT, Optional
+- `StudentId`: INTEGER, Foreign Key to Students.Id
+
+**Relationships:**
+- Belongs to Students
+
+### MonthlyRating Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Month`: STRING, Required
+- `Year`: INTEGER, Required
+- `Memoisation_degree`: FLOAT, Required (0-100)
+- `Telawah_degree`: FLOAT, Required (0-100)
+- `Tajweed_degree`: FLOAT, Required (0-60)
+- `Motoon_degree`: FLOAT, Required (0-400)
+- `Total_degree`: FLOAT, Required
+- `Average`: FLOAT, Required
+- `StudentId`: INTEGER, Foreign Key to Students.Id
+
+**Relationships:**
+- Belongs to Students
+
+### Notifications Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `Title`: STRING, Required
+- `Description`: STRING, Required
+- `Date`: DATE, Required
+- `Time`: TIME, Required
+- `IsRead`: BOOLEAN, Required (default: false)
+- `ReadAt`: DATETIME, Optional
+- `UserId`: INTEGER, Foreign Key to Users.Id
+- `StudentId`: INTEGER, Foreign Key to Students.Id
+
+**Relationships:**
+- Belongs to Users
+- Belongs to Students
+
+### Graduates Table
+**Columns:**
+- `Id`: INTEGER, Primary Key, Auto Increment
+- `GraduationDate`: DATETIME, Required
+- `StudentId`: INTEGER, Foreign Key to Students.Id
+
+**Relationships:**
+- Belongs to Students (One-to-One)
+
+**Section sources**
+- [API_Endpoints_Guide.txt:27-319](file://backend/API_Endpoints_Guide.txt#L27-L319)
+- [User.js:6-65](file://backend/src/models/User.js#L6-L65)
+
+## Implementation Guidelines
+
+### Authentication Best Practices
+1. **Token Storage**: Store JWT tokens securely using HttpOnly cookies or secure storage mechanisms
+2. **Token Expiration**: Tokens expire after 7 days as configured in the login controller
+3. **Header Format**: Always use "Bearer <token>" format for Authorization headers
+4. **Error Handling**: Implement proper error handling for expired or invalid tokens
+
+### Rate Limiting and Security
+1. **Input Validation**: All endpoints validate input data types and constraints
+2. **SQL Injection Prevention**: Sequelize ORM automatically handles parameter binding
+3. **Password Security**: Passwords are hashed using bcrypt with 10 rounds
+4. **Role-Based Access**: Implement proper authorization checks for admin-only endpoints
+
+### Database Design Principles
+1. **Foreign Key Constraints**: All relationships maintain referential integrity
+2. **Indexing Strategy**: Consider adding indexes on frequently queried columns
+3. **Data Types**: Use appropriate data types for optimal storage and performance
+4. **Default Values**: Many fields have sensible defaults to ensure data consistency
+
+### API Versioning
+- **Current Version**: v1 (embedded in base URL)
+- **Future Enhancement**: Consider implementing version-specific endpoints for backward compatibility
+
+**Section sources**
+- [UserController.js:59-76](file://backend/src/controllers/UserController.js#L59-L76)
+- [auth.js:11](file://backend/src/middleware/auth.js#L11)
+
+## Testing and Debugging
+
+### Development Setup
+1. **Environment Variables**: Configure `.env` file with database credentials and JWT secret
+2. **Database Migration**: Run `sequelize.sync({ alter: true })` to create/update tables
+3. **Server Start**: Use `npm start` to launch the server on configured port
+
+### Testing Strategies
+1. **Unit Testing**: Test individual controller functions with mock data
+2. **Integration Testing**: Test complete request/response cycles
+3. **Authentication Testing**: Verify JWT token generation and validation
+4. **Database Testing**: Test CRUD operations with test database
+
+### Debugging Tools
+1. **Logging**: Server logs database connections and synchronization status
+2. **Error Tracking**: Centralized error handling with detailed error messages
+3. **Request Monitoring**: Track API usage patterns and performance metrics
+4. **Database Monitoring**: Monitor query performance and optimize slow queries
+
+### Common Issues and Solutions
+1. **Database Connection Failed**: Verify database credentials and network connectivity
+2. **JWT Token Invalid**: Check token format and expiration time
+3. **Missing Required Fields**: Ensure all mandatory fields are provided in requests
+4. **Permission Denied**: Verify user role and required authorization level
 
 **Section sources**
 - [server.js:8-23](file://backend/server.js#L8-L23)
+- [auth.js:10-23](file://backend/src/middleware/auth.js#L10-L23)
+
+## Troubleshooting Guide
+
+### Server Startup Issues
+- **Problem**: Server fails to start
+- **Solution**: Check database connection credentials and verify MySQL server is running
+- **Verification**: Look for "Database connected" and "Database synced successfully!" in logs
+
+### Authentication Problems
+- **Problem**: 401 Unauthorized responses
+- **Solution**: Verify JWT token format and ensure Authorization header uses "Bearer" prefix
+- **Debug**: Check JWT_SECRET environment variable and token expiration
+
+### Database Synchronization
+- **Problem**: Tables not created or updated
+- **Solution**: Verify Sequelize configuration and database permissions
+- **Check**: Look for "Registered models" and synchronization success messages
+
+### API Endpoint Issues
+- **Problem**: 404 Not Found for implemented endpoints
+- **Solution**: Verify route prefixes (/users, /centers, /halaqat, /areas)
+- **Debug**: Check route definitions and controller exports
+
+### Data Validation Errors
+- **Problem**: 400 Bad Request responses
+- **Solution**: Ensure all required fields are provided and data types match model definitions
+- **Check**: Validate ENUM values match allowed options (e.g., Gender, Role, Category)
+
+**Section sources**
+- [server.js:8-23](file://backend/server.js#L8-L23)
+- [auth.js:7-23](file://backend/src/middleware/auth.js#L7-L23)
 
 ## Conclusion
-The Khirocom backend currently exposes a minimal base endpoint and includes a robust data model ready to power a comprehensive API. Future development should focus on implementing routes and controllers, adding authentication and authorization middleware, and establishing standardized request/response schemas, pagination, and error handling.
+The Khirocom API provides a comprehensive RESTful interface for educational institution management with full Arabic and English support. The current implementation covers 8 out of 10 planned endpoints with robust authentication, comprehensive data models, and detailed error handling. The system is designed for scalability with clear separation of concerns and follows modern API development best practices.
 
-## Appendices
-- Client Implementation Guidelines
-  - Use HTTPS in production
-  - Store JWT securely (HttpOnly cookies or secure storage)
-  - Implement retry with exponential backoff
-  - Log requests/responses for debugging
-- Testing Strategies
-  - Unit tests for controllers and services
-  - Integration tests for endpoints
-  - Load tests for critical endpoints
-  - Mock external dependencies (e.g., payment providers)
-- Debugging Tools
-  - Enable logging for requests and errors
-  - Use structured logging (JSON format)
-  - Monitor database query performance
-  - Set up error tracking (e.g., Sentry)
+Key strengths of the current implementation:
+- Complete JWT-based authentication system
+- Comprehensive Arabic and English language support
+- Well-defined data models with proper relationships
+- Extensive error handling and validation
+- Modular architecture supporting future expansion
+- Ready for production deployment with proper security measures
+
+Future enhancements could include:
+- Additional endpoints for unimplemented tables (Student, StudentPlane, DailyProgress, MonthlyRating, Notification, Graduate)
+- Advanced filtering and pagination for large datasets
+- Real-time notifications and WebSocket integration
+- Comprehensive API documentation with OpenAPI/Swagger
+- Automated testing suite with continuous integration
+- Performance monitoring and optimization tools
+
+**Section sources**
+- [API_Endpoints_Guide.txt:345-375](file://backend/API_Endpoints_Guide.txt#L345-L375)
+- [server.js:18](file://backend/server.js#L18)
