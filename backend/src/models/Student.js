@@ -29,6 +29,12 @@ Student.init(
       defaultValue: "12345",
       allowNull: false,
     },
+    status:
+    {
+      type:DataTypes.ENUM("مستمر","منقطع","مفصول"),
+      defaultValue:"مستمر",
+      allowNull:false
+    },
     Age: {
       type: DataTypes.INTEGER,
       allowNull: false,
