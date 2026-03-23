@@ -25,6 +25,7 @@
 - Revised entity relationship diagrams to show the updated hierarchy
 - Updated core components section to include Aria model specifications
 - Modified data flow diagrams to reflect the new geographical organizational structure
+- Enhanced relationship mapping documentation with new supervisor/mentor associations
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -96,14 +97,14 @@ This section documents each entity's fields, data types, constraints, and valida
 - Aria
   - Fields: Id (primary key, integer, auto-increment), Name (string, not null), Location (string, not null), CenterId (foreign key to centers.Id, not null), SupervisorId (foreign key to users.Id, not null), MentorId (foreign key to users.Id, not null).
   - Constraints: Foreign keys to Center and User; timestamps disabled.
-  - Note: Aria serves as geographical areas or regions within centers.
+  - Note: Aria serves as geographical areas or regions within centers with many-to-many relationships for supervision and mentoring.
 
 - Halakat
-  - Fields: Id (primary key, integer, auto-increment), Name (string, not null), studentsCount (integer, not null), TeacherId (foreign key to users.Id, not null), AriaId (foreign key to arias.Id, not null).
+  - Fields: Id (primary key, integer, auto-increment), Name (string, not null), studentsGender (enum: ذكور, إناث, default: ذكور, not null), type (enum: قراءة وكتاية, حفظ ومراجعة, إجازة, قراءات, default: حفظ ومراجعة, not null), TeacherId (foreign key to users.Id, not null), AriaId (foreign key to arias.Id, not null).
   - Constraints: Foreign keys to User and Aria; timestamps enabled.
 
 - Student
-  - Fields: Id (primary key, integer, auto-increment), Name (string, not null), Gender (enum: ذكر, أنثى, default: ذكر, not null), Username (string, not null), Password (string length 256, not null, default: "12345"), Age (integer, not null), current_Memorization (string, not null), phoneNumber (string, not null), ImageUrl (string, nullable), FatherNumber (string, not null), Category (enum: اطفال, أقل من 5 أجزاء, 5 أجزاء, 10 أجزاء, 15 جزء, 20 جزء, 25 جزء, المصجف كامل, default: أقل من 5 أجزاء, not null), User_Id (foreign key to users.Id, not null), HalakatId (foreign key to halakat.Id, not null).
+  - Fields: Id (primary key, integer, auto-increment), Name (string, not null), Gender (enum: ذكر, أنثى, default: ذكر, not null), Username (string, not null), Password (string length 256, not null, default: "12345"), status (enum: مستمر, منقطع, مفصول, default: مستمر, not null), Age (integer, not null), current_Memorization (string, not null), phoneNumber (string, not null), ImageUrl (string, nullable), FatherNumber (string, not null), Category (enum: اطفال, أقل من 5 أجزاء, 5 أجزاء, 10 أجزاء, 15 جزء, 20 جزء, 25 جزء, المصجف كامل, default: أقل من 5 أجزاء, not null), User_Id (foreign key to users.Id, not null), HalakatId (foreign key to halakat.Id, not null).
   - Constraints: Foreign keys to User and Halakat; timestamps enabled.
 
 - DailyProgress
@@ -130,8 +131,8 @@ This section documents each entity's fields, data types, constraints, and valida
 - [User.js:1-83](file://backend/src/models/User.js#L1-L83)
 - [Center.js:1-40](file://backend/src/models/Center.js#L1-L40)
 - [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
-- [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
-- [Student.js:1-99](file://backend/src/models/Student.js#L1-L99)
+- [Halakat.js:1-54](file://backend/src/models/Halakat.js#L1-L54)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 - [DailyProgress.js:1-64](file://backend/src/models/DailyProgress.js#L1-L64)
 - [MonthlyRating.js:1-70](file://backend/src/models/MonthlyRating.js#L1-L70)
 - [StudentPlane.js:1-76](file://backend/src/models/StudentPlane.js#L1-L76)
@@ -139,7 +140,7 @@ This section documents each entity's fields, data types, constraints, and valida
 - [Notification.js:1-74](file://backend/src/models/Notification.js#L1-L74)
 
 ## Architecture Overview
-The data model follows a hierarchical structure centered around Users managing Centers, which manage Aria regions that manage Halakat groups, which in turn manage Students. Progress tracking is captured through DailyProgress entries, MonthlyRating records, and StudentPlane plans. The new Aria model introduces geographical organization layers between Centers and Halakat groups.
+The data model follows a hierarchical structure centered around Users managing Centers, which manage Aria regions that manage Halakat groups, which in turn manage Students. Progress tracking is captured through DailyProgress entries, MonthlyRating records, and StudentPlane plans. The new Aria model introduces geographical organization layers between Centers and Halakat groups, with enhanced supervision capabilities through many-to-many relationships for supervisor and mentor roles.
 
 ```mermaid
 erDiagram
@@ -174,7 +175,8 @@ int MentorId FK
 HALAKAT {
 int Id PK
 string Name
-int studentsCount
+enum studentsGender
+enum type
 int TeacherId FK
 int AriaId FK
 }
@@ -184,6 +186,7 @@ string Name
 enum Gender
 string Username
 string Password
+enum status
 int Age
 string current_Memorization
 string phoneNumber
@@ -258,6 +261,8 @@ STUDENTS ||--o{ STUDENT_PLANES : "has"
 STUDENTS ||--o{ GRADUATES : "graduated"
 USERS ||--o{ NOTIFICATIONS : "receives"
 STUDENTS ||--o{ NOTIFICATIONS : "receives"
+USERS ||--o{ ARIAS : "supervises"
+USERS ||--o{ ARIAS : "mentors"
 ```
 
 **Diagram sources**
@@ -287,13 +292,16 @@ STUDENTS ||--o{ NOTIFICATIONS : "receives"
 - Student → Graduate: One-to-One via StudentId.
 - User → Notification: One-to-Many via UserId.
 - Student → Notification: One-to-Many via StudentId.
+- User → Aria (Supervisor): One-to-Many via SupervisorId.
+- User → Aria (Mentor): One-to-Many via MentorId.
 
-**Updated** The relationship structure has been restructured from Center ↔ Halakat to Center → Aria → Halakat, introducing geographical organization layers.
+**Updated** The relationship structure has been restructured from Center ↔ Halakat to Center → Aria → Halakat, introducing geographical organization layers. Additionally, many-to-many relationships have been established between users and areas for supervisor and mentor roles through foreign key relationships.
 
 Constraints:
 - All foreign keys are explicitly defined in the models.
 - Aria model introduces new relationships: Center → Aria (one-to-many), Aria → Halakat (one-to-many).
-- New many-to-many relationships established between users and areas for supervisor and mentor roles.
+- New many-to-many relationships established between users and areas for supervisor and mentor roles through SupervisorId and MentorId foreign keys.
+- Aria model intentionally disables timestamps to avoid unnecessary date tracking for geographical regions.
 
 **Section sources**
 - [index.js:16-72](file://backend/src/models/index.js#L16-L72)
@@ -313,15 +321,17 @@ Constraints:
   - CenterId references centers.Id.
   - SupervisorId references users.Id.
   - MentorId references users.Id.
-  - SupervisorId and MentorId establish many-to-one relationships with User.
+  - SupervisorId and MentorId establish many-to-one relationships with User for supervision and mentoring roles.
 
 - Halakat
   - TeacherId references users.Id.
   - AriaId references arias.Id.
-  - studentsCount is required and non-negative.
+  - studentsGender enum values: ذكور, إناث.
+  - type enum values: قراءة وكتاية, حفظ ومراجعة, إجازة, قراءات.
 
 - Student
   - Gender enum values: ذكر, أنثى.
+  - status enum values: مستمر, منقطع, مفصول.
   - Category enum values: اطفال, أقل من 5 أجزاء, 5 أجزاء, 10 أجزاء, 15 جزء, 20 جزء, 25 جزء, المصجف كامل.
   - User_Id references users.Id.
   - HalakatId references halakat.Id.
@@ -364,12 +374,14 @@ Constraints:
 ### Hierarchical Data Flow
 - User manages multiple Centers and multiple Halakat groups.
 - Center hosts multiple Aria regions.
-- Aria manages multiple Halakat groups.
+- Aria manages multiple Halakat groups and can have multiple supervisors and mentors.
 - Halakat enrolls multiple Students.
 - Student accumulates DailyProgress entries, MonthlyRating records, StudentPlane plans, and Graduate status.
 - Users and Students receive Notifications.
+- Supervisors oversee multiple Aria regions for administrative purposes.
+- Mentors provide guidance and support across multiple Aria regions.
 
-**Updated** The data flow now includes Aria as an intermediate geographical layer between Centers and Halakat groups, with supervisors and mentors assigned to specific areas.
+**Updated** The data flow now includes Aria as an intermediate geographical layer between Centers and Halakat groups, with supervisors and mentors assigned to specific areas. The many-to-many relationships enable flexible administrative oversight and support structures.
 
 ```mermaid
 sequenceDiagram
@@ -388,6 +400,7 @@ H->>S : "Enroll Students"
 S->>DP : "Add Daily Progress"
 S->>MR : "Add Monthly Rating"
 S->>SP : "Create/Update Student Plane"
+U->>A : "Supervise/Mentor Areas"
 ```
 
 **Diagram sources**
@@ -398,6 +411,7 @@ S->>SP : "Create/Update Student Plane"
 - Soft deletion is not present; hard deletes rely on referential integrity.
 - Aria model intentionally disables timestamps to avoid unnecessary date tracking for geographical regions.
 - User and Student models include hooks for automatic username generation from phone numbers.
+- Many-to-many relationships for supervision and mentoring are managed through foreign key assignments rather than junction tables.
 
 **Section sources**
 - [Aria.js:54](file://backend/src/models/Aria.js#L54)
@@ -415,10 +429,10 @@ S->>SP : "Create/Update Student Plane"
   - Example: { Name: "منطقة الرياض", Location: "الرياض", CenterId: 1, SupervisorId: 2, MentorId: 3 }
 
 - Halakat
-  - Example: { Name: "مجموعة الرياض", studentsCount: 25, TeacherId: 4, AriaId: 1 }
+  - Example: { Name: "مجموعة الرياض", studentsGender: "ذكور", type: "حفظ ومراجعة", TeacherId: 4, AriaId: 1 }
 
 - Student
-  - Example: { Name: "محمد عبدالله", Gender: "ذكر", Username: "mohammed999", Password: "student_pass", Age: 12, current_Memorization: "سوره البقرة", phoneNumber: "+966987654321", ImageUrl: null, FatherNumber: "+966123456789", Category: "10 أجزاء", User_Id: 5, HalakatId: 1 }
+  - Example: { Name: "محمد عبدالله", Gender: "ذكر", Username: "mohammed999", Password: "student_pass", status: "مستمر", Age: 12, current_Memorization: "سوره البقرة", phoneNumber: "+966987654321", ImageUrl: null, FatherNumber: "+966123456789", Category: "10 أجزاء", User_Id: 5, HalakatId: 1 }
 
 - DailyProgress
   - Example: { Date: "2025-04-01", Memorization_Progress_Surah: "الفاتحة", Memorization_Progress_Ayah: 5, Revision_Progress_Surah: "الفاتحة", Revision_Progress_Ayah: 3, Memorization_Level: "جيد", Revision_Level: "جيد", Notes: "تركيز جيد اليوم", StudentId: 1 }
@@ -466,8 +480,12 @@ S->>SP : "Create/Update Student Plane"
   - Use association: User.hasMany(Notification, { foreignKey: "UserId" })
 - Fetch Notifications for a Student
   - Use association: Student.hasMany(Notification, { foreignKey: "StudentId" })
+- Fetch Aria regions supervised by a User
+  - Use association: User.hasMany(Aria, { foreignKey: "SupervisorId" })
+- Fetch Aria regions mentored by a User
+  - Use association: User.hasMany(Aria, { foreignKey: "MentorId" })
 
-**Updated** Added query patterns for Aria and Notification entities, reflecting the new relationship structure.
+**Updated** Added query patterns for Aria and Notification entities, reflecting the new relationship structure with supervisor and mentor roles.
 
 **Section sources**
 - [index.js:16-72](file://backend/src/models/index.js#L16-L72)
@@ -478,12 +496,15 @@ S->>SP : "Create/Update Student Plane"
   - Aria model intentionally disables timestamps for geographical region tracking.
 - Associations
   - One-to-Many relationships are established using belongsTo and hasMany with explicit foreignKey and alias options.
-  - New many-to-many relationships use hasOne and belongsTo with through configurations for supervisor and mentor roles.
+  - New many-to-many relationships use hasMany and belongsTo with foreignKey options for supervisor and mentor roles.
+  - Supervisor relationship: User.hasMany(Aria, { foreignKey: "SupervisorId" })
+  - Mentor relationship: User.hasMany(Aria, { foreignKey: "MentorId" })
 - Foreign Keys
   - Explicit foreign key references are defined in Center, Aria, Halakat, Student, and StudentPlane models.
   - All foreign keys are properly validated with model and key references.
+  - Aria model uses SupervisorId and MentorId as foreign keys to implement many-to-many relationships.
 
-**Updated** Added documentation for new Aria model relationships and many-to-many user-area associations.
+**Updated** Added documentation for new Aria model relationships and many-to-many user-area associations with supervisor and mentor roles.
 
 ```mermaid
 classDiagram
@@ -521,7 +542,8 @@ class Aria {
 class Halakat {
 +int Id
 +string Name
-+int studentsCount
++enum studentsGender
++enum type
 +int TeacherId
 +int AriaId
 +timestamps()
@@ -532,6 +554,7 @@ class Student {
 +enum Gender
 +string Username
 +string Password
++enum status
 +int Age
 +string current_Memorization
 +string phoneNumber
@@ -613,6 +636,8 @@ Student "1" --> "many" StudentPlane : "StudentId"
 Student "1" --> "one" Graduate : "StudentId"
 User "1" --> "many" Notification : "UserId"
 Student "1" --> "many" Notification : "StudentId"
+User "1" --> "many" Aria : "SupervisorId"
+User "1" --> "many" Aria : "MentorId"
 ```
 
 **Diagram sources**
@@ -702,16 +727,18 @@ IDX --> N
   - Use includes to eager load associations to reduce N+1 queries.
   - Paginate results for large datasets (e.g., Students, DailyProgress).
   - Consider separate queries for supervisor/mentor assignments vs. geographical area management.
+  - Optimize queries for many-to-many relationships using SupervisorId and MentorId foreign keys.
 - Data Types
   - Use DECIMAL(10,2) for monetary or precise numeric fields (already used in StudentPlane).
   - Use ENUM for fixed sets of values to reduce storage and improve readability.
   - Aria model intentionally avoids timestamps to minimize storage overhead.
 - Caching
   - Cache frequently accessed metadata (e.g., User roles, Center lists, Aria regions) to reduce database load.
+  - Cache supervisor/mentor assignments for improved performance.
 - Logging
   - Disable logging in production (already set in database.js) to avoid overhead.
 
-**Updated** Added indexing strategies for new Aria model and notification entities.
+**Updated** Added indexing strategies for new Aria model and notification entities, including foreign keys for supervisor and mentor relationships.
 
 ## Troubleshooting Guide
 - Aria Model Issues
@@ -721,9 +748,11 @@ IDX --> N
 - Relationship Conflicts
   - The new Center → Aria → Halakat hierarchy replaces the old Center ↔ Halakat relationship.
   - Ensure all existing queries are updated to use the new relationship chain.
+  - Verify many-to-many relationships for supervisor and mentor roles are properly configured.
 - Many-to-Many Relationships
-  - Supervisor and Mentor relationships use hasOne/belongsTo with through configurations.
-  - Verify that the MentorArias junction table exists in the database.
+  - Supervisor and Mentor relationships use hasMany/belongsTo with foreignKey options.
+  - Ensure foreign key assignments (SupervisorId, MentorId) are properly validated.
+  - Check that users can be assigned to multiple Aria regions for supervision and mentoring.
 - User Hooks
   - Username auto-generation occurs via hooks in User model (lines 71-77).
   - Ensure phone numbers are properly formatted for automatic username creation.
@@ -734,13 +763,15 @@ IDX --> N
   - Ensure passwords are hashed before insertion/update using bcrypt/bcryptjs.
 - Role-Based Access Control
   - Enforce access control at the application layer using User.Role and JWT tokens.
+  - Implement supervisor/mentor role checks for Aria management.
 - Data Validation
   - Validate degree ranges before persisting MonthlyRating entries.
   - Ensure Aria names and locations are unique within their respective centers.
+  - Verify supervisor and mentor assignments are valid user IDs.
 - Timezone Considerations
   - Store dates consistently (e.g., UTC) and convert to local timezone for display.
 
-**Updated** Added troubleshooting guidance for new Aria model and relationship changes.
+**Updated** Added troubleshooting guidance for new Aria model and relationship changes, including supervisor/mentor role management.
 
 **Section sources**
 - [Aria.js:20-48](file://backend/src/models/Aria.js#L20-L48)
@@ -774,9 +805,9 @@ The Khirocom database design has been successfully restructured to include a new
 - Fetch Supervised Aria by SupervisorId
   - Use User.SupervisedAria association.
 - Fetch Mentored Aria by MentorId
-  - Use Aria.MentorArias association.
+  - Use User.MentoredAria association.
 
-**Updated** Added data access patterns for new Aria model and notification entities.
+**Updated** Added data access patterns for new Aria model and notification entities, including supervisor and mentor role associations.
 
 **Section sources**
 - [index.js:16-72](file://backend/src/models/index.js#L16-L72)
@@ -790,6 +821,7 @@ The Khirocom database design has been successfully restructured to include a new
   - Hash passwords using bcrypt/bcryptjs.
   - Limit exposure of sensitive fields (e.g., Password) in API responses.
   - Implement proper access controls for geographical data management.
+  - Secure supervisor and mentor assignments with proper validation.
 - Privacy
   - Anonymize or pseudonymize personal data where possible.
   - Comply with data retention policies and deletion requests.
@@ -798,8 +830,13 @@ The Khirocom database design has been successfully restructured to include a new
   - Supervisors can only manage areas they supervise.
   - Mentors can only access areas they mentor.
   - Implement proper authorization checks for all Aria-related operations.
+  - Validate many-to-many relationships for supervisor/mentor assignments.
+- Data Validation for Supervision Roles
+  - Ensure SupervisorId and MentorId foreign keys reference valid User IDs.
+  - Implement proper validation for multiple supervisor/mentor assignments.
+  - Monitor role assignments for administrative compliance.
 
-**Updated** Added security requirements specific to the new Aria model and supervisor/mentor roles.
+**Updated** Added security requirements specific to the new Aria model and supervisor/mentor roles, including validation and access control measures.
 
 **Section sources**
 - [User.js:39-47](file://backend/src/models/User.js#L39-L47)
