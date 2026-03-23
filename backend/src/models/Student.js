@@ -1,6 +1,6 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-
+const DailyProgress = require("./DailyProgress");
 class Student extends Model {}
 
 Student.init(
@@ -35,11 +35,33 @@ Student.init(
       defaultValue:"مستمر",
       allowNull:false
     },
+    stopDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW(),
+      allowNull: true,
+    },
+    stopReason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    DismissedDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW(),
+      allowNull: true,
+    },
+    DismissedReason: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     Age: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    current_Memorization: {
+    current_Memorization_Sorah: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    current_Memorization_Aya: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -68,15 +90,6 @@ Student.init(
       ),
       defaultValue: "أقل من 5 أجزاء",
       allowNull: false,
-    },
-    User_Id:
-    {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "users",
-        key: "Id",
-      },
     },
     HalakatId: {
       type: DataTypes.INTEGER,

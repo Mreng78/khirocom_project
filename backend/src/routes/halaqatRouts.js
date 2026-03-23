@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const auth=require('../middleware/auth')
+const auth=require('../middleware/UserAuth')
 const halakatcontroller=require('../controllers/HalakatController')
 
 router.get('/getallhalaqat',auth,halakatcontroller.getallhalaqat)

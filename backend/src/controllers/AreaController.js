@@ -2,7 +2,7 @@ const { Halakat } = require('../models');
 const Area = require('../models/Aria');
 const User = require('../models/User');
 const Student = require('../models/Student');
-
+const {Op} = require('sequelize');
 
 // *get all areas
 exports.getallareas=async(req,res)=>{
@@ -186,5 +186,19 @@ exports.getallstudentscount=async(req,res)=>{
         return res.status(200).json({message: "تم الحصول على عدد الطلاب", studentscount});
     } catch(error) {
         return res.status(500).json({message:"خطأ أثناء الحصول على الطلاب", error:error.message});
+    }
+}
+
+// *get area by name 
+exports.getareaByName=async(req,res)=>{
+    try
+    {
+        const name = req.body.name;
+        const area =await Area.findAll({where:{Name: {[Op.like]: `%${name}%`}}});
+        return res.status(200).json({message:"تم الحصول على المنطقة",area});
+    }
+    catch(error)
+    {
+        return res.status(500).json({message:"خطأ أثناء الحصول على المنطقة", error:error.message});
     }
 }

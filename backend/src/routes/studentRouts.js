@@ -1,0 +1,23 @@
+const express = require('express');
+const router = express.Router();
+const studentsController = require('../controllers/StudentController');
+const userauth = require('../middleware/UserAuth');
+const studentauth = require('../middleware/StudentAuth');
+
+router.post('/login', studentsController.login);
+router.get('/getallstudents', studentsController.getallstudents);
+router.get('/getstudentbyhalaqatid', studentsController.getstudentbyhalaqatid);
+router.put('/updateme', studentsController.updateme);
+router.put('/updatestudent', studentsController.updatestudent);
+router.post('/addnewstudent', studentsController.addnewstudent);
+router.delete('/deletestudent', studentsController.deletestudent);
+router.get('/getstudentbyid', studentsController.getstudentbyid);
+router.get('/getstudentsbyname', studentsController.getstudentsbyname);
+router.put('/stopstudent', studentsController.stopstudent);
+router.put('/dismissstudent', studentsController.dismissstudent);
+router.put('/startstudent', studentsController.startstudent);
+router.get('/getstopedanddismissedstudents', studentsController.getstopedanddismissedstudents);
+router.put('/movestudenttoanotherhalakat', studentsController.movestudenttoanotherhalakat);
+router.get('/getstudentscountinarea', studentsController.getstudentscountinarea);
+router.get('/getstudentscountbycenter', studentsController.getstudentscountbycenter);
+module.exports = router;
