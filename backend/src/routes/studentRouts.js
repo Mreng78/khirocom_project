@@ -7,7 +7,7 @@ const studentauth = require('../middleware/StudentAuth');
 router.post('/login', studentsController.login);
 router.get('/getallstudents', studentsController.getallstudents);
 router.get('/getstudentbyhalaqatid', studentsController.getstudentbyhalaqatid);
-router.put('/updateme', studentsController.updateme);
+router.put('/updateme',userauth, studentsController.updateme);
 router.put('/updatestudent', studentsController.updatestudent);
 router.post('/addnewstudent', studentsController.addnewstudent);
 router.delete('/deletestudent', studentsController.deletestudent);
