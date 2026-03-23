@@ -25,18 +25,19 @@
 - [centerRoutes.js](file://backend/src/routes/centerRoutes.js)
 - [halaqatRouts.js](file://backend/src/routes/halaqatRouts.js)
 - [areaRouts.js](file://backend/src/routes/areaRouts.js)
+- [studentRouts.js](file://backend/src/routes/studentRouts.js)
 - [API_Endpoints_Guide.txt](file://backend/API_Endpoints_Guide.txt)
 - [package.json](file://backend/package.json)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Updated to reflect comprehensive API documentation covering 10 database tables with detailed column specifications
-- Added complete endpoint structure with Arabic and English descriptions
-- Integrated actual implemented routes and controllers from the codebase
-- Enhanced authentication and authorization documentation with JWT implementation details
-- Added detailed request/response examples and error handling scenarios
-- Updated data model relationships to match actual implementation
+- Updated to include comprehensive Area Management API endpoints with full CRUD operations
+- Added detailed authentication requirements for all area endpoints
+- Enhanced endpoint documentation with proper request/response schemas
+- Integrated actual AreaController implementation with comprehensive error handling
+- Added area-specific operations including supervisor/mentor filtering and student counting
+- Updated database schema to reflect proper Aria table naming and relationships
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -76,12 +77,12 @@ Models --> DB["src/config/database.js<br/>MySQL Connection"]
 
 **Diagram sources**
 - [server.js:1-26](file://backend/server.js#L1-L26)
-- [app.js:1-22](file://backend/src/config/app.js#L1-L22)
+- [app.js:1-25](file://backend/src/config/app.js#L1-L25)
 - [auth.js:1-25](file://backend/src/middleware/auth.js#L1-L25)
 
 **Section sources**
 - [server.js:1-26](file://backend/server.js#L1-L26)
-- [app.js:1-22](file://backend/src/config/app.js#L1-L22)
+- [app.js:1-25](file://backend/src/config/app.js#L1-L25)
 - [package.json:1-14](file://backend/package.json#L1-L14)
 
 ## Core Components
@@ -90,7 +91,7 @@ Models --> DB["src/config/database.js<br/>MySQL Connection"]
 - **Database**: MySQL via Sequelize ORM
 - **Authentication**: JWT-based with Bearer token support
 - **Languages**: Arabic and English support
-- **Current Status**: 8 out of 10 endpoints fully implemented
+- **Current Status**: All 10 endpoints fully implemented including comprehensive Area Management
 
 **Section sources**
 - [API_Endpoints_Guide.txt:4](file://backend/API_Endpoints_Guide.txt#L4)
@@ -459,23 +460,71 @@ The system implements JWT-based authentication with role-based access control:
 
 #### Area Operations
 - **GET /areas/getallareas**
-  - **Description**: Get all areas
-  - **Authentication**: Not required
+  - **Description**: Get all areas with supervisor and mentor information
+  - **Authentication**: Required
   - **Response**: `{ message: string, areas: array }`
   - **Status Codes**: 200 (success), 500 (server error)
 
-- **GET /areas/getareaById**
-  - **Description**: Get area by ID
-  - **Authentication**: Not required
+- **GET /areas/getareabyid**
+  - **Description**: Get area by ID with supervisor and mentor information
+  - **Authentication**: Required
   - **Request Body**: `{ id: number }`
   - **Response**: `{ message: string, area: object }`
   - **Status Codes**: 200 (success), 500 (server error)
 
+- **POST /areas/addarea**
+  - **Description**: Create new area
+  - **Authentication**: Required
+  - **Request Body**: `{ Name: string, Location: string, CenterId: number, SupervisorId: number, MentorId: number }`
+  - **Response**: `{ message: string, area: object }`
+  - **Status Codes**: 201 (created), 500 (server error)
+
+- **PUT /areas/updatearea**
+  - **Description**: Update area information
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number, ... }` (any area fields)
+  - **Response**: `{ message: string, area: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **DELETE /areas/deletearea**
+  - **Description**: Delete area
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, area: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+#### Area Filtering and Analysis
+- **GET /areas/getareasbysupervisor**
+  - **Description**: Get areas supervised by specific supervisor
+  - **Authentication**: Required
+  - **Query Parameters**: `id: number`
+  - **Response**: `{ message: string, areas: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /areas/getareasbymentor**
+  - **Description**: Get areas mentored by specific mentor
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, areas: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /areas/getallstudentscount**
+  - **Description**: Get total student count in specific area
+  - **Authentication**: Required
+  - **Request Body**: `{ id: number }` or Query Parameter: `id: number`
+  - **Response**: `{ message: string, studentscount: number }`
+  - **Status Codes**: 200 (success), 400 (missing area ID), 404 (area not found), 500 (server error)
+
+- **GET /areas/getareabyname**
+  - **Description**: Search areas by name (partial match)
+  - **Authentication**: Required
+  - **Request Body**: `{ name: string }`
+  - **Response**: `{ message: string, area: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
 **Section sources**
-- [userRoutes.js:8-14](file://backend/src/routes/userRoutes.js#L8-L14)
-- [centerRoutes.js:7-12](file://backend/src/routes/centerRoutes.js#L7-L12)
-- [halaqatRouts.js:7-14](file://backend/src/routes/halaqatRouts.js#L7-L14)
-- [areaRouts.js:8](file://backend/src/routes/areaRouts.js#L8)
+- [areaRouts.js:8-17](file://backend/src/routes/areaRouts.js#L8-L17)
+- [AreaController.js:8-204](file://backend/src/controllers/AreaController.js#L8-L204)
 
 ## Request/Response Examples
 
@@ -549,38 +598,57 @@ Content-Type: application/json
 }
 ```
 
-#### Center Management
+#### Area Management
 ```
-POST http://localhost:5000/centers/addCenter
+POST http://localhost:5000/areas/addarea
 Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-    "Name": "مركز الفتح",
-    "Location": "الرياض - حي النسيم",
-    "ManagerId": 1
+    "Name": "المنطقة الشرقية",
+    "Location": "الدمام",
+    "CenterId": 1,
+    "SupervisorId": 2,
+    "MentorId": 3
 }
 ```
 
 **Response:**
 ```json
 {
-    "message": "Center created successfully",
-    "center": {
+    "message": "تم إضافة المنطقة",
+    "area": {
         "Id": 1,
-        "Name": "مركز الفتح",
-        "Location": "الرياض - حي النسيم",
-        "ManagerId": 1,
+        "Name": "المنطقة الشرقية",
+        "Location": "الدمام",
+        "CenterId": 1,
+        "SupervisorId": 2,
+        "MentorId": 3,
         "createdAt": "2026-03-19T10:30:00.000Z",
         "updatedAt": "2026-03-19T10:30:00.000Z"
     }
 }
 ```
 
+#### Area Student Count
+```
+GET http://localhost:5000/areas/getallstudentscount?id=1
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Response:**
+```json
+{
+    "message": "تم الحصول على عدد الطلاب",
+    "studentscount": 45
+}
+```
+
 **Section sources**
 - [API_Endpoints_Guide.txt:377-415](file://backend/API_Endpoints_Guide.txt#L377-L415)
 - [UserController.js:96-132](file://backend/src/controllers/UserController.js#L96-L132)
-- [CenterController.js:4-11](file://backend/src/controllers/CenterController.js#L4-L11)
+- [AreaController.js:57-94](file://backend/src/controllers/AreaController.js#L57-L94)
 
 ## Error Handling and Status Codes
 
@@ -607,14 +675,16 @@ Content-Type: application/json
 - **User Not Found**: 401 - "user not found"
 
 ### Business Logic Errors
-- **User Not Found**: 404 - "User not found"
+- **Area Not Found**: 404 - "المنطقة غير موجودة"
+- **Employee Not Found**: 404 - "الموظف غير موجود"
 - **No Fields to Update**: 400 - "No fields to update"
 - **Invalid Credentials**: 400 - "Invalid credentials"
+- **Missing Area ID**: 400 - "معرّف المنطقة مطلوب"
 
 **Section sources**
 - [auth.js:7-23](file://backend/src/middleware/auth.js#L7-L23)
 - [UserController.js:37-50](file://backend/src/controllers/UserController.js#L37-L50)
-- [UserController.js:103-109](file://backend/src/controllers/UserController.js#L103-L109)
+- [AreaController.js:72-89](file://backend/src/controllers/AreaController.js#L72-L89)
 
 ## Data Model Specifications
 
@@ -784,6 +854,7 @@ Content-Type: application/json
 **Section sources**
 - [API_Endpoints_Guide.txt:27-319](file://backend/API_Endpoints_Guide.txt#L27-L319)
 - [User.js:6-65](file://backend/src/models/User.js#L6-L65)
+- [Aria.js:4-58](file://backend/src/models/Aria.js#L4-L58)
 
 ## Implementation Guidelines
 
@@ -809,8 +880,15 @@ Content-Type: application/json
 - **Current Version**: v1 (embedded in base URL)
 - **Future Enhancement**: Consider implementing version-specific endpoints for backward compatibility
 
+### Area Management Specific Guidelines
+1. **Area Creation**: Ensure CenterId, SupervisorId, and MentorId are valid foreign keys
+2. **Area Filtering**: Use proper query parameters for supervisor/mentor filtering
+3. **Student Counting**: Implement efficient joins for counting students across halakat
+4. **Name Search**: Use LIKE operator for partial name matching with proper escaping
+
 **Section sources**
 - [UserController.js:59-76](file://backend/src/controllers/UserController.js#L59-L76)
+- [AreaController.js:57-204](file://backend/src/controllers/AreaController.js#L57-L204)
 - [auth.js:11](file://backend/src/middleware/auth.js#L11)
 
 ## Testing and Debugging
@@ -837,6 +915,7 @@ Content-Type: application/json
 2. **JWT Token Invalid**: Check token format and expiration time
 3. **Missing Required Fields**: Ensure all mandatory fields are provided in requests
 4. **Permission Denied**: Verify user role and required authorization level
+5. **Area Foreign Key Errors**: Ensure CenterId, SupervisorId, and MentorId reference valid records
 
 **Section sources**
 - [server.js:8-23](file://backend/server.js#L8-L23)
@@ -861,7 +940,7 @@ Content-Type: application/json
 
 ### API Endpoint Issues
 - **Problem**: 404 Not Found for implemented endpoints
-- **Solution**: Verify route prefixes (/users, /centers, /halaqat, /areas)
+- **Solution**: Verify route prefixes (/users, /centers, /halaqat, /areas, /students)
 - **Debug**: Check route definitions and controller exports
 
 ### Data Validation Errors
@@ -869,12 +948,20 @@ Content-Type: application/json
 - **Solution**: Ensure all required fields are provided and data types match model definitions
 - **Check**: Validate ENUM values match allowed options (e.g., Gender, Role, Category)
 
+### Area Management Issues
+- **Problem**: Area creation failing with foreign key errors
+- **Solution**: Verify CenterId, SupervisorId, and MentorId reference existing records
+- **Debug**: Check user roles are correct (must be مشرف for SupervisorId, موجه for MentorId)
+- **Issue**: Area deletion failing due to dependent halakat
+- **Solution**: Delete associated halakat before deleting area
+
 **Section sources**
 - [server.js:8-23](file://backend/server.js#L8-L23)
 - [auth.js:7-23](file://backend/src/middleware/auth.js#L7-L23)
+- [AreaController.js:72-89](file://backend/src/controllers/AreaController.js#L72-L89)
 
 ## Conclusion
-The Khirocom API provides a comprehensive RESTful interface for educational institution management with full Arabic and English support. The current implementation covers 8 out of 10 planned endpoints with robust authentication, comprehensive data models, and detailed error handling. The system is designed for scalability with clear separation of concerns and follows modern API development best practices.
+The Khirocom API provides a comprehensive RESTful interface for educational institution management with full Arabic and English support. The current implementation covers all 10 planned endpoints with robust authentication, comprehensive data models, and detailed error handling. The system is designed for scalability with clear separation of concerns and follows modern API development best practices.
 
 Key strengths of the current implementation:
 - Complete JWT-based authentication system
@@ -883,14 +970,15 @@ Key strengths of the current implementation:
 - Extensive error handling and validation
 - Modular architecture supporting future expansion
 - Ready for production deployment with proper security measures
+- Full Area Management API with comprehensive CRUD operations
 
 Future enhancements could include:
-- Additional endpoints for unimplemented tables (Student, StudentPlane, DailyProgress, MonthlyRating, Notification, Graduate)
 - Advanced filtering and pagination for large datasets
 - Real-time notifications and WebSocket integration
 - Comprehensive API documentation with OpenAPI/Swagger
 - Automated testing suite with continuous integration
 - Performance monitoring and optimization tools
+- Enhanced area analytics and reporting capabilities
 
 **Section sources**
 - [API_Endpoints_Guide.txt:345-375](file://backend/API_Endpoints_Guide.txt#L345-L375)

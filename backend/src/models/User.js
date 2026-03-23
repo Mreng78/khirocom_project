@@ -62,6 +62,7 @@ User.init(
         type: DataTypes.STRING(256),
         allowNull: false,
     },
+    
 },
 {
   sequelize,

@@ -63,10 +63,6 @@ Notification.belongsTo(User, { foreignKey: "UserId", as: "NotificationUser" });
 Student.hasMany(Notification, { foreignKey: "StudentId", as: "StudentNotifications" });
 Notification.belongsTo(Student, { foreignKey: "StudentId", as: "NotificationStudent" });
 
-//? Student ↔ Users (One-to-Many)
-User.hasMany(Student, { foreignKey: "User_Id", as: "Students" });
-Student.belongsTo(User, { foreignKey: "User_Id", as: "User" });
-
 //? Student ↔ Graduate (One-to-One)
 Student.hasOne(Graduate, { foreignKey: "StudentId", as: "Graduate" });
 Graduate.belongsTo(Student, { foreignKey: "StudentId", as: "Student" });

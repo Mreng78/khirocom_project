@@ -13,20 +13,25 @@
 - [Student.js](file://backend/src/models/Student.js)
 - [MonthlyRating.js](file://backend/src/models/MonthlyRating.js)
 - [DailyProgress.js](file://backend/src/models/DailyProgress.js)
-- [userRoutes.js](file://backend/src/route/userRoutes.js)
-- [centerRoutes.js](file://backend/src/route/centerRoutes.js)
-- [halaqatRouts.js](file://backend/src/route/halaqatRouts.js)
-- [areaRouts.js](file://backend/src/route/areaRouts.js)
+- [Aria.js](file://backend/src/models/Aria.js)
+- [AreaController.js](file://backend/src/controllers/AreaController.js)
+- [areaRouts.js](file://backend/src/routes/areaRouts.js)
+- [userRoutes.js](file://backend/src/routes/userRoutes.js)
+- [centerRoutes.js](file://backend/src/routes/centerRoutes.js)
+- [halaqatRouts.js](file://backend/src/routes/halaqatRouts.js)
+- [studentRouts.js](file://backend/src/routes/studentRouts.js)
 - [auth.js](file://backend/src/middleware/auth.js)
 - [package.json](file://backend/package.json)
 </cite>
 
 ## Update Summary
 **Changes Made**
-- Added new Graduate Tracking System feature module with one-to-one relationship to students
-- Updated model associations to include Graduate-Studen relationship
-- Enhanced documentation to cover the new graduation records and completion status tracking functionality
-- Updated architecture diagrams to reflect the new graduate tracking capability
+- Added new Area Management System feature module with comprehensive CRUD operations
+- Integrated Area model with associations to Center, Supervisor, and Mentor users
+- Implemented area-based student counting functionality
+- Added area search by name and supervisor/mentor filtering capabilities
+- Updated architecture diagrams to reflect the new area management capability
+- Enhanced routing structure with dedicated area endpoints
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -41,7 +46,7 @@
 10. [Appendices](#appendices)
 
 ## Introduction
-This document describes the feature modules and implementation architecture for the Khirocom system. It focuses on the complete feature set and how the system is structured around an MVC-like pattern, with models representing the data layer, routes and controllers handling API endpoints and business logic, and middleware processing requests. The documented features include User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, Graduate Tracking System, and Learning Plan Management. The document also explains feature interdependencies, data flows, practical usage scenarios, and guidelines for extending and integrating new features.
+This document describes the feature modules and implementation architecture for the Khirocom system. It focuses on the complete feature set and how the system is structured around an MVC-like pattern, with models representing the data layer, routes and controllers handling API endpoints and business logic, and middleware processing requests. The documented features include User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, Area Management System, Graduate Tracking System, and Learning Plan Management. The document also explains feature interdependencies, data flows, practical usage scenarios, and guidelines for extending and integrating new features.
 
 ## Project Structure
 The backend follows a layered structure:
@@ -58,8 +63,8 @@ subgraph "Backend"
 CFG["Express App<br/>server.js -> app.js"]
 DB["Database Config<br/>database.js"]
 MODELS["Models & Associations<br/>models/index.js"]
-ROUTES["Routes<br/>userRoutes.js, centerRoutes.js, halaqatRouts.js, areaRouts.js"]
-CONTROLLERS["Controllers<br/>(to be implemented)"]
+ROUTES["Routes<br/>userRoutes.js, centerRoutes.js, halaqatRouts.js, areaRouts.js, studentRouts.js"]
+CONTROLLERS["Controllers<br/>AreaController.js, UserController.js, CenterController.js, HalakatController.js, StudentController.js"]
 MIDDLEWARE["Middleware<br/>auth.js"]
 end
 CFG --> ROUTES
@@ -75,10 +80,11 @@ ROUTES --> MIDDLEWARE
 - [app.js](file://backend/src/config/app.js)
 - [database.js](file://backend/src/config/database.js)
 - [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
-- [userRoutes.js:1-17](file://backend/src/route/userRoutes.js#L1-L17)
-- [centerRoutes.js:1-14](file://backend/src/route/centerRoutes.js#L1-L14)
-- [halaqatRouts.js:1-18](file://backend/src/route/halaqatRouts.js#L1-L18)
-- [areaRouts.js:1-14](file://backend/src/route/areaRouts.js#L1-L14)
+- [areaRouts.js:1-20](file://backend/src/routes/areaRouts.js#L1-L20)
+- [userRoutes.js:1-17](file://backend/src/routes/userRoutes.js#L1-L17)
+- [centerRoutes.js:1-14](file://backend/src/routes/centerRoutes.js#L1-L14)
+- [halaqatRouts.js:1-18](file://backend/src/routes/halaqatRouts.js#L1-L18)
+- [studentRouts.js:1-15](file://backend/src/routes/studentRouts.js#L1-L15)
 
 **Section sources**
 - [server.js:1-26](file://backend/server.js#L1-L26)
@@ -97,13 +103,13 @@ This section outlines the core components and their responsibilities within the 
   - Centralizes database credentials and options
 
 - Models and Associations
-  - Define entities and relationships among Users, Centers, Teaching Groups (Halakat), Students, Monthly Ratings, Daily Progress, and Graduates
+  - Define entities and relationships among Users, Centers, Teaching Groups (Halakat), Areas, Students, Monthly Ratings, Daily Progress, and Graduates
   - Enforce referential integrity via foreign keys
   - Include validation rules for numeric fields and enumerations
-  - **New**: Graduate model provides one-to-one relationship with Students for graduation tracking
+  - **New**: Area model provides geographic and administrative boundaries with supervisor and mentor assignments
 
 - Routing and Controllers
-  - API endpoint definitions for user management, center administration, teaching group management, and area management
+  - API endpoint definitions for user management, center administration, teaching group management, area management, and student management
   - Will depend on models for data access and middleware for request processing
 
 - Middleware
@@ -153,6 +159,8 @@ MDL --> DB
 - Interactions:
   - Users manage Centers (one-to-many)
   - Users teach Halakat (one-to-many)
+  - Users supervise Areas (one-to-many)
+  - Users mentor Areas (one-to-many)
   - Users are linked to Centers and Halakat via foreign keys
 
 ```mermaid
@@ -179,31 +187,46 @@ class Halakat {
 +integer TeacherId
 +integer CenterId
 }
+class Aria {
++integer Id
++string Name
++string Location
++integer CenterId
++integer SupervisorId
++integer MentorId
+}
 User "1" --> "many" Center : "manages"
 User "1" --> "many" Halakat : "teaches"
+User "1" --> "many" Aria : "supervises"
+User "1" --> "many" Aria : "mentors"
 Center "1" --> "many" Halakat : "contains"
+Center "1" --> "many" Aria : "contains"
 ```
 
 **Diagram sources**
 - [User.js:1-59](file://backend/src/models/User.js#L1-L59)
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
 
 **Section sources**
 - [User.js:1-59](file://backend/src/models/User.js#L1-L59)
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
+- [models/index.js:21-27](file://backend/src/models/index.js#L21-L27)
+- [models/index.js:33-39](file://backend/src/models/index.js#L33-L39)
 
 ### Center Administration
 - Purpose: Manage educational centers and their administrators
 - Responsibilities:
   - Create, update, delete, and list centers
   - Assign managers (users) to centers
-  - Track center location and associated halakat
+  - Track center location and associated halakat and areas
 - Data Model: Center entity with name, location, and manager reference
 - Interactions:
   - Center belongs to a User (manager)
   - Center contains many Halakat instances
+  - Center contains many Area instances
 
 ```mermaid
 classDiagram
@@ -221,29 +244,96 @@ class Halakat {
 +integer Id
 +integer CenterId
 }
+class Aria {
++integer Id
++integer CenterId
+}
 Center --> User : "managed by"
 Center "1" --> "many" Halakat : "contains"
+Center "1" --> "many" Aria : "contains"
 ```
 
 **Diagram sources**
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
 - [User.js:1-59](file://backend/src/models/User.js#L1-L59)
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
 
 **Section sources**
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
-- [models/index.js:21-27](file://backend/src/models/index.js#L21-L27)
+- [models/index.js:16-18](file://backend/src/models/index.js#L16-L18)
+
+### Area Management System
+- Purpose: Manage geographic and administrative areas within centers
+- Responsibilities:
+  - Create, update, delete, and list areas
+  - Assign supervisors and mentors (users) to areas
+  - Track area location and center association
+  - Count students enrolled in areas
+  - Filter areas by supervisor, mentor, or name
+- Data Model: Area entity with name, location, center reference, supervisor reference, and mentor reference
+- Interactions:
+  - Area belongs to a Center
+  - Area belongs to a User (supervisor)
+  - Area belongs to a User (mentor)
+  - Area contains many Halakat instances
+  - Supports area-based student counting
+
+```mermaid
+classDiagram
+class Aria {
++integer Id
++string Name
++string Location
++integer CenterId
++integer SupervisorId
++integer MentorId
+}
+class Center {
++integer Id
+}
+class User {
++integer Id
+}
+class Halakat {
++integer Id
++integer AriaId
+}
+class Student {
++integer Id
++integer HalakatId
+}
+Aria --> Center : "located in"
+Aria --> User : "supervised by"
+Aria --> User : "mentored by"
+Aria "1" --> "many" Halakat : "contains"
+Halakat "1" --> "many" Student : "enrolls"
+```
+
+**Diagram sources**
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
+- [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
+- [User.js:1-59](file://backend/src/models/User.js#L1-L59)
+- [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
+- [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
+
+**Section sources**
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
+- [AreaController.js:1-205](file://backend/src/controllers/AreaController.js#L1-L205)
+- [areaRouts.js:1-20](file://backend/src/routes/areaRouts.js#L1-L20)
+- [models/index.js:29-39](file://backend/src/models/index.js#L29-L39)
 
 ### Teaching Group Management
-- Purpose: Manage teaching groups (classes) within centers
+- Purpose: Manage teaching groups (classes) within centers and areas
 - Responsibilities:
   - Create, update, delete, and list halakat
-  - Assign teachers (users) and centers
+  - Assign teachers (users), centers, and areas
   - Track student counts per group
-- Data Model: Halakat entity with name, student count, teacher, and center references
+- Data Model: Halakat entity with name, student count, teacher, center, and area references
 - Interactions:
   - Halakat belongs to a User (teacher)
   - Halakat belongs to a Center
+  - Halakat belongs to an Area
   - Halakat contains many Students
 
 ```mermaid
@@ -254,11 +344,15 @@ class Halakat {
 +integer studentsCount
 +integer TeacherId
 +integer CenterId
++integer AriaId
 }
 class User {
 +integer Id
 }
 class Center {
++integer Id
+}
+class Aria {
 +integer Id
 }
 class Student {
@@ -267,6 +361,7 @@ class Student {
 }
 Halakat --> User : "taught by"
 Halakat --> Center : "located at"
+Halakat --> Aria : "assigned to"
 Halakat "1" --> "many" Student : "enrolls"
 ```
 
@@ -274,6 +369,7 @@ Halakat "1" --> "many" Student : "enrolls"
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
 - [User.js:1-59](file://backend/src/models/User.js#L1-L59)
 - [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
 - [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 
 **Section sources**
@@ -290,6 +386,7 @@ Halakat "1" --> "many" Student : "enrolls"
 - Interactions:
   - Student belongs to a Halakat
   - Student has many Monthly Ratings and Daily Progress entries
+  - **New**: Student belongs to an Area through halakat assignment
   - **New**: Student has one Graduate record for completion tracking
 
 ```mermaid
@@ -307,6 +404,10 @@ class Student {
 }
 class Halakat {
 +integer Id
++integer AriaId
+}
+class Aria {
++integer Id
 }
 class MonthlyRating {
 +integer Id
@@ -323,6 +424,7 @@ class Graduate {
 +integer StudentId
 }
 Student --> Halakat : "enrolled in"
+Halakat --> Aria : "belongs to"
 Student "1" --> "many" MonthlyRating : "rated in"
 Student "1" --> "many" DailyProgress : "tracked in"
 Student "1" --> "1" Graduate : "graduated"
@@ -331,6 +433,7 @@ Student "1" --> "1" Graduate : "graduated"
 **Diagram sources**
 - [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
 - [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
 - [MonthlyRating.js:1-70](file://backend/src/models/MonthlyRating.js#L1-L70)
 - [DailyProgress.js:1-64](file://backend/src/models/DailyProgress.js#L1-L64)
 - [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
@@ -490,7 +593,8 @@ The system exhibits clear dependency relationships:
 - Routes depend on controllers for business logic
 - Controllers depend on models for persistence
 - Middleware depends on routes for request processing
-- **New**: Graduate model depends on Student model for one-to-one relationship
+- **New**: Area model depends on Center, User (supervisor), and User (mentor) models
+- **New**: Area model creates cascading relationships with Halakat and Student models
 
 ```mermaid
 graph LR
@@ -499,6 +603,10 @@ MODELS --> CONTROLLERS["Controllers"]
 CONTROLLERS --> ROUTES["Routes"]
 ROUTES --> APP["Express App"]
 APP --> CLIENT["Client Applications"]
+CENTER["Center Model"] --> AREA["Area Model"]
+USER["User Model"] --> AREA["Area Model"]
+AREA["Area Model"] --> HALAKAT["Halakat Model"]
+HALAKAT["Halakat Model"] --> STUDENT["Student Model"]
 STUDENT["Student Model"] --> GRADUATE["Graduate Model"]
 ```
 
@@ -506,8 +614,13 @@ STUDENT["Student Model"] --> GRADUATE["Graduate Model"]
 - [database.js](file://backend/src/config/database.js)
 - [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
 - [server.js:1-26](file://backend/server.js#L1-L26)
-- [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
+- [AreaController.js:1-205](file://backend/src/controllers/AreaController.js#L1-L205)
+- [Aria.js:1-59](file://backend/src/models/Aria.js#L1-L59)
+- [Center.js:1-39](file://backend/src/models/Center.js#L1-L39)
+- [User.js:1-59](file://backend/src/models/User.js#L1-L59)
+- [Halakat.js:1-47](file://backend/src/models/Halakat.js#L1-L47)
 - [Student.js:1-105](file://backend/src/models/Student.js#L1-L105)
+- [Graduate.js:1-37](file://backend/src/models/Graduate.js#L1-L37)
 
 **Section sources**
 - [models/index.js:1-91](file://backend/src/models/index.js#L1-L91)
@@ -519,7 +632,9 @@ STUDENT["Student Model"] --> GRADUATE["Graduate Model"]
 - Associations: Use eager loading where necessary to prevent N+1 queries in list endpoints
 - Caching: Introduce caching for frequently accessed master data (e.g., categories, levels)
 - Pagination: Implement pagination for list endpoints to limit payload sizes
-- **New**: Graduate records should be indexed for efficient graduation reporting and completion tracking queries
+- **New**: Area-based queries should utilize proper indexing on CenterId, SupervisorId, and MentorId fields
+- **New**: Area student counting queries should leverage JOIN operations for optimal performance
+- **New**: Area search by name should use LIKE operations with proper indexing for large datasets
 
 ## Troubleshooting Guide
 - Server startup failures:
@@ -532,17 +647,23 @@ STUDENT["Student Model"] --> GRADUATE["Graduate Model"]
   - Validate inputs at the controller level before delegating to models
 - Logging:
   - Add structured logging for requests, errors, and audit trails
-- **New**: Graduate tracking issues:
-  - Ensure one-to-one relationship constraints are maintained
-  - Verify graduation date validation and student completion status
-  - Check for orphaned graduate records during student deletion
+- **New**: Area management issues:
+  - Ensure supervisor and mentor user validation before area assignment
+  - Verify center association exists before creating areas
+  - Check area name uniqueness constraints
+  - Validate area location data for proper geographic representation
+- **New**: Area student counting issues:
+  - Ensure halakat-to-area relationships are properly established
+  - Verify cascade operations maintain referential integrity
+  - Check for orphaned student records in area queries
 
 **Section sources**
 - [server.js:1-26](file://backend/server.js#L1-L26)
 - [auth.js](file://backend/src/middleware/auth.js)
+- [AreaController.js:1-205](file://backend/src/controllers/AreaController.js#L1-L205)
 
 ## Conclusion
-Khirocom's backend establishes a solid foundation for educational administration through well-defined models and associations. The MVC pattern is evident in the separation between models, controllers, routes, and middleware. The documented features—User Management, Center Administration, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, Graduate Tracking System, and Learning Plan Management—are interconnected via foreign keys and associations. The addition of the Graduate Tracking System enhances the platform's ability to manage student lifecycle completion. To complete the system, implement controllers for the new graduate tracking endpoints and integrate with frontend applications for comprehensive educational administration.
+Khirocom's backend establishes a solid foundation for educational administration through well-defined models and associations. The MVC pattern is evident in the separation between models, controllers, routes, and middleware. The documented features—User Management, Center Administration, Area Management System, Teaching Group Management, Student Tracking, Daily Progress Monitoring, Monthly Rating System, Graduate Tracking System, and Learning Plan Management—are interconnected via foreign keys and associations. The addition of the Area Management System enhances the platform's ability to organize educational administration by geographic and administrative boundaries, providing supervisors and mentors with better oversight capabilities. To complete the system, ensure proper controller implementation for all area endpoints and integrate with frontend applications for comprehensive educational administration.
 
 ## Appendices
 
@@ -553,8 +674,13 @@ Khirocom's backend establishes a solid foundation for educational administration
 - Center Administration
   - Create a center and assign a manager
   - Retrieve all halakat under a center
+- Area Management System
+  - Create an area within a center and assign supervisor and mentor
+  - List all areas supervised by a specific user
+  - Count students enrolled in a particular area
+  - Search areas by name containing specific keywords
 - Teaching Group Management
-  - Create a halakat and assign a teacher and center
+  - Create a halakat and assign a teacher, center, and area
   - Enroll students into a halakat
 - Student Tracking
   - Register a new student and enroll in a halakat
@@ -581,7 +707,8 @@ Khirocom's backend establishes a solid foundation for educational administration
 - Testing:
   - Unit tests for controllers and models
   - Integration tests for route flows and middleware behavior
-- **New**: Graduate tracking integration:
-  - One-to-one relationship ensures data integrity for graduation records
-  - Separate endpoints for graduate creation, updates, and retrieval
-  - Cascade operations for student graduation status management
+- **New**: Area management integration:
+  - Area endpoints support comprehensive CRUD operations with supervisor and mentor assignments
+  - Area-based student counting provides real-time enrollment statistics
+  - Area search functionality enables efficient geographic organization
+  - Cascade operations maintain data integrity across center, area, halakat, and student relationships
