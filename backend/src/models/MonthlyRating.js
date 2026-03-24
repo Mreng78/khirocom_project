@@ -50,6 +50,10 @@ MonthlyRating.init(
       type: DataTypes.FLOAT,
       allowNull: false,
     },
+    Notes: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     StudentId: {
       type: DataTypes.INTEGER,
       allowNull: false,

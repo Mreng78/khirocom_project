@@ -20,7 +20,10 @@
 - [CenterController.js](file://backend/src/controllers/CenterController.js)
 - [HalakatController.js](file://backend/src/controllers/HalakatController.js)
 - [AreaController.js](file://backend/src/controllers/AreaController.js)
+- [StudentController.js](file://backend/src/controllers/StudentController.js)
+- [DailyProgressController.js](file://backend/src/controllers/DailyProgressController.js)
 - [auth.js](file://backend/src/middleware/auth.js)
+- [StudentAuth.js](file://backend/src/middleware/StudentAuth.js)
 - [userRoutes.js](file://backend/src/routes/userRoutes.js)
 - [centerRoutes.js](file://backend/src/routes/centerRoutes.js)
 - [halaqatRouts.js](file://backend/src/routes/halaqatRouts.js)
@@ -32,12 +35,13 @@
 
 ## Update Summary
 **Changes Made**
-- Updated to include comprehensive Area Management API endpoints with full CRUD operations
-- Added detailed authentication requirements for all area endpoints
-- Enhanced endpoint documentation with proper request/response schemas
-- Integrated actual AreaController implementation with comprehensive error handling
-- Added area-specific operations including supervisor/mentor filtering and student counting
-- Updated database schema to reflect proper Aria table naming and relationships
+- Added comprehensive Student Management API endpoints with full CRUD operations
+- Integrated StudentAuth middleware alongside existing UserAuth for dual authentication system
+- Added status management endpoints (suspend/expel/resume) with detailed administrative controls
+- Implemented academic progress tracking with daily progress and monthly ratings
+- Added student counting operations by area and center for administrative reporting
+- Enhanced authentication system with separate JWT token generation for students
+- Expanded database schema to support student status tracking and academic progress
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -56,19 +60,20 @@
 14. [Conclusion](#conclusion)
 
 ## Introduction
-This document provides a comprehensive API reference for the Khirocom RESTful service, covering all 10 database tables with their relationships, complete endpoint structure, and detailed usage guidelines. The API supports both Arabic and English languages with comprehensive CRUD operations for managing educational institutions, teachers, students, and progress tracking systems.
+This document provides a comprehensive API reference for the Khirocom RESTful service, covering all 10 database tables with their relationships, complete endpoint structure, and detailed usage guidelines. The API supports both Arabic and English languages with comprehensive CRUD operations for managing educational institutions, teachers, students, and progress tracking systems. The system now includes a complete student management module with advanced authentication, status management, and academic tracking capabilities.
 
 **Section sources**
 - [API_Endpoints_Guide.txt:1-421](file://backend/API_Endpoints_Guide.txt#L1-L421)
 - [server.js:1-26](file://backend/server.js#L1-L26)
 
 ## Project Structure
-The backend follows a modular Express.js architecture with clear separation of concerns:
+The backend follows a modular Express.js architecture with clear separation of concerns and dual authentication system:
 
 ```mermaid
 graph TB
 Server["server.js<br/>Server Startup & Database Sync"] --> AppCfg["src/config/app.js<br/>Express App + Routes"]
-AppCfg --> Auth["src/middleware/auth.js<br/>JWT Authentication"]
+AppCfg --> Auth["src/middleware/auth.js<br/>JWT Authentication (Admin)"]
+AppCfg --> StudentAuth["src/middleware/StudentAuth.js<br/>JWT Authentication (Student)"]
 AppCfg --> Routes["src/routes/*.js<br/>Route Definitions"]
 Routes --> Controllers["src/controllers/*.js<br/>Business Logic"]
 Controllers --> Models["src/models/*.js<br/>Database Models"]
@@ -79,6 +84,7 @@ Models --> DB["src/config/database.js<br/>MySQL Connection"]
 - [server.js:1-26](file://backend/server.js#L1-L26)
 - [app.js:1-25](file://backend/src/config/app.js#L1-L25)
 - [auth.js:1-25](file://backend/src/middleware/auth.js#L1-L25)
+- [StudentAuth.js:1-27](file://backend/src/middleware/StudentAuth.js#L1-L27)
 
 **Section sources**
 - [server.js:1-26](file://backend/server.js#L1-L26)
@@ -86,12 +92,12 @@ Models --> DB["src/config/database.js<br/>MySQL Connection"]
 - [package.json:1-14](file://backend/package.json#L1-L14)
 
 ## Core Components
-- **Base URL**: http://localhost:5000
-- **Port**: 5000 (configurable via environment variables)
+- **Base URL**: http://localhost:8000 (updated from 5000)
+- **Port**: 8000 (configurable via environment variables)
 - **Database**: MySQL via Sequelize ORM
-- **Authentication**: JWT-based with Bearer token support
+- **Authentication**: Dual JWT-based system - Admin tokens via UserAuth middleware and Student tokens via StudentAuth middleware
 - **Languages**: Arabic and English support
-- **Current Status**: All 10 endpoints fully implemented including comprehensive Area Management
+- **Current Status**: All 10 endpoints fully implemented including comprehensive Student Management with status tracking and academic progress
 
 **Section sources**
 - [API_Endpoints_Guide.txt:4](file://backend/API_Endpoints_Guide.txt#L4)
@@ -99,14 +105,15 @@ Models --> DB["src/config/database.js<br/>MySQL Connection"]
 - [app.js:10](file://backend/src/config/app.js#L10)
 
 ## Architecture Overview
-The system implements a layered architecture with clear separation between presentation, business logic, and data access layers:
+The system implements a layered architecture with clear separation between presentation, business logic, and data access layers, now enhanced with dual authentication:
 
 ```mermaid
 graph TB
 Client["Client Applications"] --> Express["Express.js App"]
-Express --> Auth["JWT Middleware"]
+Express --> Auth["JWT Middleware (Admin)"]
 Auth --> Routes["Route Handlers"]
-Routes --> Controllers["Controller Layer"]
+Routes --> StudentAuth["JWT Middleware (Student)"]
+StudentAuth --> Controllers["Controller Layer"]
 Controllers --> Services["Business Logic"]
 Services --> Models["Sequelize Models"]
 Models --> Database["MySQL Database"]
@@ -115,9 +122,10 @@ Models --> Database["MySQL Database"]
 **Diagram sources**
 - [app.js:5-14](file://backend/src/config/app.js#L5-L14)
 - [auth.js:4-24](file://backend/src/middleware/auth.js#L4-L24)
+- [StudentAuth.js:4-24](file://backend/src/middleware/StudentAuth.js#L4-L24)
 
 ## Database Schema and Relationships
-The system manages 10 interconnected tables with comprehensive relationships supporting educational institution management:
+The system manages 10 interconnected tables with comprehensive relationships supporting educational institution management and student progress tracking:
 
 ```mermaid
 erDiagram
@@ -168,13 +176,18 @@ string Name
 enum Gender
 string Username
 string Password
+enum status
+string stopReason
+date stopDate
+string DismissedReason
+date DismissedDate
 int Age
-string current_Memorization
+string current_Memorization_Sorah
+string current_Memorization_Aya
 string phoneNumber
 string ImageUrl
 string FatherNumber
 enum Category
-int User_Id FK
 int HalakatId FK
 datetime createdAt
 datetime updatedAt
@@ -198,6 +211,8 @@ datetime updatedAt
 }
 DAILY_PROGRESS {
 int Id PK
+string Month
+string DayName
 date Date
 string Memorization_Progress_Surah
 int Memorization_Progress_Ayah
@@ -265,10 +280,10 @@ STUDENTS ||--|| GRADUATES : "graduated"
 - [Center.js](file://backend/src/models/Center.js)
 - [Aria.js](file://backend/src/models/Aria.js)
 - [Halakat.js](file://backend/src/models/Halakat.js)
-- [Student.js](file://backend/src/models/Student.js)
+- [Student.js:6-118](file://backend/src/models/Student.js#L6-L118)
 - [StudentPlane.js](file://backend/src/models/StudentPlane.js)
-- [DailyProgress.js](file://backend/src/models/DailyProgress.js)
-- [MonthlyRating.js](file://backend/src/models/MonthlyRating.js)
+- [DailyProgress.js:6-76](file://backend/src/models/DailyProgress.js#L6-L76)
+- [MonthlyRating.js:6-70](file://backend/src/models/MonthlyRating.js#L6-L70)
 - [Notification.js](file://backend/src/models/Notification.js)
 - [Graduate.js](file://backend/src/models/Graduate.js)
 
@@ -276,13 +291,14 @@ STUDENTS ||--|| GRADUATES : "graduated"
 - [API_Endpoints_Guide.txt:10-343](file://backend/API_Endpoints_Guide.txt#L10-L343)
 
 ## Authentication and Authorization
-The system implements JWT-based authentication with role-based access control:
+The system implements a dual JWT-based authentication system with role-based access control:
 
 ### Authentication Flow
-1. **Login Process**: Users authenticate via `/users/login` with username and password
-2. **Token Generation**: System generates JWT token with 7-day expiration
-3. **Middleware Verification**: All protected routes use JWT middleware for validation
-4. **Role-Based Access**: Different endpoints require specific user roles
+1. **Admin Authentication**: Users authenticate via `/users/login` with username and password
+2. **Student Authentication**: Students authenticate via `/students/login` with username and password
+3. **Token Generation**: System generates JWT token with different expiration (7 days for admin, 1 day for student)
+4. **Middleware Verification**: All protected routes use appropriate JWT middleware for validation
+5. **Role-Based Access**: Different endpoints require specific user roles
 
 ### Supported Roles
 - **admin**: Full system administration
@@ -297,7 +313,8 @@ The system implements JWT-based authentication with role-based access control:
 - **Content-Type**: application/json
 
 **Section sources**
-- [UserController.js:96-132](file://backend/src/controllers/UserController.js#L96-L132)
+- [StudentController.js:8-26](file://backend/src/controllers/StudentController.js#L8-L26)
+- [StudentAuth.js:4-26](file://backend/src/middleware/StudentAuth.js#L4-L26)
 - [auth.js:4-24](file://backend/src/middleware/auth.js#L4-L24)
 - [User.js:39-43](file://backend/src/models/User.js#L39-L43)
 
@@ -307,7 +324,7 @@ The system implements JWT-based authentication with role-based access control:
 
 #### Authentication
 - **POST /users/login**
-  - **Description**: Authenticate user and generate JWT token
+  - **Description**: Authenticate admin user and generate JWT token
   - **Authentication**: None
   - **Request Body**: `{ Username: string, Password: string }`
   - **Response**: `{ message: string, userId: number, Name: string, PhoneNumber: string, Role: string, token: string }`
@@ -522,17 +539,141 @@ The system implements JWT-based authentication with role-based access control:
   - **Response**: `{ message: string, area: array }`
   - **Status Codes**: 200 (success), 500 (server error)
 
+### Student Management Endpoints
+
+#### Student Authentication
+- **POST /students/login**
+  - **Description**: Authenticate student and generate JWT token
+  - **Authentication**: None
+  - **Request Body**: `{ Username: string, Password: string }`
+  - **Response**: `{ message: string, token: string }`
+  - **Status Codes**: 200 (success), 401 (invalid credentials), 500 (server error)
+
+#### Student CRUD Operations
+- **GET /students/getallstudents**
+  - **Description**: Retrieve all students with halakat information
+  - **Authentication**: Required (UserAuth)
+  - **Response**: `{ message: string, students: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /students/getstudentbyhalaqatid**
+  - **Description**: Get students by halakat ID
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, students: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /students/getstudentbyid**
+  - **Description**: Get student by ID with halakat information
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string, student: object }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **GET /students/getstudentsbyname**
+  - **Description**: Search students by name (partial match)
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ Name: string }`
+  - **Response**: `{ message: string, students: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **POST /students/addnewstudent**
+  - **Description**: Create new student record
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ Name: string, Username: string, Password: string, Gender: string, Age: number, current_Memorization_Sorah: string, current_Memorization_Aya: string, phoneNumber: string, ImageUrl: string, FatherNumber: string, Category: string, HalakatId: number }`
+  - **Response**: `{ message: string, student: object }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **PUT /students/updatestudent**
+  - **Description**: Update student information
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number, ... }` (any student fields)
+  - **Response**: `{ message: string, student: object }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **PUT /students/updateme**
+  - **Description**: Update current student profile (StudentAuth)
+  - **Authentication**: Required (StudentAuth)
+  - **Request Body**: `{ id: number, Name?: string, Username?: string, Password?: string, phoneNumber?: string, Age?: number, ImageUrl?: string }`
+  - **Response**: `{ message: string, result: object }`
+  - **Status Codes**: 200 (success), 400 (username exists), 500 (server error)
+
+- **DELETE /students/deletestudent**
+  - **Description**: Delete student
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number }`
+  - **Response**: `{ message: string }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+#### Student Status Management
+- **PUT /students/stopstudent**
+  - **Description**: Suspend student with reason and date
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number, reason: string, date: date }`
+  - **Response**: `{ message: string }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **PUT /students/dismissstudent**
+  - **Description**: Expel student with reason and date
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number, reason: string, date: date }`
+  - **Response**: `{ message: string }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **PUT /students/startstudent**
+  - **Description**: Resume suspended/expelled student
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number, halaqatid: number }`
+  - **Response**: `{ message: string }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **GET /students/getstopedanddismissedstudents**
+  - **Description**: Get all suspended and expelled students
+  - **Authentication**: Required (UserAuth)
+  - **Response**: `{ message: string, students: array }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+#### Academic Progress Tracking
+- **PUT /students/updatecurrentmemorization**
+  - **Description**: Update student's current memorization progress
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number, current_Memorization_Sorah: string, current_Memorization_Aya: string }`
+  - **Response**: `{ message: string, student: object }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+#### Student Movement and Reporting
+- **PUT /students/movestudenttoanotherhalakat**
+  - **Description**: Move student to another halakat
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ id: number, halaqatid: number }`
+  - **Response**: `{ message: string, student: object }`
+  - **Status Codes**: 200 (success), 404 (not found), 500 (server error)
+
+- **GET /students/getstudentscountinarea**
+  - **Description**: Get student count in specific area
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ areaid: number }`
+  - **Response**: `{ message: string, count: number }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
+- **GET /students/getstudentscountbycenter**
+  - **Description**: Get student count in specific center
+  - **Authentication**: Required (UserAuth)
+  - **Request Body**: `{ centerid: number }`
+  - **Response**: `{ message: string, count: number }`
+  - **Status Codes**: 200 (success), 500 (server error)
+
 **Section sources**
-- [areaRouts.js:8-17](file://backend/src/routes/areaRouts.js#L8-L17)
-- [AreaController.js:8-204](file://backend/src/controllers/AreaController.js#L8-L204)
+- [studentRouts.js:7-23](file://backend/src/routes/studentRouts.js#L7-L23)
+- [StudentController.js:8-345](file://backend/src/controllers/StudentController.js#L8-L345)
 
 ## Request/Response Examples
 
 ### Authentication Examples
 
-#### Login Request
+#### Admin Login Request
 ```
-POST http://localhost:5000/users/login
+POST http://localhost:8000/users/login
 Content-Type: application/json
 
 {
@@ -558,133 +699,197 @@ Content-Type: application/json
 }
 ```
 
-#### User Registration
+#### Student Login Request
 ```
-POST http://localhost:5000/users/adduser
+POST http://localhost:8000/students/login
+Content-Type: application/json
+
+{
+    "Username": "student123",
+    "Password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+    "message": "تم تسجيل الدخول بنجاح",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Student Profile Update
+```
+PUT http://localhost:8000/students/updateme
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 
 {
-    "Username": "newuser",
-    "Password": "password123",
+    "id": 1,
     "Name": "أحمد محمد",
-    "PhoneNumber": "0501234567",
-    "Gender": "ذكر",
-    "Age": 25,
-    "EducationLevel": "بكالوريوس",
-    "Role": "مشرف"
+    "Username": "student123_updated",
+    "Password": "newpassword123",
+    "phoneNumber": "0501234567",
+    "Age": 20,
+    "ImageUrl": "https://example.com/image.jpg"
 }
 ```
 
 **Response:**
 ```json
 {
-    "message": "تم إضافة أحمد محمد بنجاح",
-    "user": {
-        "Id": 2,
-        "Username": "newuser",
-        "Name": "أحمد محمد",
-        "PhoneNumber": "0501234567",
-        "Gender": "ذكر",
-        "Age": 25,
-        "EducationLevel": "بكالوريوس",
-        "Role": "مشرف",
-        "Salary": 0,
-        "Address": "",
-        "AvtarUrl": "",
-        "createdAt": "2026-03-19T10:30:00.000Z",
-        "updatedAt": "2026-03-19T10:30:00.000Z"
+    "message": "تم تحديث البيانات",
+    "result": {
+        "affectedRows": 1
     }
 }
 ```
 
-#### Area Management
+#### Student Status Management
 ```
-POST http://localhost:5000/areas/addarea
-Authorization: Bearer <token>
+PUT http://localhost:8000/students/stopstudent
+Authorization: Bearer <admin_token>
 Content-Type: application/json
 
 {
-    "Name": "المنطقة الشرقية",
-    "Location": "الدمام",
-    "CenterId": 1,
-    "SupervisorId": 2,
-    "MentorId": 3
+    "id": 1,
+    "reason": "عدم التحصيل",
+    "date": "2026-03-19"
 }
 ```
 
 **Response:**
 ```json
 {
-    "message": "تم إضافة المنطقة",
-    "area": {
+    "message": "تم إيقاف الطالب"
+}
+```
+
+#### Academic Progress Tracking
+```
+PUT http://localhost:8000/students/updatecurrentmemorization
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+    "id": 1,
+    "current_Memorization_Sorah": "البقرة",
+    "current_Memorization_Aya": 150
+}
+```
+
+**Response:**
+```json
+{
+    "message": "تم تحديث البيانات",
+    "student": {
         "Id": 1,
-        "Name": "المنطقة الشرقية",
-        "Location": "الدمام",
-        "CenterId": 1,
-        "SupervisorId": 2,
-        "MentorId": 3,
-        "createdAt": "2026-03-19T10:30:00.000Z",
-        "updatedAt": "2026-03-19T10:30:00.000Z"
+        "Name": "أحمد محمد",
+        "Username": "student123",
+        "current_Memorization_Sorah": "البقرة",
+        "current_Memorization_Aya": 150,
+        "HalakatId": 1,
+        "status": "مستمر"
     }
 }
 ```
 
-#### Area Student Count
+#### Student Movement
 ```
-GET http://localhost:5000/areas/getallstudentscount?id=1
-Authorization: Bearer <token>
+PUT http://localhost:8000/students/movestudenttoanotherhalakat
+Authorization: Bearer <admin_token>
 Content-Type: application/json
+
+{
+    "id": 1,
+    "halaqatid": 2
+}
+```
+
+**Response:**
+```json
+{
+    "message": "تم نقل الطالب",
+    "student": {
+        "Id": 1,
+        "Name": "أحمد محمد",
+        "HalakatId": 2,
+        "status": "مستمر"
+    }
+}
+```
+
+#### Administrative Reporting
+```
+GET http://localhost:8000/students/getstudentscountinarea
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+    "areaid": 1
+}
 ```
 
 **Response:**
 ```json
 {
     "message": "تم الحصول على عدد الطلاب",
-    "studentscount": 45
+    "count": 45
 }
 ```
 
 **Section sources**
 - [API_Endpoints_Guide.txt:377-415](file://backend/API_Endpoints_Guide.txt#L377-L415)
-- [UserController.js:96-132](file://backend/src/controllers/UserController.js#L96-L132)
-- [AreaController.js:57-94](file://backend/src/controllers/AreaController.js#L57-L94)
+- [StudentController.js:8-26](file://backend/src/controllers/StudentController.js#L8-L26)
+- [StudentController.js:211-260](file://backend/src/controllers/StudentController.js#L211-L260)
+- [StudentController.js:283-297](file://backend/src/controllers/StudentController.js#L283-L297)
+- [StudentController.js:299-345](file://backend/src/controllers/StudentController.js#L299-L345)
 
 ## Error Handling and Status Codes
 
 ### Common HTTP Status Codes
 - **200 OK**: Successful GET, PUT, DELETE operations
 - **201 Created**: Successful POST operations
-- **400 Bad Request**: Invalid request data, validation errors
-- **401 Unauthorized**: Missing or invalid JWT token
+- **400 Bad Request**: Invalid request data, validation errors, username already exists
+- **401 Unauthorized**: Missing or invalid JWT token, authorization denied
 - **403 Forbidden**: Insufficient permissions for requested operation
-- **404 Not Found**: Resource not found
+- **404 Not Found**: Resource not found (user, student, area, etc.)
 - **500 Internal Server Error**: Unexpected server errors
 
 ### Error Response Format
 ```json
 {
-    "error": "Error message describing the problem",
-    "stack": "Optional stack trace for debugging"
+    "message": "Error message describing the problem",
+    "error": "Optional error details"
 }
 ```
 
 ### Authentication Errors
-- **Missing Authorization Header**: 401 - "invalid token"
-- **Invalid JWT Token**: 401 - "invalid token"
+- **Missing Authorization Header**: 401 - "No token, authorization denied"
+- **Invalid JWT Token**: 401 - "Invalid token, authorization denied"
+- **Student Not Found**: 404 - "Student not found"
+- **Invalid Credentials**: 401 - "كلمة المرور غير صحيحة" or "Invalid credentials"
 - **User Not Found**: 401 - "user not found"
 
 ### Business Logic Errors
+- **Student Not Found**: 404 - "الطالب غير موجود"
 - **Area Not Found**: 404 - "المنطقة غير موجودة"
 - **Employee Not Found**: 404 - "الموظف غير موجود"
+- **Username Already Exists**: 400 - "اسم المستخدم موجود مسبقا"
 - **No Fields to Update**: 400 - "No fields to update"
 - **Invalid Credentials**: 400 - "Invalid credentials"
 - **Missing Area ID**: 400 - "معرّف المنطقة مطلوب"
 
+### Student Status Management Errors
+- **Student Already Suspended**: 400 - "الطالب معلق بالفعل"
+- **Student Already Expelled**: 400 - "الطالب مرفوض بالفعل"
+- **Invalid Status Transition**: 400 - "انتقال الحالة غير صحيح"
+
 **Section sources**
-- [auth.js:7-23](file://backend/src/middleware/auth.js#L7-L23)
-- [UserController.js:37-50](file://backend/src/controllers/UserController.js#L37-L50)
-- [AreaController.js:72-89](file://backend/src/controllers/AreaController.js#L72-L89)
+- [StudentAuth.js:7-25](file://backend/src/middleware/StudentAuth.js#L7-L25)
+- [StudentController.js:16-25](file://backend/src/controllers/StudentController.js#L16-L25)
+- [StudentController.js:38-43](file://backend/src/controllers/StudentController.js#L38-L43)
+- [StudentController.js:118-120](file://backend/src/controllers/StudentController.js#L118-L120)
 
 ## Data Model Specifications
 
@@ -757,17 +962,21 @@ Content-Type: application/json
 - `Gender`: ENUM, Required (ذكر, أنثى)
 - `Username`: STRING, Required
 - `Password`: STRING(256), Required (default: "12345")
+- `status`: ENUM, Required (مستمر, منقطع, مفصول)
+- `stopReason`: STRING, Optional
+- `stopDate`: DATE, Optional
+- `DismissedReason`: STRING, Optional
+- `DismissedDate`: DATE, Optional
 - `Age`: INTEGER, Required
-- `current_Memorization`: STRING, Required
+- `current_Memorization_Sorah`: STRING, Required
+- `current_Memorization_Aya`: STRING, Required
 - `phoneNumber`: STRING, Required
 - `ImageUrl`: STRING, Optional
 - `FatherNumber`: STRING, Required
 - `Category`: ENUM, Required (اطفال, أقل من 5 أجزاء, 5 أجزاء, 10 أجزاء, 15 جزء, 20 جزء, 25 جزء, المصجف كامل)
-- `User_Id`: INTEGER, Foreign Key to Users.Id
 - `HalakatId`: INTEGER, Foreign Key to Halakat.Id
 
 **Relationships:**
-- Belongs to Users
 - Belongs to Halakat
 - Has many StudentPlanes
 - Has many DailyProgress
@@ -797,7 +1006,9 @@ Content-Type: application/json
 ### DailyProgress Table
 **Columns:**
 - `Id`: INTEGER, Primary Key, Auto Increment
-- `Date`: DATE, Required
+- `Month`: STRING, Required
+- `DayName`: STRING, Required
+- `Date`: DATEONLY, Required
 - `Memorization_Progress_Surah`: STRING, Required
 - `Memorization_Progress_Ayah`: INTEGER, Required
 - `Revision_Progress_Surah`: STRING, Required
@@ -854,72 +1065,90 @@ Content-Type: application/json
 **Section sources**
 - [API_Endpoints_Guide.txt:27-319](file://backend/API_Endpoints_Guide.txt#L27-L319)
 - [User.js:6-65](file://backend/src/models/User.js#L6-L65)
-- [Aria.js:4-58](file://backend/src/models/Aria.js#L4-L58)
+- [Student.js:6-118](file://backend/src/models/Student.js#L6-L118)
 
 ## Implementation Guidelines
 
 ### Authentication Best Practices
-1. **Token Storage**: Store JWT tokens securely using HttpOnly cookies or secure storage mechanisms
-2. **Token Expiration**: Tokens expire after 7 days as configured in the login controller
+1. **Dual Token Management**: Store admin tokens (7-day expiry) and student tokens (1-day expiry) separately
+2. **Token Storage**: Store JWT tokens securely using HttpOnly cookies or secure storage mechanisms
 3. **Header Format**: Always use "Bearer <token>" format for Authorization headers
 4. **Error Handling**: Implement proper error handling for expired or invalid tokens
+5. **Role-Based Access**: Use appropriate middleware (UserAuth for admin operations, StudentAuth for student operations)
 
 ### Rate Limiting and Security
 1. **Input Validation**: All endpoints validate input data types and constraints
 2. **SQL Injection Prevention**: Sequelize ORM automatically handles parameter binding
 3. **Password Security**: Passwords are hashed using bcrypt with 10 rounds
 4. **Role-Based Access**: Implement proper authorization checks for admin-only endpoints
+5. **Student Authentication**: Separate JWT secret and expiration for student accounts
 
 ### Database Design Principles
 1. **Foreign Key Constraints**: All relationships maintain referential integrity
-2. **Indexing Strategy**: Consider adding indexes on frequently queried columns
+2. **Indexing Strategy**: Consider adding indexes on frequently queried columns (Username, HalakatId, status)
 3. **Data Types**: Use appropriate data types for optimal storage and performance
 4. **Default Values**: Many fields have sensible defaults to ensure data consistency
+5. **Status Tracking**: Student status field enables comprehensive suspension and expulsion tracking
 
 ### API Versioning
 - **Current Version**: v1 (embedded in base URL)
 - **Future Enhancement**: Consider implementing version-specific endpoints for backward compatibility
 
-### Area Management Specific Guidelines
-1. **Area Creation**: Ensure CenterId, SupervisorId, and MentorId are valid foreign keys
-2. **Area Filtering**: Use proper query parameters for supervisor/mentor filtering
-3. **Student Counting**: Implement efficient joins for counting students across halakat
-4. **Name Search**: Use LIKE operator for partial name matching with proper escaping
+### Student Management Specific Guidelines
+1. **Student Authentication**: Use `/students/login` for student accounts, `/users/login` for admin accounts
+2. **Status Management**: Use appropriate status values (مستمر, منقطع, مفصول) for student records
+3. **Academic Progress**: Implement proper tracking of memorization progress with Surah and Ayah references
+4. **Movement Tracking**: Use halakat ID changes to track student movement between classes
+5. **Administrative Reporting**: Utilize counting endpoints for area and center-level reporting
+
+### Academic Progress Tracking Guidelines
+1. **Daily Progress**: Implement structured daily progress logging with level assessments
+2. **Monthly Ratings**: Use comprehensive rating system covering memorization, recitation, Tajweed, and motoon
+3. **Progress Monitoring**: Regular progress updates enable early intervention for struggling students
+4. **Data Analytics**: Historical progress data supports performance analysis and improvement planning
 
 **Section sources**
-- [UserController.js:59-76](file://backend/src/controllers/UserController.js#L59-L76)
-- [AreaController.js:57-204](file://backend/src/controllers/AreaController.js#L57-L204)
-- [auth.js:11](file://backend/src/middleware/auth.js#L11)
+- [StudentController.js:8-26](file://backend/src/controllers/StudentController.js#L8-L26)
+- [StudentController.js:211-260](file://backend/src/controllers/StudentController.js#L211-L260)
+- [StudentController.js:299-345](file://backend/src/controllers/StudentController.js#L299-L345)
+- [StudentAuth.js:11-25](file://backend/src/middleware/StudentAuth.js#L11-L25)
 
 ## Testing and Debugging
 
 ### Development Setup
-1. **Environment Variables**: Configure `.env` file with database credentials and JWT secret
+1. **Environment Variables**: Configure `.env` file with database credentials and JWT secrets for both admin and student authentication
 2. **Database Migration**: Run `sequelize.sync({ alter: true })` to create/update tables
-3. **Server Start**: Use `npm start` to launch the server on configured port
+3. **Server Start**: Use `npm start` to launch the server on configured port (8000)
 
 ### Testing Strategies
 1. **Unit Testing**: Test individual controller functions with mock data
-2. **Integration Testing**: Test complete request/response cycles
-3. **Authentication Testing**: Verify JWT token generation and validation
+2. **Integration Testing**: Test complete request/response cycles for both admin and student endpoints
+3. **Authentication Testing**: Verify JWT token generation and validation for both admin and student accounts
 4. **Database Testing**: Test CRUD operations with test database
+5. **Status Management Testing**: Verify suspension, expulsion, and resumption workflows
+6. **Academic Progress Testing**: Validate progress tracking and reporting endpoints
 
 ### Debugging Tools
 1. **Logging**: Server logs database connections and synchronization status
 2. **Error Tracking**: Centralized error handling with detailed error messages
 3. **Request Monitoring**: Track API usage patterns and performance metrics
 4. **Database Monitoring**: Monitor query performance and optimize slow queries
+5. **Authentication Debugging**: Log JWT verification and student account validation
 
 ### Common Issues and Solutions
 1. **Database Connection Failed**: Verify database credentials and network connectivity
-2. **JWT Token Invalid**: Check token format and expiration time
+2. **JWT Token Invalid**: Check token format and expiration time for both admin and student tokens
 3. **Missing Required Fields**: Ensure all mandatory fields are provided in requests
 4. **Permission Denied**: Verify user role and required authorization level
-5. **Area Foreign Key Errors**: Ensure CenterId, SupervisorId, and MentorId reference valid records
+5. **Student Authentication Failure**: Verify student account exists and credentials are correct
+6. **Status Management Errors**: Ensure proper status transitions and required reason/date fields
+7. **Academic Progress Issues**: Validate Surah and Ayah references follow Quranic conventions
+8. **Student Movement Errors**: Verify target halakat exists and student can be moved
 
 **Section sources**
 - [server.js:8-23](file://backend/server.js#L8-L23)
-- [auth.js:10-23](file://backend/src/middleware/auth.js#L10-L23)
+- [StudentAuth.js:7-25](file://backend/src/middleware/StudentAuth.js#L7-L25)
+- [StudentController.js:16-25](file://backend/src/controllers/StudentController.js#L16-L25)
 
 ## Troubleshooting Guide
 
@@ -929,9 +1158,13 @@ Content-Type: application/json
 - **Verification**: Look for "Database connected" and "Database synced successfully!" in logs
 
 ### Authentication Problems
-- **Problem**: 401 Unauthorized responses
+- **Problem**: 401 Unauthorized responses for admin endpoints
 - **Solution**: Verify JWT token format and ensure Authorization header uses "Bearer" prefix
 - **Debug**: Check JWT_SECRET environment variable and token expiration
+
+- **Problem**: 401 Unauthorized responses for student endpoints
+- **Solution**: Verify student JWT token format and ensure Authorization header uses "Bearer" prefix
+- **Debug**: Check JWT_SECRET environment variable and student token expiration (1 day)
 
 ### Database Synchronization
 - **Problem**: Tables not created or updated
@@ -943,10 +1176,27 @@ Content-Type: application/json
 - **Solution**: Verify route prefixes (/users, /centers, /halaqat, /areas, /students)
 - **Debug**: Check route definitions and controller exports
 
+### Student Management Issues
+- **Problem**: Student authentication failing
+- **Solution**: Verify student account exists and credentials are correct
+- **Debug**: Check student table for existing username/password combinations
+
+- **Problem**: Status management operations failing
+- **Solution**: Ensure proper status transitions and required reason/date fields
+- **Debug**: Validate status enum values and reason/date formats
+
+- **Problem**: Academic progress tracking not working
+- **Solution**: Verify Surah and Ayah references follow Quranic conventions
+- **Debug**: Check daily progress and monthly rating table relationships
+
+- **Problem**: Student movement between halakat failing
+- **Solution**: Verify target halakat exists and student can be moved
+- **Debug**: Check halakat foreign key constraints
+
 ### Data Validation Errors
 - **Problem**: 400 Bad Request responses
 - **Solution**: Ensure all required fields are provided and data types match model definitions
-- **Check**: Validate ENUM values match allowed options (e.g., Gender, Role, Category)
+- **Check**: Validate ENUM values match allowed options (e.g., Gender, Role, Category, Status)
 
 ### Area Management Issues
 - **Problem**: Area creation failing with foreign key errors
@@ -957,20 +1207,23 @@ Content-Type: application/json
 
 **Section sources**
 - [server.js:8-23](file://backend/server.js#L8-L23)
-- [auth.js:7-23](file://backend/src/middleware/auth.js#L7-L23)
-- [AreaController.js:72-89](file://backend/src/controllers/AreaController.js#L72-L89)
+- [StudentAuth.js:7-25](file://backend/src/middleware/StudentAuth.js#L7-L25)
+- [StudentController.js:16-25](file://backend/src/controllers/StudentController.js#L16-L25)
 
 ## Conclusion
-The Khirocom API provides a comprehensive RESTful interface for educational institution management with full Arabic and English support. The current implementation covers all 10 planned endpoints with robust authentication, comprehensive data models, and detailed error handling. The system is designed for scalability with clear separation of concerns and follows modern API development best practices.
+The Khirocom API provides a comprehensive RESTful interface for educational institution management with full Arabic and English support. The current implementation covers all 10 planned endpoints with robust authentication, comprehensive data models, detailed error handling, and extensive student management capabilities. The system now includes a complete student management module with advanced authentication, status management, academic progress tracking, and administrative reporting features.
 
 Key strengths of the current implementation:
-- Complete JWT-based authentication system
+- Complete JWT-based authentication system for both admin and student accounts
 - Comprehensive Arabic and English language support
 - Well-defined data models with proper relationships
 - Extensive error handling and validation
 - Modular architecture supporting future expansion
 - Ready for production deployment with proper security measures
-- Full Area Management API with comprehensive CRUD operations
+- Full Student Management API with comprehensive CRUD operations
+- Advanced status management (suspend/expel/resume) with detailed administrative controls
+- Academic progress tracking with daily progress and monthly ratings
+- Administrative reporting capabilities for area and center-level statistics
 
 Future enhancements could include:
 - Advanced filtering and pagination for large datasets
@@ -978,7 +1231,9 @@ Future enhancements could include:
 - Comprehensive API documentation with OpenAPI/Swagger
 - Automated testing suite with continuous integration
 - Performance monitoring and optimization tools
-- Enhanced area analytics and reporting capabilities
+- Enhanced student analytics and reporting dashboards
+- Mobile application integration for student progress tracking
+- Integration with external educational assessment systems
 
 **Section sources**
 - [API_Endpoints_Guide.txt:345-375](file://backend/API_Endpoints_Guide.txt#L345-L375)
