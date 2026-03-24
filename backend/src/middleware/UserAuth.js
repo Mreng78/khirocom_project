@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { User, Student } = require('../models');
 
-module.exports = async(req, res, next) => {
+module.exports = async (req, res, next) => {
     try {
         const header = req.headers.authorization;
         if (!header) {
@@ -10,16 +10,30 @@ module.exports = async(req, res, next) => {
         const token = header.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decoded);
-        const user = await User.findByPk(decoded.Id);
-        if(!user)
-        {
-            return res.status(401).json({ message: "user not found" });
+
+        // Check if this is a Student token
+        if (decoded.Role === "Student") {
+            const student = await Student.findByPk(decoded.Id);
+            if (!student) {
+                return res.status(401).json({ message: "user not found" });
+            }
+            console.log(student);
+            req.user = student;
+            req.userType = "Student";
+            next();
+        } else {
+            // This is a User token
+            const user = await User.findByPk(decoded.Id);
+            if (!user) {
+                return res.status(401).json({ message: "user not found" });
+            }
+            console.log(user);
+            req.user = user;
+            req.userType = "User";
+            next();
         }
-        console.log(user);
-        req.user = user;
-        next();
     } catch (error) {
         console.log(error);
         return res.status(401).json({ message: "invalid token" });
     }
-}
+};

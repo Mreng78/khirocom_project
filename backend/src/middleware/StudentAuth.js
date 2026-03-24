@@ -1,26 +1,32 @@
 const jwt = require('jsonwebtoken');
-const Student = require('../models/Student');
-
+const { User, Student } = require('../models');
 
 module.exports = async (req, res, next) => {
-    try{
+    try {
         const header = req.headers.authorization;
-        if(!header)
-        {
+        if (!header) {
             return res.status(401).json({ message: 'No token, authorization denied' });
         }
-        const token=header.split(' ')[1];
+        const token = header.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const student = await Student.findByPk(decoded.id);
         console.log(decoded);
-        if(!student)
-        {
-            return res.status(404).json({ message: 'Student not found' });
+
+        // Check if this is a Student token
+        if (decoded.Role === "Student") {
+            const student = await Student.findByPk(decoded.Id);
+            if (!student) {
+                return res.status(404).json({ message: 'Student not found' });
+            }
+            console.log(student);
+            req.user = student;
+            req.userType = "Student";
+            next();
+        } else {
+            // This is a User token - students endpoint shouldn't accept User tokens
+            return res.status(403).json({ message: 'Access denied. Student authentication required.' });
         }
-        console.log(student);
-        req.student = student;
-        next();
-    }catch(error){
+    } catch (error) {
+        console.log(error);
         return res.status(401).json({ message: 'Invalid token, authorization denied' });
     }
 };

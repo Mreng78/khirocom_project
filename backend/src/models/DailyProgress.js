@@ -10,10 +10,6 @@ DailyProgress.init(
       primaryKey: true,
       autoIncrement: true,
     },
-    Date: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
     Memorization_Progress_Surah: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -44,6 +40,23 @@ DailyProgress.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    month: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    DayName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+   
     StudentId: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -4,12 +4,12 @@ const studentsController = require('../controllers/StudentController');
 const userauth = require('../middleware/UserAuth');
 const studentauth = require('../middleware/StudentAuth');
 
-router.post('/login', studentsController.login);
+
 router.get('/getallstudents',userauth, studentsController.getallstudents);
 router.get('/getstudentbyhalaqatid',userauth, studentsController.getstudentbyhalaqatid);
-router.put('/updateme',userauth, studentsController.updateme);
+router.put('/updateme',studentauth, studentsController.updateme);
 router.put('/updatestudent',userauth, studentsController.updatestudent);
-router.post('/addnewstudent',userauth, studentsController.addnewstudent);
+router.post('/addnewstudent', studentsController.addnewstudent);
 router.delete('/deletestudent',userauth, studentsController.deletestudent);
 router.get('/getstudentbyid',userauth, studentsController.getstudentbyid);
 router.get('/getstudentsbyname',userauth, studentsController.getstudentsbyname);

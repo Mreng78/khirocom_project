@@ -4,28 +4,6 @@ const { Halakat, Aria } = require('../models');
 const Student = require('../models/Student');
 const { Op } = require('sequelize');
  
-//* login
-exports.login = async (req, res) => {
-    try{
-        const { Username, Password } = req.body;
-        const student = await Student.findOne({ where: { Username: Username } },
-            {
-                attributes: { exclude: ['Password','dismissedReason','dismissedDate'] },
-            }
-        );
-        if(!student)
-            return res.status(404).json({ message: "الطالب غير موجود" });
-        const isPasswordMatch = await bcrypt.compare(Password, student.Password);
-        if(!isPasswordMatch)
-            return res.status(401).json({ message: "كلمة المرور غير صحيحة" });
-        const token = jwt.sign({ id: student.Id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-        return res.status(200).json({ message: "تم تسجيل الدخول بنجاح", token });
-    } catch (error) {
-        return res.status(500).json({ message: "خطأ أثناء تسجيل الدخول", error: error.message });
-    }
-};
-
-
 //* update me
 exports.updateme = async (req, res) => {
     try {
@@ -58,10 +36,12 @@ exports.updateme = async (req, res) => {
 //* add new students
 exports.addnewstudent = async (req, res) => {
     try {
-        const student = await Student.create(req.body);
+        // Hash the password before creating the student
         const hashedPassword = await bcrypt.hash(req.body.Password, 10);
         console.log('Hashed Password:', hashedPassword);
         req.body.Password = hashedPassword;
+        
+        const student = await Student.create(req.body);
         return res.status(200).json({ message: "تم إضافة الطالب", student });
     } catch (error) {
         return res.status(500).json({ message: "خطأ أثناء إضافة الطالب", error: error.message });
