@@ -9,6 +9,10 @@ router.post('/add',auth, dailyProgressController.adddailyprogress);
 router.put('/update',auth, dailyProgressController.updatedailyprogress);
 router.delete('/delete',auth, dailyProgressController.deletedailyprogress);
 router.delete('/deletebystudentid',auth, dailyProgressController.deletedailyprogressbystudentid);
+router.get('/getbydate',auth, dailyProgressController.getdailyprogressbydate);
+router.get('/getbydaterange',auth, dailyProgressController.getdailyprogressbydaterange);
+router.get('/getbydateandstudentid',auth, dailyProgressController.getdailyprogressbydateandstudentid);
+router.get('/getbydaterangeandstudentid',auth, dailyProgressController.getdailyprogressbydaterangeandstudentid);
 
 
 module.exports = router;

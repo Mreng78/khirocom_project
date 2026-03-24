@@ -90,3 +90,90 @@ exports.deletedailyprogressbystudentid = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+//* get by date 
+exports.getdailyprogressbydate = async (req, res) => {
+    try {
+        const date = req.body.date;
+        const dailyprogress = await DailyProgress.findAll({
+            where: { Date: date },
+            include: [
+                {
+                    model: Student,
+                    as: 'ProgressStudent',
+                    attributes: ['Name']
+                }
+            ]
+        });
+        res.status(200).json(dailyprogress);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+//* get by date range
+exports.getdailyprogressbydaterange = async (req, res) => {
+    try {
+        const { date1, date2 } = req.body;
+        const dailyprogress = await DailyProgress.findAll({
+            where: {
+                Date: {
+                    [Op.between]: [date1, date2]
+                }
+            },
+            include: [
+                {
+                    model: Student,
+                    as: 'ProgressStudent',
+                    attributes: ['Name']
+                }
+            ]
+        });
+        res.status(200).json(dailyprogress);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+//* get by date and student id
+exports.getdailyprogressbydateandstudentid = async (req, res) => {
+    try {
+        const { date, studentid } = req.body;
+        const dailyprogress = await DailyProgress.findAll({
+            where: { Date: date, StudentId: studentid },
+            include: [
+                {
+                    model: Student,
+                    as: 'ProgressStudent',
+                    attributes: ['Name']
+                }
+            ]
+        });
+        res.status(200).json(dailyprogress);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+//* get by date range and student id
+exports.getdailyprogressbydaterangeandstudentid = async (req, res) => {
+    try {
+        const { date1, date2, studentid } = req.body;
+        const dailyprogress = await DailyProgress.findAll({
+            where: { Date: { [Op.between]: [date1, date2] }, StudentId: studentid },
+            include: [
+                {
+                    model: Student,
+                    as: 'ProgressStudent',
+                    attributes: ['Name']
+                }
+            ]
+        });
+        res.status(200).json(dailyprogress);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
