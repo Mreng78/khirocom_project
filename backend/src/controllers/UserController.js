@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
-
+const { Op } = require("sequelize");
 //* update me endpoint
 
 exports.updateme = async (req, res) => {
@@ -23,9 +23,7 @@ exports.updateme = async (req, res) => {
     const updates = {};
 
     for (let key of allowedUpdates) {
-    
       if (req.body.hasOwnProperty(key)) {
-        
         if (key === "Password" && req.body[key]) {
           updates[key] = await bcrypt.hash(req.body[key], 10);
         } else {
@@ -110,21 +108,20 @@ exports.Login = async (req, res) => {
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      const token = jwt.sign({ Id: user.Id, Role: user.Role }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-      });
+      const token = jwt.sign(
+        { Id: user.Id, Role: user.Role },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "7d",
+        },
+      );
+
+      // Remove password from user object before sending response
+      const { Password: _, ...userWithoutPassword } = user.toJSON();
 
       return res.status(200).json({
         message: "Login successful",
-        userId: user.Id,
-        Name: user.Name,
-        PhoneNumber: user.PhoneNumber,
-        Role: user.Role,
-        AvatarUrl: user.AvtarUrl,
-        Gender: user.Gender,
-        Age: user.Age,
-        EducationLevel: user.EducationLevel,
-        Address: user.Address,
+        user: userWithoutPassword,
         token,
       });
     }
@@ -144,21 +141,21 @@ exports.Login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ Id: student.Id, Role: "Student" }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { Id: student.Id, Role: "Student" },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      },
+    );
+
+    //! Remove password from student object before sending response
+    const { Password: _, ...studentWithoutPassword } = student.toJSON();
 
     return res.status(200).json({
       message: "Login successful",
-      userId: student.Id,
-      Name: student.Name,
-      PhoneNumber: student.phoneNumber,
+      student: studentWithoutPassword,
       Role: "طالب",
-      AvatarUrl: student.ImageUrl,
-      Gender: student.Gender,
-      Age: student.Age,
-      EducationLevel: null,
-      Address: null,
       token,
     });
   } catch (error) {
@@ -170,10 +167,10 @@ exports.Login = async (req, res) => {
 exports.GetUserByName = async (req, res) => {
   try {
     const name = req.body.Name;
-    const user = await User.findOne({
-      where: { Name: name },
+    const users = await User.findAll({
+      where: { Name: { [Op.like]: `%${name}%` } },
     });
-    return res.status(200).json({ user });
+    return res.status(200).json({ users });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

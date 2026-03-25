@@ -10,7 +10,17 @@ const MonthlyRating = require("./MonthlyRating");
 const DailyProgress = require("./DailyProgress");
 const Notification = require("./Notification");
 const Aria = require("./Aria");
-const Graduate=require('./Graduate')
+const Graduate=require('./Graduate');
+const MentorVisit = require("./MentorVisit");
+
+
+// ? MentorVisit ↔halaqah (many to one)
+Halakat.hasMany(MentorVisit, { foreignKey: "HalakatId", as: "HalakatMentorVisits" });
+MentorVisit.belongsTo(Halakat, { foreignKey: "HalakatId", as: "Halakat" });
+
+//? monthlyRating ↔ Mentorvisit (many-to-one)
+MonthlyRating.hasMany(MentorVisit, { foreignKey: "MonthlyRatingId", as: "MonthlyRatingMentorVisits" });
+MentorVisit.belongsTo(MonthlyRating, { foreignKey: "MonthlyRatingId", as: "MonthlyRating" });
 
 
 //? Area ↔ Center (One-to-many)
@@ -82,5 +92,6 @@ module.exports = {
   DailyProgress,
   Notification,
   Aria,
-  Graduate
+  Graduate,
+  MentorVisit,
 };
