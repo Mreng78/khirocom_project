@@ -18,10 +18,9 @@ const MentorVisit = require("./MentorVisit");
 Halakat.hasMany(MentorVisit, { foreignKey: "HalakatId", as: "HalakatMentorVisits" });
 MentorVisit.belongsTo(Halakat, { foreignKey: "HalakatId", as: "Halakat" });
 
-//? monthlyRating ↔ Mentorvisit (many-to-one)
-MonthlyRating.hasMany(MentorVisit, { foreignKey: "MonthlyRatingId", as: "MonthlyRatingMentorVisits" });
-MentorVisit.belongsTo(MonthlyRating, { foreignKey: "MonthlyRatingId", as: "MonthlyRating" });
-
+//? User (Mentor) ↔ MentorVisit (one-to-many)
+User.hasMany(MentorVisit, { foreignKey: "MentorId", as: "MentorVisits" });
+MentorVisit.belongsTo(User, { foreignKey: "MentorId", as: "Mentor" });
 
 //? Area ↔ Center (One-to-many)
 Center.hasMany(Aria, { foreignKey: "CenterId", as: "CenterArias" });
