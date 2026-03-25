@@ -177,3 +177,35 @@ exports.getdailyprogressbydaterangeandstudentid = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+//*get all daily progress by halaqah id
+exports.getdailyprogressbyhalaqahid = async (req, res) => {
+    try {
+        const halaqahid = req.body.halaqahid;
+        
+        // Find all students in the halaqah, include their daily progress
+        const students = await Student.findAll({
+            where: { HalakatId: halaqahid },
+            attributes: ['Id', 'Name'],
+            include: [
+                {
+                    model: DailyProgress,
+                    as: 'Progresses'
+                }
+            ]
+        });
+        
+        // Extract all daily progress from students
+        const dailyprogress = students.flatMap(student =>
+            student.Progresses.map(progress => ({
+                ...progress.toJSON(),
+                StudentName: student.Name,
+                StudentId: student.Id
+            }))
+        );
+        
+        res.status(200).json({ message: "Daily progress fetched successfully", dailyprogress });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

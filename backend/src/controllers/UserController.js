@@ -167,10 +167,10 @@ exports.Login = async (req, res) => {
 exports.GetUserByName = async (req, res) => {
   try {
     const name = req.body.Name;
-    const user = await User.findOne({
+    const users = await User.findAll({
       where: { Name: { [Op.like]: `%${name}%` } },
     });
-    return res.status(200).json({ user });
+    return res.status(200).json({ users });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

@@ -10,18 +10,6 @@ MonthlyRating.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    Month:
-    {
-      type: DataTypes.STRING,
-      validate: { notEmpty: true },
-      allowNull: false,
-    },
-    Year:
-    {
-      type: DataTypes.INTEGER,
-      validate: { notEmpty: true },
-      allowNull: false,
-    },
     Memoisation_degree: {
       type: DataTypes.FLOAT,
       allowNull: false,
@@ -62,6 +50,15 @@ MonthlyRating.init(
         key: "Id",
       },
     },
+    MentorVisetId:
+    {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "mentor_visits",
+        key: "Id",
+      },
+    }
   },
   {
     sequelize,
