@@ -27,12 +27,14 @@ app.use('/mentorvisit', MentorVisitRoutes);
 app.use('/monthlyrate', MonthlyRateRoutes);
 app.use('/notification', NotificationRoutes);
 app.use('/activity', ActivityRoutes);
-
+app.use('/uploads', express.static('uploads'));
 
 app.get('/',(req,res)=>
 {
     res.send('Hello World');
 })
+
+
 
 
 module.exports=app;
