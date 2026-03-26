@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 //* update me
 exports.updateme = async (req, res) => {
     try {
-        const id = req.body.id;
+        const id = req.body.id || req.student.id;
         const allowedFields = ['Name', 'Username', 'Password', 'phoneNumber', 'Age', 'ImageUrl'];
         const hashedPassword = await bcrypt.hash(req.body.Password, 10);
         console.log('Hashed Password:', hashedPassword);

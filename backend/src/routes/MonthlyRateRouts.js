@@ -4,13 +4,13 @@ const auth=require("../middleware/UserAuth")
 const MonthlyRateController=require('../controllers/MonthlyRateController')
 
 
-router.post("/add",MonthlyRateController.AddMonthlyRate);
-router.get("/getall",MonthlyRateController.GetMonthlyRate);
-router.put("/update",MonthlyRateController.UpdateMonthlyRate);
-router.delete("/delete",MonthlyRateController.DeleteMonthlyRate);
-router.get("/getbyid",MonthlyRateController.GetMonthlyRateById);
-router.get("/getbystudentid",MonthlyRateController.getMonthlyRateByStudentId);
-router.get("/getbyvisitid",MonthlyRateController.getMonthlyRateByVisitId);
+router.post("/add",auth,MonthlyRateController.AddMonthlyRate);
+router.get("/getall",auth,MonthlyRateController.GetMonthlyRate);
+router.put("/update",auth,MonthlyRateController.UpdateMonthlyRate);
+router.delete("/delete",auth,MonthlyRateController.DeleteMonthlyRate);
+router.get("/getbyid",auth,MonthlyRateController.GetMonthlyRateById);
+router.get("/getbystudentid",auth,MonthlyRateController.getMonthlyRateByStudentId);
+router.get("/getbyvisitid",auth,MonthlyRateController.getMonthlyRateByVisitId);
 
 
 module.exports = router;
