@@ -34,7 +34,13 @@ Notification.init({
     Type:
     {
         type:DataTypes.ENUM,
-        values:['Personal','General'],
+        values:['general','personal'],
+        allowNull:false
+    },
+    forWho:
+    {
+        type:DataTypes.ENUM,
+        values:['students','Teachers','supervisors','mentors'],
         allowNull:false
     },
     IsRead:
