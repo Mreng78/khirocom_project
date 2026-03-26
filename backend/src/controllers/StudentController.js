@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Halakat, Aria } = require('../models');
+const { Halakat, Aria, Center } = require('../models');
 const Student = require('../models/Student');
 const { Op } = require('sequelize');
  
@@ -67,6 +67,9 @@ exports.getallstudents=async(req,res)=>
             }
             
         );
+        if (students.length === 0) {
+            return res.status(404).json({message:"No students found"});
+        }
         return res.status(200).json({message:"تم الحصول على الطلاب",students});
     } catch (error) {
         return res.status(500).json({message:"خطأ أثناء الحصول على الطلاب", error:error.message});
@@ -82,6 +85,9 @@ exports.getstudentbyhalaqatid=async(req,res)=>
             where: { HalakatId: halaqatid },
             attributes: { exclude: ['Password','dismissedReason','dismissedDate'] }
         });
+        if (students.length === 0) {
+            return res.status(404).json({message:"No students found in this halaqah"});
+        }
         return res.status(200).json({message:"تم الحصول على الطلاب",students});
     }catch(error)
     {
@@ -137,6 +143,9 @@ exports.getstudentbyid = async (req, res) => {
                 ]
             }
         );
+        if (!student) {
+            return res.status(404).json({ message: "الطالب غير موجود" });
+        }
         return res.status(200).json({ message: "تم الحصول على الطالب", student });
     } catch (error) {
         return res.status(500).json({ message: "خطأ أثناء الحصول على الطالب", error: error.message });
@@ -161,6 +170,9 @@ exports.getstudentsbyname = async (req, res) => {
             },
             attributes: { exclude: ['Password','dismissedReason','dismissedDate'] },
         });
+        if (students.length === 0) {
+            return res.status(404).json({ message: "No students found with this name" });
+        }
         
         console.log('Students found:', students.length);
         return res.status(200).json({ message: "تم الحصول على الطلاب", students });
@@ -323,3 +335,65 @@ exports.getstudentscountbycenter = async (req, res) => {
         return res.status(500).json({ message: "خطأ أثناء الحصول على عدد الطلاب", error: error.message });
     }
 };
+
+
+//* get all student in area
+exports.getallstudentsbyarea=async(req,res)=>
+{
+    try{
+        const areaid = req.body.areaid;
+        const students = await Student.findAll({
+            attributes: { exclude: ['Password'] },
+            include: [
+                {
+                    model: Halakat,
+                    as: 'StudentHalakat',
+                    where: { AriaId: areaid }
+                }
+            ]
+        });
+        if (students.length === 0) {
+            return res.status(404).json({ message: "No students found in this area" });
+        }
+        return res.status(200).json({ message: "تم الحصول على الطلاب", students });
+    }catch (error)
+    {
+        return res.status(500).json({ message: "خطأ أثناء الحصول على الطلاب", error: error.me
+ });
+    }
+}
+//* get all students in center
+exports.getallstudentsbycenter=async(req,res)=>
+{
+    try{
+        const centerid = req.body.centerid || req.body.CenterId || req.query.centerid || req.query.CenterId;
+        if (!centerid) {
+            return res.status(400).json({ message: "centerid or CenterId is required" });
+        }
+        const students = await Student.findAll({
+            attributes: { exclude: ['Password'] },
+            include: [
+                {
+                    model: Halakat,
+                    as: 'StudentHalakat',
+                    required: true,
+                    include: [
+                        {
+                            model: Aria,
+                            as: 'Aria',
+                            required: true,
+                            where: { CenterId: centerid }
+                        }
+                    ]
+                }
+            ]
+        });
+        if (students.length === 0) {
+            return res.status(404).json({ message: "No students found in this center" });
+        }
+        return res.status(200).json({ message: "تم الحصول على الطلاب", students });
+    }catch (error)
+    {
+        return res.status(500).json({ message: "خطأ أثناء الحصول على الطلاب", error: error.message });
+    }
+}

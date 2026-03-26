@@ -26,7 +26,7 @@ MentorVisit.init({
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  HalaqahId:
+  HalakatId:
   {
     type: DataTypes.INTEGER,
     allowNull: false,

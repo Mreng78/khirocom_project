@@ -12,16 +12,20 @@ const Notification = require("./Notification");
 const Aria = require("./Aria");
 const Graduate=require('./Graduate');
 const MentorVisit = require("./MentorVisit");
+const Activity = require("./Activity");
+
+//? activity ↔ halaqah (one to many)
+Halakat.hasMany(Activity, { foreignKey: "HalaqahId", as: "HalakatActivities" });
+Activity.belongsTo(Halakat, { foreignKey: "HalaqahId", as: "Halakat" });
 
 
-// ? MentorVisit ↔halaqah (many to one)
+// ? MentorVisit ↔ halaqah (many to one)
 Halakat.hasMany(MentorVisit, { foreignKey: "HalakatId", as: "HalakatMentorVisits" });
 MentorVisit.belongsTo(Halakat, { foreignKey: "HalakatId", as: "Halakat" });
 
-//? monthlyRating ↔ Mentorvisit (many-to-one)
-MonthlyRating.hasMany(MentorVisit, { foreignKey: "MonthlyRatingId", as: "MonthlyRatingMentorVisits" });
-MentorVisit.belongsTo(MonthlyRating, { foreignKey: "MonthlyRatingId", as: "MonthlyRating" });
-
+//? User (Mentor) ↔ MentorVisit (one-to-many)
+User.hasMany(MentorVisit, { foreignKey: "MentorId", as: "MentorVisits" });
+MentorVisit.belongsTo(User, { foreignKey: "MentorId", as: "Mentor" });
 
 //? Area ↔ Center (One-to-many)
 Center.hasMany(Aria, { foreignKey: "CenterId", as: "CenterArias" });
@@ -94,4 +98,5 @@ module.exports = {
   Aria,
   Graduate,
   MentorVisit,
+  Activity,
 };

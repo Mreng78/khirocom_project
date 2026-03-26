@@ -25,6 +25,9 @@ exports.GetCenters = async (req, res) => {
                 }
             ]
         });
+        if (centers.length === 0) {
+            return res.status(404).json({ message: "No centers found" });
+        }
         return res.status(200).json({ message: "Centers retrieved successfully", centers });
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -35,7 +38,10 @@ exports.GetCenters = async (req, res) => {
 exports.GetCenterById = async (req, res) => {
     try{
         const id = req.id;
-        const center = await Center.findOne(id);
+        const center = await Center.findOne({ where: { id: id } });
+         if (!center) {
+            return res.status(404).json({ message: "Center not found" });
+        }
         return res.status(200).json({ message: "Center retrieved successfully", center });
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -56,6 +62,9 @@ exports.getCenterbymanagerid = async (req, res) => {
             }
         ]
        });
+       if (centers.length === 0) {
+           return res.status(404).json({ message: "No centers found" });
+       }
        return res.status(200).json({ message: "Centers retrieved successfully", centers });
     }
     catch (error) {
@@ -67,8 +76,11 @@ exports.getCenterbymanagerid = async (req, res) => {
 //* Update Center
 exports.updateCenter = async (req, res) => {
     try{
-        const id = req.user.Id;  // من auth middleware
+        const id = req.user.Id;  // !من auth middleware
         const center = await Center.update(req.body, { where: { id: id } });
+        if (!center) {
+            return res.status(404).json({ message: "Center not found" });
+        }
         return res.status(200).json({ message: "Center updated successfully", center });
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -79,7 +91,10 @@ exports.updateCenter = async (req, res) => {
 //* Delete Center
 exports.deleteCenter = async (req, res) => {
     try{
-        const id = req.user.Id;  // من auth middleware
+        const id = req.user.Id;  //! من auth middleware
+        if (!center) {
+            return res.status(404).json({ message: "Center not found" });
+        }
         const center = await Center.destroy({ where: { id: id } });
         return res.status(200).json({ message: "Center deleted successfully", center });
     } catch (error) {
