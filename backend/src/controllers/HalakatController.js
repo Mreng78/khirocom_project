@@ -72,7 +72,9 @@ exports.getallhalaqat = async (req, res) => {
       ],
       group: ["Halakat.Id", "Teacher.Id", "Aria.Id"],
     });
-
+    if (halaqat.length === 0) {
+      return res.status(404).json({ message: "No halaqat found" });
+    } 
     return res
       .status(200)
       .json({ message: "تم الحصول على جميع الحلقات", halaqat });
@@ -232,7 +234,8 @@ exports.gethalaqahbyareaid=async (req, res) => {
         },
       ],
     });
-    return res.status(200).json({ message: "تم الحصول على الحلقات", halaqat });
+    if (halaqat.length === 0)
+      return res.status(404).json({ message: "No halaqat found" });
   } catch (error) {
     return res
       .status(500)

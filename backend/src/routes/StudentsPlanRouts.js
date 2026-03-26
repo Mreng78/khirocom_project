@@ -13,5 +13,4 @@ router.delete("/deletestudentplan",userauth, studentsplancontroller.deleteStuden
 router.get("/getstudentplanbystudentid",userauth, studentsplancontroller.getStudentPlanByStudentId);
 router.get("/getstudentplanbyhalaqahid",userauth, studentsplancontroller.getStudentPlansByHalaqahId);
 
-
 module.exports=router

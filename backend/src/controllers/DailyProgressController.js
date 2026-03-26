@@ -14,6 +14,9 @@ exports.getalldailyprogress = async (req, res) => {
                 }
             ]
         });
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ message: "No daily progress found" });
+        }
         res.status(200).json(dailyprogress);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -35,6 +38,9 @@ exports.getdailyprogressbystudentid = async (req, res) => {
                 }
             ]
         });
+        if (progress.length === 0) {
+            return res.status(404).json({ message: "No daily progress found" });
+        }
         res.status(200).json(progress);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -105,6 +111,9 @@ exports.getdailyprogressbydate = async (req, res) => {
                 }
             ]
         });
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ message: "No daily progress found" });
+        }
         res.status(200).json(dailyprogress);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -130,6 +139,9 @@ exports.getdailyprogressbydaterange = async (req, res) => {
                 }
             ]
         });
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ message: "No daily progress found" });
+        }
         res.status(200).json(dailyprogress);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -151,6 +163,9 @@ exports.getdailyprogressbydateandstudentid = async (req, res) => {
                 }
             ]
         });
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ message: "No daily progress found" });
+        }
         res.status(200).json(dailyprogress);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -194,7 +209,9 @@ exports.getdailyprogressbyhalaqahid = async (req, res) => {
                 }
             ]
         });
-        
+        if (students.length === 0) {
+            return res.status(404).json({ message: "No students found in this halaqah" });
+        }
         // Extract all daily progress from students
         const dailyprogress = students.flatMap(student =>
             student.Progresses.map(progress => ({
@@ -203,6 +220,9 @@ exports.getdailyprogressbyhalaqahid = async (req, res) => {
                 StudentId: student.Id
             }))
         );
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ message: "No daily progress found" });
+        }
         
         res.status(200).json({ message: "Daily progress fetched successfully", dailyprogress });
     } catch (error) {

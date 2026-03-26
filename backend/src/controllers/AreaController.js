@@ -22,6 +22,9 @@ exports.getallareas=async(req,res)=>{
                 }
             ]
         });
+        if (areas.length === 0) {
+            return res.status(404).json({message:"لا توجد المناطق"});
+        }
         return res.status(200).json({message:"تم الحصول على جميع المناطق",areas});
     } catch (error) {
         return res.status(500).json({message:"خطأ أثناء الحصول على جميع المناطق",error:error.message});
@@ -46,6 +49,10 @@ exports.getareaById=async(req,res)=>{
             }
         ]
         });
+        if(!area)
+        {
+            return res.status(404).json({message:"المنطقة غير موجودة"})
+        }
         return res.status(200).json({message:"تم الحصول على المنطقة",area});
     } catch (error) {
         return res.status(500).json({message:"خطأ أثناء الحصول على المنطقة",error:error.message});
@@ -126,6 +133,9 @@ exports.getareaBySupervisor=async(req,res)=>{
             }
         ]
         });
+        if (areas.length === 0) {
+            return res.status(404).json({message:"لا توجد المناطق"});
+        }
         return res.status(200).json({message:"تم الحصول على المناطق",areas});
     }
     catch(error){
@@ -151,6 +161,9 @@ exports.getareaByMentor=async(req,res)=>{
             }
         ]
         });
+        if (areas.length === 0) {
+            return res.status(404).json({message:"لا توجد المناطق"});
+        }
         return res.status(200).json({message:"تم الحصول على المناطق",areas});
     }
     catch(error){
@@ -195,6 +208,9 @@ exports.getareaByName=async(req,res)=>{
     {
         const name = req.body.name;
         const area =await Area.findAll({where:{Name: {[Op.like]: `%${name}%`}}});
+        if (area.length === 0) {
+            return res.status(404).json({message:"لا توجد المناطق"});
+        }
         return res.status(200).json({message:"تم الحصول على المنطقة",area});
     }
     catch(error)

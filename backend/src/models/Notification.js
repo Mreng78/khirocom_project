@@ -31,6 +31,12 @@ Notification.init({
         type:DataTypes.TIME,
         allowNull:false
     },
+    Type:
+    {
+        type:DataTypes.ENUM,
+        values:['Personal','General'],
+        allowNull:false
+    },
     IsRead:
     {
         type:DataTypes.BOOLEAN,

@@ -26,6 +26,9 @@ exports.GetMonthlyRate = async (req, res) => {
         },
       ],
     });
+    if (monthlyRate.length === 0) {
+      return res.status(404).json({ message: "No monthly rates found" });
+    }
     return res
       .status(200)
       .json({ message: "Monthly Rate Retrieved", monthlyRate });
@@ -77,6 +80,9 @@ exports.GetMonthlyRateById = async (req, res) => {
         },
       ],
     });
+    if (monthlyRate.length === 0) {
+      return res.status(404).json({ message: "No monthly rates found" });
+    }
     return res
       .status(200)
       .json({ message: "Monthly Rate Retrieved", monthlyRate });
@@ -101,6 +107,10 @@ exports.getMonthlyRateByStudentId = async (req, res) => {
         },
       ],
     });
+    
+    if (monthlyRate.length === 0) {
+      return res.status(404).json({ message: "No monthly rates found" });
+    }
     return res
       .status(200)
       .json({ message: "Monthly Rate Retrieved", monthlyRate });
@@ -123,7 +133,8 @@ exports.getMonthlyRateByVisitId = async (req, res) => {
         },
       ],
     });
-    return res.status(200).json({ message: "Monthly Rate Retrieved", monthlyRate });
+    if (monthlyRate.length === 0)
+      return res.status(404).json({ message: "No monthly rates found" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

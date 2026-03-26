@@ -20,4 +20,7 @@ router.get('/getstopedanddismissedstudents',userauth, studentsController.getstop
 router.put('/movestudenttoanotherhalakat',userauth, studentsController.movestudenttoanotherhalakat);
 router.get('/getstudentscountinarea',userauth, studentsController.getstudentscountinarea);
 router.get('/getstudentscountbycenter',userauth, studentsController.getstudentscountbycenter);
+router.get('/getstudentsbyarea',studentsController.getallstudentsbyarea)
+router.get('/getstudentsbycenter', studentsController.getallstudentsbycenter);
+
 module.exports = router;

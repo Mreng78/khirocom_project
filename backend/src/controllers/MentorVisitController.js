@@ -28,6 +28,9 @@ exports.getAllMentorVisits = async (req, res) => {
         { model: Halakat, as: "Halakat", attributes: ["Name"] },
       ],
     });
+    if (mentorVisits.length === 0) {
+      return res.status(404).json({ message: "No mentor visits found" });
+    }
     return res
       .status(200)
       .json({ message: "Mentor Visits Retrieved", mentorVisits });
@@ -47,6 +50,9 @@ exports.getByMentorId = async (req, res) => {
       ],
       where: { MentorId: req.body.MentorId },
     });
+    if (mentorVisits.length === 0) {
+      return res.status(404).json({ message: "No mentor visits found" });
+    }
     return res.status(200).json({ message: "Mentor Visits Retrieved", mentorVisits });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -63,6 +69,9 @@ exports.getByDate = async (req, res) => {
       ],
       where: { Date: req.body.Date },
     });
+    if (mentorVisits.length === 0) {
+      return res.status(404).json({ message: "No mentor visits found" });
+    }
     return res.status(200).json({ message: "Mentor Visits Retrieved", mentorVisits });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -79,6 +88,9 @@ exports.getByHalaqahId = async (req, res) => {
       ],
       where: { HalakatId: req.body.HalaqahId },
     });
+    if (mentorVisits.length === 0) {
+      return res.status(404).json({ message: "No mentor visits found" });
+    }
     return res.status(200).json({ message: "Mentor Visits Retrieved", mentorVisits });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -91,6 +103,10 @@ exports.update = async (req, res) => {
     const visit = await MentorVisit.update(req.body, {
       where: { Id: req.body.Id },
     });
+    if(!visit)
+    {
+      return res.status(404).json({message:"visit not exist"})
+    }
     return res.status(200).json({ message: "Mentor Visit Updated", visit: visit });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -103,7 +119,10 @@ exports.deleteMentorVisit = async (req, res) => {
     const deletedCount = await MentorVisit.destroy({
       where: { Id: req.body.Id },
     });
-    return res.status(200).json({ message: "Mentor Visit Deleted", deletedCount });
+    if(!deletedCount)
+      return res.status(404).json({ message: "Mentor Visit Not Found" });
+    else
+      return res.status(200).json({ message: "Mentor Visit Deleted", deletedCount: deletedCount });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

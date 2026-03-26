@@ -12,9 +12,14 @@ const Notification = require("./Notification");
 const Aria = require("./Aria");
 const Graduate=require('./Graduate');
 const MentorVisit = require("./MentorVisit");
+const Activity = require("./Activity");
+
+//? activity ↔ halaqah (one to many)
+Halakat.hasMany(Activity, { foreignKey: "HalaqahId", as: "HalakatActivities" });
+Activity.belongsTo(Halakat, { foreignKey: "HalaqahId", as: "Halakat" });
 
 
-// ? MentorVisit ↔halaqah (many to one)
+// ? MentorVisit ↔ halaqah (many to one)
 Halakat.hasMany(MentorVisit, { foreignKey: "HalakatId", as: "HalakatMentorVisits" });
 MentorVisit.belongsTo(Halakat, { foreignKey: "HalakatId", as: "Halakat" });
 
@@ -93,4 +98,5 @@ module.exports = {
   Aria,
   Graduate,
   MentorVisit,
+  Activity,
 };

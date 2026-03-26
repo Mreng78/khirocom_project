@@ -10,6 +10,7 @@ const StudentRoutes = require('../routes/studentRouts');
 const DailyProgressRoutes = require('../routes/DailyProgressRouts');
 const StudentsPlanRoutes = require('../routes/StudentsPlanRouts');
 const MentorVisitRoutes = require('../routes/MentorVisitRouts');
+const ActivityRoutes = require('../routes/activityRouts');
 const MonthlyRateRoutes = require('../routes/MonthlyRateRouts');
 
 
@@ -23,6 +24,7 @@ app.use('/dailyprogress', DailyProgressRoutes);
 app.use('/studentsplan', StudentsPlanRoutes);
 app.use('/mentorvisit', MentorVisitRoutes);
 app.use('/monthlyrate', MonthlyRateRoutes);
+app.use('/activity', ActivityRoutes);
 
 
 app.get('/',(req,res)=>
