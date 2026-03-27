@@ -13,6 +13,7 @@ const MentorVisitRoutes = require('../routes/MentorVisitRouts');
 const ActivityRoutes = require('../routes/activityRouts');
 const MonthlyRateRoutes = require('../routes/MonthlyRateRouts');
 const NotificationRoutes = require('../routes/NotificationRouts');
+const GraduateRoutes = require('../routes/GraduateRouts');
 
 
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use('/mentorvisit', MentorVisitRoutes);
 app.use('/monthlyrate', MonthlyRateRoutes);
 app.use('/notification', NotificationRoutes);
 app.use('/activity', ActivityRoutes);
+app.use('/graduate', GraduateRoutes);
 app.use('/uploads', express.static('uploads'));
 
 app.get('/',(req,res)=>

@@ -31,7 +31,6 @@ MentorVisit.belongsTo(User, { foreignKey: "MentorId", as: "Mentor" });
 Center.hasMany(Aria, { foreignKey: "CenterId", as: "CenterArias" });
 Aria.belongsTo(Center, { foreignKey: "CenterId", as: "Center" });
 
-
 //? User ↔ Center (One-to-one)
 User.hasOne(Center, { foreignKey: "ManagerId", as: "center" });
 Center.belongsTo(User, { foreignKey: "ManagerId", as: "manager" });
