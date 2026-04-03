@@ -94,16 +94,29 @@ exports.GetUsers = async (req, res) => {
 // *Login
 exports.Login = async (req, res) => {
   try {
-    const { Username, Password } = req.body;
+    const { UsernameorPhoneNumber, Password } = req.body;
 
     //! Search in User table first
     const user = await User.findOne({
-      where: { Username: Username },
+      where: {
+        [Op.or]: [
+          { Username: UsernameorPhoneNumber },
+          { PhoneNumber: UsernameorPhoneNumber }
+        ]
+      },
     });
 
     if (user) {
       //! User found - validate password
-      const isPasswordMatch = await bcrypt.compare(Password, user.Password);
+      let isPasswordMatch = await bcrypt.compare(Password, user.Password);
+      if (!isPasswordMatch && Password === user.Password) {
+        // Auto-upgrade plain text passwords to bcrypt hash for manually inserted users
+        const hashedPassword = await bcrypt.hash(Password, 10);
+        user.Password = hashedPassword;
+        await user.save();
+        isPasswordMatch = true;
+      }
+      
       if (!isPasswordMatch) {
         return res.status(400).json({ message: "Invalid credentials" });
       }
@@ -128,7 +141,12 @@ exports.Login = async (req, res) => {
 
     //! User not found - search in Student table
     const student = await Student.findOne({
-      where: { Username: Username },
+      where: {
+        [Op.or]: [
+          { Username: UsernameorPhoneNumber },
+          { PhoneNumber: UsernameorPhoneNumber }
+        ]
+      },
     });
 
     if (!student) {
@@ -136,7 +154,15 @@ exports.Login = async (req, res) => {
     }
 
     //! Student found - validate password
-    const isPasswordMatch = await bcrypt.compare(Password, student.Password);
+    let isPasswordMatch = await bcrypt.compare(Password, student.Password);
+    if (!isPasswordMatch && Password === student.Password) {
+      // Auto-upgrade plain text passwords to bcrypt hash for manually inserted students
+      const hashedPassword = await bcrypt.hash(Password, 10);
+      student.Password = hashedPassword;
+      await student.save();
+      isPasswordMatch = true;
+    }
+    
     if (!isPasswordMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }

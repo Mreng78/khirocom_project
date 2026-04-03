@@ -7,7 +7,7 @@ class User {
   String? AvatarUrl;
   String Role;
   String Gender;
-  int Age;
+  int? Age;
   String EducationLevel;
   double Salary;
   String Address;
@@ -30,18 +30,18 @@ class User {
   //! from json to object
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      Id: json['Id'],
-      Name: json['Name'],
-      Username: json['Username'],
-      Password: json['Password'],
-      PhoneNumber: json['PhoneNumber'],
-      AvatarUrl: json['AvatarUrl'],
-      Role: json['Role'],
-      Gender: json['Gender'],
+      Id: json['Id'] ?? 0,
+      Name: json['Name'] ?? '',
+      Username: json['Username'] ?? '',
+      Password: json['Password'] ?? '', 
+      PhoneNumber: json['PhoneNumber'] ?? '',
+      AvatarUrl: json['AvatarUrl'] ?? json['AvtarUrl'], 
+      Role: json['Role'] ?? '',
+      Gender: json['Gender'] ?? '',
       Age: json['Age'],
-      EducationLevel: json['EducationLevel'],
+      EducationLevel: json['EducationLevel'] ?? '',
       Salary: json['Salary']?.toDouble() ?? 0.0,
-      Address: json['Address'],
+      Address: json['Address'] ?? '',
     );
   }
   
@@ -52,9 +52,9 @@ class User {
       'Name': Name,
       'Username': Username,
       'Password': Password,
-      'PhoneNumber': PhoneNumber,
+      'PhoneNumber': PhoneNumber,                                             
       'AvatarUrl': AvatarUrl,
-      'Role': Role,
+      'Role': Role, 
       'Gender': Gender,
       'Age': Age,
       'EducationLevel': EducationLevel,

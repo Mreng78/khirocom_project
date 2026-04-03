@@ -14,6 +14,10 @@ dependencies:
   http: ^1.6.0
   get: ^4.6.6
   font_awesome_flutter: ^10.7.0
+  flutter_islamic_icons: ^1.0.2
+  get_storage: any
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -41,3 +45,7 @@ flutter:
     - family: TNR
       fonts:
         - asset: assets/fonts/times-new-roman.ttf
+
+  assets:
+    - assets/icons/
+    

@@ -80,7 +80,7 @@ exports.getallstudents=async(req,res)=>
 exports.getstudentbyhalaqatid=async(req,res)=>
 {
     try{
-        const halaqatid = req.body.id;
+        const halaqatid = req.body.Id || req.body.id;
         const students = await Student.findAll({
             where: { HalakatId: halaqatid },
             attributes: { exclude: ['Password','dismissedReason','dismissedDate'] }

@@ -1,6 +1,8 @@
 const express = require('express');
+const cors = require('cors');
 
-const app =express();
+const app = express();
+app.use(cors());
 
 const UserRoutes = require('../routes/userRoutes');
 const CenterRoutes = require('../routes/centerRoutes');
@@ -17,18 +19,20 @@ const GraduateRoutes = require('../routes/GraduateRouts');
 
 
 app.use(express.json());
-app.use('/users', UserRoutes);
-app.use('/centers', CenterRoutes);
-app.use('/halaqat', HalakatRoutes);
-app.use('/areas', AreaRoutes);
-app.use('/students', StudentRoutes);
-app.use('/dailyprogress', DailyProgressRoutes);
-app.use('/studentsplan', StudentsPlanRoutes);
-app.use('/mentorvisit', MentorVisitRoutes);
-app.use('/monthlyrate', MonthlyRateRoutes);
-app.use('/notification', NotificationRoutes);
-app.use('/activity', ActivityRoutes);
-app.use('/graduate', GraduateRoutes);
+app.use('/api/users', UserRoutes);
+app.use('/api/centers', CenterRoutes);
+app.use('/api/halaqat', HalakatRoutes);
+app.use('/api/areas', AreaRoutes);
+app.use('/api/students', StudentRoutes);
+app.use('/api/dailyprogress', DailyProgressRoutes);
+app.use('/api/studentsplan', StudentsPlanRoutes);
+app.use('/api/mentorvisit', MentorVisitRoutes);
+app.use('/api/monthlyrate', MonthlyRateRoutes);
+app.use('/api/notification', NotificationRoutes);
+app.use('/api/activity', ActivityRoutes);
+app.use('/api/graduate', GraduateRoutes);
+
+
 app.use('/uploads', express.static('uploads'));
 
 app.get('/',(req,res)=>

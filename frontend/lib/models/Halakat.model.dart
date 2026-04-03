@@ -21,14 +21,14 @@ class Halakat {
 
   //! from Json
   factory Halakat.fromJson(Map<String, dynamic> json) => Halakat(
-    Id: json["Id"],
-    Name: json["Name"],
-    studentsGender: json["studentsGender"],
-    type: json["type"],
-    TeacherId: json["TeacherId"],
-    AriaId: json["AriaId"],
-    teacherName: json["teacherName"],
-    ariaName: json["ariaName"],
+    Id: json["Id"]??0,
+    Name: json["Name"]??"",
+    studentsGender: json["studentsGender"]??"",
+    type: json["type"]??"",
+    TeacherId: json["TeacherId"]??0,
+    AriaId: json["AriaId"]??0,
+    teacherName: json["teacherName"]??"",
+    ariaName: json["ariaName"]??"",
   );
 
   //! to Json
