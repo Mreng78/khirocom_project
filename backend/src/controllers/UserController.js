@@ -144,7 +144,8 @@ exports.Login = async (req, res) => {
       where: {
         [Op.or]: [
           { Username: UsernameorPhoneNumber },
-          { PhoneNumber: UsernameorPhoneNumber }
+          { PhoneNumber: UsernameorPhoneNumber },
+          {FatherNumber: UsernameorPhoneNumber}
         ]
       },
     });

@@ -4,7 +4,7 @@ class User {
   String Username;
   String Password;
   String PhoneNumber;
-  String? AvatarUrl;
+  String? ImageUrl;
   String Role;
   String Gender;
   int? Age;
@@ -18,7 +18,7 @@ class User {
     required this.Username,
     required this.Password,
     required this.PhoneNumber,
-    this.AvatarUrl,
+    this.ImageUrl,
     required this.Role,
     required this.Gender,
     required this.Age,
@@ -35,7 +35,7 @@ class User {
       Username: json['Username'] ?? '',
       Password: json['Password'] ?? '', 
       PhoneNumber: json['PhoneNumber'] ?? '',
-      AvatarUrl: json['AvatarUrl'] ?? json['AvtarUrl'], 
+      ImageUrl: json['AvatarUrl'] ?? json['AvtarUrl'], 
       Role: json['Role'] ?? '',
       Gender: json['Gender'] ?? '',
       Age: json['Age'],
@@ -53,7 +53,7 @@ class User {
       'Username': Username,
       'Password': Password,
       'PhoneNumber': PhoneNumber,                                             
-      'AvatarUrl': AvatarUrl,
+      'ImageUrl': ImageUrl,
       'Role': Role, 
       'Gender': Gender,
       'Age': Age,

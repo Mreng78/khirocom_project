@@ -82,7 +82,7 @@ exports.getstudentbyhalaqatid=async(req,res)=>
     try{
         const halaqatid = req.body.Id || req.body.id;
         const students = await Student.findAll({
-            where: { HalakatId: halaqatid },
+            where: { HalakatId: halaqatid,status:"مستمر" },
             attributes: { exclude: ['Password','dismissedReason','dismissedDate'] }
         });
         if (students.length === 0) {
@@ -182,6 +182,39 @@ exports.getstudentsbyname = async (req, res) => {
     }
 };
 
+//* get student by name aind halaqat id
+exports.getstudentsbynameandhalaqatid = async (req, res) => {
+    try {
+        const name = req.body.Name;
+        const halaqatid = req.body.HalakatId;
+        console.log('Search name received:', name);
+        console.log('Halaqat ID received:', halaqatid);
+        
+        if (!name || !halaqatid) {
+            return res.status(400).json({ message: "اسم الطالب ورقم الحلقة مطلوبان" });
+        }
+        
+        const students = await Student.findAll({
+            where: {
+                Name: {
+                    [Op.like]: `%${name}%`
+                },
+                HalakatId: halaqatid
+            },
+            attributes: { exclude: ['Password','dismissedReason','dismissedDate'] },
+        });
+        if (students.length === 0) {
+            return res.status(404).json({ message: "No students found with this name in this halaqah" });
+        }
+        
+        console.log('Students found:', students.length);
+        return res.status(200).json({ message: "تم الحصول على الطلاب", students });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: "خطأ أثناء الحصول على الطلاب", error: error.message });
+    }
+};  
+
 
 //* update current memorization
 exports.updatecurrentmemorization = async (req, res) => {
@@ -203,7 +236,7 @@ exports.updatecurrentmemorization = async (req, res) => {
 //* dismiss student
 exports.dismissstudent = async (req, res) => {
     try{
-        const id = req.body.id;
+        const id = req.body.Id;
         const reason = req.body.reason;
         const date = req.body.date;
         const student = await Student.findOne({ where: { id: id } });

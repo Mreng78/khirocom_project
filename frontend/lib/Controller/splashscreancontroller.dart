@@ -1,5 +1,5 @@
 import "package:get/get.dart";
-import '../Screans/generalscrean/LoginScrean.dart';
+import '../Screans/authscrean/LoginScrean.dart';
 
 
 class Splashscreancontroller extends GetxController {
@@ -11,7 +11,7 @@ class Splashscreancontroller extends GetxController {
   }
   void gotostartscrean () async
   {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 1));
     Get.offAll(()=>Loginscrean());
   }
 }

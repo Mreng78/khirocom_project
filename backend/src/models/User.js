@@ -31,7 +31,7 @@ User.init(
     allowNull: false,
   },
 
-  AvatarUrl: {
+  ImageUrl: {
     type: DataTypes.STRING,
     allowNull: true,
   },

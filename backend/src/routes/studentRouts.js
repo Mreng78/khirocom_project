@@ -15,7 +15,7 @@ router.delete('/deletestudent',userauth, studentsController.deletestudent);
 router.post('/getstudentbyid',userauth, studentsController.getstudentbyid);
 router.post('/getstudentsbyname',userauth, studentsController.getstudentsbyname);
 router.put('/stopstudent',userauth, studentsController.stopstudent);
-router.put('/dismissstudent',userauth, studentsController.dismissstudent);
+router.put('/dismissstudent', studentsController.dismissstudent);
 router.put('/startstudent',userauth, studentsController.startstudent);
 router.get('/getstopedanddismissedstudents',userauth, studentsController.getstopedanddismissedstudents);
 router.put('/movestudenttoanotherhalakat',userauth, studentsController.movestudenttoanotherhalakat);
@@ -23,5 +23,6 @@ router.post('/getstudentscountinarea',userauth, studentsController.getstudentsco
 router.post('/getstudentscountbycenter',userauth, studentsController.getstudentscountbycenter);
 router.post('/getstudentsbyarea',userauth,studentsController.getallstudentsbyarea)
 router.post('/getstudentsbycenter',userauth, studentsController.getallstudentsbycenter);
+router.post('/getstudentsbynameandhalaqatid', studentsController.getstudentsbynameandhalaqatid);
 
 module.exports = router;

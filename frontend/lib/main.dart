@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'Screans/assistscrean/splashscrean.dart';
 import "package:get/get.dart";
 import 'Controller/splashscreancontroller.dart';
-import 'Screans/generalscrean/LoginScrean.dart';
 
 
 void main() {
@@ -22,10 +21,11 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(() {
         Get.put(Splashscreancontroller());
       }),
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        fontFamily: 'Cairo',
+      ),
       home: const Splashscrean(),
-      getPages: [
-        GetPage(name: '/Loginscrean', page: () => Loginscrean()),
-      ],
     );  
   }
 }

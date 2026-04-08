@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../models/Halakat.model.dart';
 
 class HalaqatServices {
   static const String HalaqatBaseUrl = "http://192.168.0.3:8000/api/halaqat/";
