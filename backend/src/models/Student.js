@@ -21,7 +21,7 @@ Student.init(
     },
     Username: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       
     },
     Password: {
@@ -86,7 +86,8 @@ Student.init(
         "15 جزء",
         "20 جزء",
         "25 جزء",
-        "المصجف كامل"
+        "المصحف كامل",
+        "إجازة"
       ),
       defaultValue: "أقل من 5 أجزاء",
       allowNull: false,

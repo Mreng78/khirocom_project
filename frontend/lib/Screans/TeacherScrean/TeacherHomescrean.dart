@@ -1,485 +1,515 @@
+import 'dart:ui';
 import "package:flutter/material.dart";
 import "package:frontend/Controller/UserController.dart";
 import "package:frontend/Controller/HalaqatController.dart";
 import "package:frontend/Controller/StudentController.dart";
-import "package:frontend/Screans/generalscrean/LoginScrean.dart";
+import "package:frontend/Widgets/CustomContainer.dart";
+import "package:frontend/Widgets/DropDown.dart";
+import "package:frontend/Widgets/appbarcontainer.dart";
 import "package:get/get.dart";
 import "package:frontend/Widgets/AppColors.dart";
 import "package:frontend/Widgets/CustomTextField.dart";
 import "package:frontend/Screans/TeacherScrean/Studentinfo.dart";
+import "package:frontend/Screans/TeacherScrean/AddStudent.dart";
+import "package:frontend/Widgets/CustomBottomNavBar.dart";
+import "package:frontend/Controller/Auth_controller.dart";
+import "package:frontend/Screans/authscrean/LoginScrean.dart";
 
-class TeacherHomescrean extends StatelessWidget {
-  TeacherHomescrean({super.key});
+class TeacherHomescrean extends StatefulWidget {
+  const TeacherHomescrean({super.key});
 
+  @override
+  State<TeacherHomescrean> createState() => _TeacherHomescreanState();
+}
+
+class _TeacherHomescreanState extends State<TeacherHomescrean> {
   final HalaqatController halaqatController = Get.put(HalaqatController());
   final StudentController studentController = Get.put(StudentController());
   final UserController userController = Get.put(UserController());
-  final _searchController = TextEditingController();
+  final AuthController authController = Get.put(AuthController());
+  final TextEditingController _categoryController = TextEditingController();
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+
+    // Trigger data fetching after initial build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInitialData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _fetchInitialData() {
+    if (!halaqatController.isLoading.value) {
+      final user = authController.currentUser.value;
+      if (user == null) {
+        print("Error: No user logged in");
+        Get.to(() => const Loginscrean());
+        return;
+      }
+
+      if (halaqatController.currentHalaqah.value == null) {
+        halaqatController.gethalaqahbyteacherid(user.Id);
+      } else if (studentController.students.isEmpty &&
+          !studentController.isStudentsLoading.value) {
+        studentController.getStudentsByHalaqahId(
+          halaqatController.currentHalaqah.value!.Id,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Trigger data fetching when the screen is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // إذا لم تكن الحلقة محملة، أو إذا كانت محملة ولكن قائمة الطلاب لا تزال فارغة
-      if (!halaqatController.isLoading.value) {
-        if (halaqatController.currentHalaqah.value == null) {
-          halaqatController.gethalaqahbyteacherid(
-            userController.currentUser.value!.Id,
-          );
-        } else if (studentController.students.isEmpty &&
-            !studentController.isStudentsLoading.value) {
-          studentController.getStudentsByHalaqahId(
-            halaqatController.currentHalaqah.value!.Id,
-          );
-        }
-      }
-    });
-
     return Scaffold(
-      backgroundColor: Appcolors.background,
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Appcolors.appBarbackground,
-        title: Text(
-          "خيركم",
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Cairo',
+      resizeToAvoidBottomInset: false,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Obx(
+          () => Appbarcontainer(
+            title: 'حلقة: ${halaqatController.currentHalaqah.value?.Name ?? ""}',
+            undertitel: 'المدرس: ${userController.getuserbyfirstandlastname()}'
           ),
         ),
-
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              Get.offAll(() => Loginscrean());
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: Directionality(
-        textDirection: TextDirection.rtl,
+      backgroundColor: Appcolors.background,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration:  BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/appbackground.jpg"),
+            fit: BoxFit.cover,
+            opacity: 0.15, // Reduced opacity for cleaner background
+          ),
+           //color: Appcolors.appBarbackground.withOpacity(0.5),
+        ),
         child: Column(
           children: [
-            // Styled Header Section
-            
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 25),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Appcolors.appBarbackground,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(" "),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "مرحبا ${userController.currentUser.value?.Name ?? ""}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
-                          ),
-                        ),
-                        Text(
-                          "المهنة : ${userController.currentUser.value?.Role ?? ""}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Cairo',
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(color: Colors.white, thickness: 1),
-                    Obx(
-                      () => Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "اسم الحلقة : ${halaqatController.currentHalaqah.value?.Name ?? ""}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
-                            ),
-                          ),
-                          Text(
-                            "عدد الطلاب : ${studentController.students.length}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 10),
+            // Simplified, Crisp Header Section
             Expanded(
-              flex: 3,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(
-                    255,
-                    182,
-                    226,
-                    183,
-                  ).withOpacity(0.3),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                  border: Border.all(
-                    color: Appcolors.appBarbackground.withOpacity(0.2),
-                    width: 2,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "قائمة الطلاب",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
-                        fontFamily: 'Cairo',
-                      ),
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: Obx(() {
+                  final halaqah = halaqatController.currentHalaqah.value;
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05), // Very light base
+                      boxShadow: Appcolors.glossyShadow,
                     ),
-                    const SizedBox(height: 15),
-                    CustomTextField(
-                      controller: _searchController,
-                      hintText: "بحث عن طالب...",
-                      prefixIcon: Icons.search,
-                      fillColor: Colors.white,
-                      textColor: Colors.black87,
-                      iconColor: Appcolors.appBarbackground,
-                      borderColor: Appcolors.appBarbackground.withOpacity(0.3),
-                      onChanged: (value) =>
-                          studentController.searchStudents(value),
-                    ),
-                    const SizedBox(height: 15),
-                    Expanded(
-                      child: Obx(() {
-                        final students = studentController.filteredStudents;
-                        if (students.isEmpty) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                    child: ClipRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                        child: Stack(
+                          children: [
+                            // Glass Painter Layer
+                          
+                            // Content Layer
+                            Column(
                               children: [
-                                Icon(
-                                  Icons.search_off,
-                                  size: 60,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "لم يتم العثور على طلاب",
-                                  style: TextStyle(
-                                    fontFamily: 'Cairo',
-                                    color: Colors.grey[600],
+                                Expanded(
+                                  child: Container(
+                                   // padding: const EdgeInsets.all(12),
+                                   // margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: AssetImage("assets/images/appbackground.jpg"),
+                                        fit: BoxFit.cover,
+                                        opacity: 0.5,
+                                      ),
+                                      color: Colors.white.withOpacity(0.75),
+                                     // borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(
+                                        color: Appcolors.appmaincolor.withOpacity(0.4),
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 20,
+                                          offset: const Offset(0, 10),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: 10),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            
+                                            Text(
+                                              "قائمة الطلاب",
+                                              style: TextStyle(
+                                                color: Appcolors.appmaincolor,
+                                                fontSize: 17,
+                                                fontFamily: 'cairo',
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        // Unified Search & Filter Row
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 5,
+                                              child: CustomTextField(
+                                                controller: _searchController,
+                                                hintText: "بحث عن طالب...",
+                                                prefixIcon: Icons.search,
+                                                labelText: "بحث عن طالب",
+                                                fillColor: Colors.white,
+                                                textColor: Colors.black87,
+                                                iconColor: Appcolors.appmaincolor,
+                                                borderColor: Appcolors.appmaincolor.withOpacity(0.15),
+                                                onChanged: (value) {
+                                                  final halaqahId = halaqatController.currentHalaqah.value?.Id;
+                                                  if (halaqahId != null) {
+                                                    studentController.searchStudentsOnServer(value, halaqahId);
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            _buildFlatFilterButton(),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        _buildFilteringSection(),
+                                        const SizedBox(height: 10),
+                                        Expanded(
+                                          child: _buildStudentListView(),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                          );
-                        }
-                        return ListView.builder(
-                          itemCount: students.length,
-                          itemBuilder: (context, index) {
-                            final student = students[index];
-                            Color statusColor = student.status == "مستمر"
-                                ? Colors.green
-                                : Colors.orange;
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            
+            // Integrated Flush Navigation Bar
+            Custombottomnavbar(
+              centerbutton: 'add',
+              currentpage: 'Home',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 2,
-                              ),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () {
-                                  // Details view
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          Studentinfo(student: student),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 10,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                    border: Border.all(
-                                      color: Appcolors.appBarbackground
-                                          .withOpacity(0.15),
-                                    ),
-                                  ),
-                                  child: ListTile(
-                                    dense: true,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 0,
-                                    ),
+  Widget _buildFlatFilterButton() {
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        color: Appcolors.appmaincolor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: PopupMenuButton<String>(
+        padding: EdgeInsets.zero,
+        icon: Icon(Icons.tune, color: Appcolors.appmaincolor, size: 22),
+        onSelected: (value) => studentController.setFilterType(value),
+        itemBuilder: (context) => [
+          const PopupMenuItem(value: 'status', child: Text('بحسب الحالة')),
+          const PopupMenuItem(value: 'category', child: Text('بحسب الفئة')),
+        ],
+      ),
+    );
+  }
 
-                                    /// 🔹 الصورة + الحالة
-                                    leading: Stack(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 20,
-                                          backgroundColor: Appcolors
-                                              .appBarbackground
-                                              .withOpacity(0.08),
-                                          backgroundImage:
-                                              student.ImageUrl != null &&
-                                                  student.ImageUrl!.isNotEmpty
-                                              ? NetworkImage(student.ImageUrl!)
-                                              : null,
-                                          child:
-                                              student.ImageUrl == null ||
-                                                  student.ImageUrl!.isEmpty
-                                              ? Text(
-                                                  student.Name.isNotEmpty
-                                                      ? student.Name[0]
-                                                            .toUpperCase()
-                                                      : "?",
-                                                  style: TextStyle(
-                                                    color: Appcolors
-                                                        .appBarbackground,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18,
-                                                  ),
-                                                )
-                                              : null,
-                                        ),
+  Widget _buildFilteringSection() {
+    return Obx(() {
+      final halaqahId = halaqatController.currentHalaqah.value?.Id;
+      if (halaqahId == null) return const SizedBox.shrink();
 
-                                        /// 🔥 نقطة الحالة
-                                        Positioned(
-                                          bottom: 2,
-                                          right: 2,
-                                          child: Container(
-                                            width: 14,
-                                            height: 14,
-                                            decoration: BoxDecoration(
-                                              color: statusColor,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+      switch (studentController.filterType.value) {
+        case "status":
+          return Dropdown(
+            items: const ["الكل", "مستمر", "متوقف"],
+            value: studentController.selectedStatus.value,
+            hintText: 'الحالة',
+            label: 'تصفية الحالة',
+            icon: Icons.person_outline,
+            fillColor: Colors.white,
+            onChanged: (value) => studentController.searchStudentsByStatusAndHalaqatId(
+              value == "الكل" ? "" : value.toString(),
+              halaqahId,
+            ),
+          );
+        case "category":
+          return Dropdown(
+            items: const [
+              "اطفال",
+              "أقل من 5 أجزاء",
+              "5 أجزاء",
+              "10 أجزاء",
+              "15 جزء",
+              "20 جزء",
+              "25 جزء",
+              "المصحف كامل",
+            ],
+            value: studentController.selectedCategory.value.isEmpty ? null : studentController.selectedCategory.value,
+            hintText: 'الفئة',
+            label: 'تصفية الفئة',
+            icon: Icons.category,
+            fillColor: Colors.white,
+            onChanged: (value) {
+              _categoryController.text = value.toString();
+              studentController.searchStudentsByCategoryOnServer(value.toString(), halaqahId);
+            },
+          );
+        default:
+          return const SizedBox.shrink();
+      }
+    });
+  }
 
-                                    /// 🔹 الاسم
-                                    title: Text(
-                                      student.Name,
-                                      style: const TextStyle(
-                                        fontFamily: 'Cairo',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
-                                    ),
+  Widget _buildStudentListView() {
+    return Obx(() {
+      final students = studentController.filteredStudents;
+      if (studentController.isStudentsLoading.value) {
+        return Center(child: CircularProgressIndicator(color: Appcolors.appmaincolor));
+      }
 
-                                    /// 🔹 المعرف
-                                    subtitle: Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: Text(
-                                        "ما وصل اليه : ${student.current_Memorization_Sorah}",
-                                        style: TextStyle(
-                                          fontFamily: 'Cairo',
-                                          fontSize: 15,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ),
+      if (students.isEmpty) {
+        return _buildEmptyState();
+      }
 
-                                    
-                                    trailing: Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: Appcolors.appBarbackground
-                                            .withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 14,
-                                        color: Appcolors.appBarbackground,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      }),
+      return ListView.builder(
+        key: const PageStorageKey('student_list_v2'),
+        padding: const EdgeInsets.only(bottom: 20),
+        itemCount: students.length,
+        itemBuilder: (context, index) {
+          final student = students[index];
+          return _buildStudentCard(student);
+        },
+      );
+    });
+  }
+
+  Widget _buildEmptyState() {
+    String message = "لا يوجد طلاب حالياً";
+    IconData icon = Icons.person_off_outlined;
+    
+    if (_searchController.text.isNotEmpty) {
+      message = "لا يوجد طلاب بهذا الاسم";
+      icon = Icons.search_off;
+    }
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 60, color: Appcolors.appmaincolor.withOpacity(0.2)),
+          const SizedBox(height: 12),
+          Text(message, style: TextStyle(color: Appcolors.appmaincolor, fontSize: 16, fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStudentCard(dynamic student) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), bottomLeft: Radius.circular(30)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: InkWell(
+              onTap: () {
+                studentController.setSelectedStudent(student);
+                Get.to(() =>  Studentinfo());
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Appcolors.appBarbackground.withOpacity(0.9),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(30), bottomLeft: Radius.circular(30)),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildNavItem(Icons.home, "الرئيسية", true),
-            Transform.translate(
-              offset: const Offset(0, -15),
-              child: _buildAddButton(),
-            ),
-            _buildNavItem(Icons.person, "الملف", false),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, IconData icon) {
-    bool isSelected = studentController.selectedStatus.value == label;
-    return GestureDetector(
-      onTap: () => studentController.setStatusFilter(label),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Appcolors.appBarbackground : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? Appcolors.appBarbackground : Colors.grey[300]!,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Appcolors.appBarbackground.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                child: IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 35,
+                        alignment: Alignment.center,
+                        child: Text(
+                          student.Id.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontFamily: 'Cairo',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      VerticalDivider(
+                        color: Colors.white.withOpacity(0.2),
+                        thickness: 1,
+                        indent: 5,
+                        endIndent: 5,
+                      ),
+                      const SizedBox(width: 8),
+                      CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.white,
+                      backgroundImage: student.ImageUrl != null &&
+                              student.ImageUrl!.isNotEmpty
+                          ? NetworkImage(student.ImageUrl!)
+                          : null,
+                      child: student.ImageUrl == null ||
+                              student.ImageUrl!.isEmpty
+                          ? Icon(
+                              Icons.person,
+                              color: Appcolors.appBarbackground,
+                              size: 24,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            student.Name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontFamily: 'Cairo',
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          Text(
+                            'الحفظ الحالي: ${student.current_Memorization_Sorah} (${student.current_Memorization_Aya})',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontFamily: 'Cairo',
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                      const SizedBox(width: 5),
+                      const Icon(
+                        Icons.arrow_circle_left,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ],
                   ),
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isSelected ? Colors.white : Colors.grey[600],
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[600],
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                fontFamily: 'Cairo',
+                ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: 10),
+      ],
     );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-    return InkWell(
-      onTap: () {},
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? Appcolors.appBarbackground : Colors.grey,
-            size: 28,
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Appcolors.appBarbackground : Colors.grey,
-              fontSize: 12,
-              fontFamily: 'Cairo',
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddButton() {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: Appcolors.appBarbackground,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Appcolors.appBarbackground.withOpacity(0.4),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: const Icon(
-        Icons.add,
-        color: Colors.white,
-        size: 35,
-      ),
-    );
+    // return Padding(
+    //   padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+    //   child: InkWell(
+    //     borderRadius: BorderRadius.circular(18),
+    //     onTap: () {
+    //       studentController.setSelectedStudent(student);
+    //       Get.to(() => Studentinfo());
+    //     },
+    //     child: Container(
+    //       decoration: BoxDecoration(
+    //         color: Colors.white,
+    //         borderRadius: BorderRadius.circular(18),
+    //         boxShadow: [
+    //           BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4)),
+    //         ],
+    //         border: Border.all(color: Appcolors.appBarbackground.withOpacity(0.06)),
+    //       ),
+    //       child: ListTile(
+    //         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+    //         leading: Stack(
+    //           children: [
+    //             CircleAvatar(
+    //               radius: 24,
+    //               backgroundColor: Appcolors.appBarbackground.withOpacity(0.08),
+    //               backgroundImage: student.ImageUrl != null && student.ImageUrl!.isNotEmpty ? NetworkImage(student.ImageUrl!) : null,
+    //               child: student.ImageUrl == null || student.ImageUrl!.isEmpty
+    //                   ? Icon(Icons.person, color: Appcolors.appBarbackground, size: 28)
+    //                   : null,
+    //             ),
+    //             Positioned(
+    //               bottom: 2, 
+    //               right: 2, 
+    //               child: Container(
+    //                 width: 13, 
+    //                 height: 13, 
+    //                 decoration: BoxDecoration(
+    //                   color: statusColor, 
+    //                   shape: BoxShape.circle, 
+    //                   border: Border.all(color: Colors.white, width: 2)
+    //                 )
+    //               )
+    //             ),
+    //           ],
+    //         ),
+    //         title: Text(
+    //           student.Name, 
+    //           style: const TextStyle(
+    //             fontFamily: 'Cairo', 
+    //             fontWeight: FontWeight.w700, 
+    //             fontSize: 15
+    //           )
+    //         ),
+    //         subtitle: Text(
+    //           "ما وصل اليه : ${student.current_Memorization_Sorah}", 
+    //           style: TextStyle(
+    //             fontFamily: 'Cairo', 
+    //             fontSize: 12, 
+    //             color: Colors.grey.shade600
+    //           )
+    //         ),
+    //         trailing: Container(
+    //           padding: const EdgeInsets.all(8),
+    //           decoration: BoxDecoration(
+    //             color: Appcolors.appmaincolor.withOpacity(0.08),
+    //             shape: BoxShape.circle,
+    //           ),
+    //           child: Icon(Icons.arrow_forward_ios, color: Appcolors.appmaincolor, size: 14),
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }
