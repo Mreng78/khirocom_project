@@ -25,7 +25,7 @@ class UnderDevelopmentScrean extends StatelessWidget {
               children: [
                 Icon(Icons.construction, size: 100, color: Colors.green),
                 Text(
-                  "مرحبا ${name} ",
+                  "مرحبا $name ",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Text(

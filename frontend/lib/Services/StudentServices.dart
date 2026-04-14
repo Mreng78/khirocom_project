@@ -70,7 +70,7 @@ class StudentServices {
       if (!response.headers['content-type']!.contains('application/json')) {
         return {
           "success": false,
-          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من وجود الرابط ${uri} في الباك اند."
+          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من وجود الرابط $uri في الباك اند."
         };
       }
 
@@ -115,7 +115,7 @@ class StudentServices {
       if (!response.headers['content-type']!.contains('application/json')) {
         return {
           "success": false,
-          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من وجود الرابط ${uri} في الباك اند."
+          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من وجود الرابط $uri في الباك اند."
         };
       }
 
@@ -162,7 +162,7 @@ class StudentServices {
       if (!response.headers['content-type']!.contains('application/json')) {
         return {
           "success": false,
-          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من وجود الرابط ${uri} في الباك اند."
+          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من وجود الرابط $uri في الباك اند."
         };
       }
 
@@ -201,6 +201,89 @@ class StudentServices {
         body: jsonEncode({
           "Name": name,
           "HalakatId": halaqatId,
+        }),
+      );
+
+      print("Search API Response Status: ${response.statusCode}");
+      print("Search API Response Body: ${response.body}");
+
+      if (!response.headers['content-type']!.contains('application/json')) {
+        return { "success": false, "message": "استجابة غير صالحة من السيرفر" };
+      }
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return {
+          "success": true,
+          "students": (responseData["students"] as List?) ?? [],
+        };
+      } else {
+        return {
+          "success": false,
+          "message": responseData["message"] ?? "فشل في البحث"
+        };
+      }
+    } catch (e) {
+      print("Search API Error: $e");
+      return { "success": false, "message": "خطأ في الاتصال: $e" };
+    }
+  }
+
+
+  static Future<Map<String, dynamic>> getStudentsByStatusAndHalaqatId(String status, int halaqatId) async {
+    try {
+      final uri = Uri.parse('${StudentBaseUrl}getstudentsbystatusandhalakahid');
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({
+          "status": status,
+          "halakatid": halaqatId,
+        }),
+      );
+
+      print("Search API Response Status: ${response.statusCode}");
+      print("Search API Response Body: ${response.body}");
+
+      if (!response.headers['content-type']!.contains('application/json')) {
+        return { "success": false, "message": "استجابة غير صالحة من السيرفر" };
+      }
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return {
+          "success": true,
+          "students": (responseData["students"] as List?) ?? [],
+        };
+      } else {
+        return {
+          "success": false,
+          "message": responseData["message"] ?? "فشل في البحث"
+        };
+      }
+    } catch (e) {
+      print("Search API Error: $e");
+      return { "success": false, "message": "خطأ في الاتصال: $e" };
+    }
+  }
+
+  static Future<Map<String, dynamic>> getStudentsByCategoryAndHalaqatId(String category, int halaqatId) async {
+    try {
+      final uri = Uri.parse('${StudentBaseUrl}getstudentsbycategoryandhalakahid');
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({
+          "category": category,
+          "halakatid": halaqatId,
         }),
       );
 

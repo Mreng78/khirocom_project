@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Widgets/AppColors.dart';
 import '../../Controller/splashscreancontroller.dart';
-import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
-import '../../Widgets/AppBar.dart';
 class Splashscrean extends StatefulWidget {
   const Splashscrean({super.key});
 
@@ -48,7 +46,7 @@ class _SplashscreanState extends State<Splashscrean> {
                
                 
               ),
-              SizedBox(height: 20),
+             
               Text(
                 "خيركم",
                 style: TextStyle(

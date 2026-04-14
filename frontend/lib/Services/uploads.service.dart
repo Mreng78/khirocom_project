@@ -33,7 +33,7 @@ class UploadsService {
       if (!response.headers['content-type']!.contains('application/json')) {
         return {
           "success": false,
-          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من صحة الرابط: ${uri}"
+          "message": "السيرفر أرجع استجابة غير صالحة (HTML). تأكد من صحة الرابط: $uri"
         };
       }
 

@@ -430,3 +430,71 @@ exports.getallstudentsbycenter=async(req,res)=>
         return res.status(500).json({ message: "خطأ أثناء الحصول على الطلاب", error: error.message });
     }
 }
+
+//* get students by catigory and halaqat id
+
+exports.getstudentsbycatigoryandhalaqahid = async (req, res) => {
+    try {
+        const category = req.body.category;
+        const halakatid = req.body.halakatid;
+
+        if (!halakatid) {
+            return res.status(400).json({ message: "رقم الحلقة مطلوب" });
+        }
+
+        const students = await Student.findAll({
+            where: {
+                Category: { [Op.like]: `%${category || ''}%` },
+                HalakatId: halakatid
+            },
+            attributes: { exclude: ['Password'] },
+            include: [
+                {
+                    model: Halakat,
+                    as: 'StudentHalakat',
+                }
+            ]
+        });
+
+        if (students.length === 0) {
+            return res.status(404).json({ message: "لا يوجد طلاب" });
+        }
+        return res.status(200).json({ message: "تم الحصول على الطلاب", students });
+    } catch (error) {
+        return res.status(500).json({ message: "خطأ أثناء الحصول على الطلاب", error: error.message });
+    }
+}
+
+//* get students by status and halakat id
+
+exports.getstudentsbystatusandhalakahid = async (req, res) => {
+    try {
+        const status = req.body.status;
+        const halakatid = req.body.halakatid;
+
+        if (!halakatid) {
+            return res.status(400).json({ message: "رقم الحلقة مطلوب" });
+        }
+
+        const students = await Student.findAll({
+            where: {
+                status: status,
+                HalakatId: halakatid
+            },
+            attributes: { exclude: ['Password'] },
+            include: [
+                {
+                    model: Halakat,
+                    as: 'StudentHalakat',
+                }
+            ]
+        });
+
+        if (students.length === 0) {
+            return res.status(404).json({ message: "لا يوجد طلاب" });
+        }
+        return res.status(200).json({ message: "تم الحصول على الطلاب", students });
+    } catch (error) {
+        return res.status(500).json({ message: "خطأ أثناء الحصول على الطلاب", error: error.message });
+    }
+}

@@ -6,31 +6,23 @@ import "package:get/get.dart";
 import "../../Widgets/AppColors.dart";
 import "../../Controller/Auth_controller.dart";
 import "../../models/User.model.dart";
-import "package:frontend/Screans/assistscrean/errorscreen.dart";
 import "package:frontend/Screans/TeacherScrean/TeacherHomescrean.dart";
 import "package:frontend/Widgets/CustomTextField.dart";
-import "../../Widgets/AppBar.dart";
 
-class Loginscrean extends StatefulWidget {
+class Loginscrean extends StatelessWidget {
   const Loginscrean({super.key});
-
-  @override
-  State<Loginscrean> createState() => _LoginscreanState();
-}
-
-class _LoginscreanState extends State<Loginscrean> {
-  final AuthController authController = Get.put(AuthController());
-  final UserController userController = Get.put(UserController());
-  final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _obscurePassword = false.obs;
-  final _Role = "".obs;
-  late Student student;
-  late User user;
-
   @override
   Widget build(BuildContext context) {
+    final AuthController authController = Get.put(AuthController());
+    final UserController userController = Get.put(UserController());
+    final formKey = GlobalKey<FormState>();
+    final usernameController = authController.usernameorPhoneNumbercontroller;
+    final passwordController = TextEditingController();
+
+    final Role = "".obs;
+    late Student student;
+    late User user;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -49,13 +41,13 @@ class _LoginscreanState extends State<Loginscrean> {
               child: Directionality(
                 textDirection: TextDirection.rtl,
                 child: Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(height: 100),
-        
+
                       const SizedBox(height: 30),
                       Text(
                         'مرحبا مرة أخرى',
@@ -80,7 +72,7 @@ class _LoginscreanState extends State<Loginscrean> {
                       ),
                       const SizedBox(height: 40),
                       CustomTextField(
-                        controller: _usernameController,
+                        controller: usernameController,
                         hintText: "اسم المستخدم أو رقم الهاتف",
                         labelText: "اسم المستخدم أو رقم الهاتف",
                         prefixIcon: Icons.person_outline,
@@ -88,17 +80,18 @@ class _LoginscreanState extends State<Loginscrean> {
                       const SizedBox(height: 20),
                       Obx(
                         () => CustomTextField(
-                          controller: _passwordController,
+                          controller: passwordController,
                           hintText: "كلمة المرور",
                           labelText: "كلمة المرور",
                           prefixIcon: Icons.lock_outline,
-                          obscureText: _obscurePassword.value,
+                          obscureText: authController.obscurePassword.value,
                           keyboardType: TextInputType.visiblePassword,
-                          suffixIcon: _obscurePassword.value
+                          suffixIcon: authController.obscurePassword.value
                               ? Icons.visibility_off
                               : Icons.visibility,
                           onSuffixIconPressed: () {
-                            _obscurePassword.value = !_obscurePassword.value;
+                            authController.obscurePassword.value =
+                                !authController.obscurePassword.value;
                           },
                         ),
                       ),
@@ -149,28 +142,39 @@ class _LoginscreanState extends State<Loginscrean> {
                       ),
                       const SizedBox(height: 3),
                       // Login Button
-                      SizedBox(
+                      Container(
+                        width: double.infinity,
                         height: 55,
+                        decoration: BoxDecoration(
+                          color: Appcolors.appmaincolor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Appcolors.appmaincolor.withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         child: Obx(
                           () => ElevatedButton(
                             onPressed: authController.isLoading.value
                                 ? null
                                 : () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      bool isSuccess = await authController.login(
-                                        _usernameController.text.trim(),
-                                        _passwordController.text.trim(),
-                                      );
+                                    if (formKey.currentState!.validate()) {
+                                      bool isSuccess = await authController
+                                          .login(
+                                            usernameController.text.trim(),
+                                            passwordController.text.trim(),
+                                          );
                                       if (isSuccess) {
                                         print(authController.Role.value);
-                                        _Role.value = authController.Role.value;
-                                        if (_Role.value == "مدرس") {
+                                        Role.value = authController.Role.value;
+                                        if (Role.value == "مدرس") {
                                           user =
                                               authController.currentUser.value!;
-                                          Get.to(
-                                            () => TeacherHomescrean(),
-                                          );
-                                        } else if (_Role.value == "طالب") {
+                                          Get.to(() => TeacherHomescrean());
+                                        } else if (Role.value == "طالب") {
                                           student = authController
                                               .currentStudent
                                               .value!;
@@ -179,27 +183,233 @@ class _LoginscreanState extends State<Loginscrean> {
                                               name: student.Name,
                                             ),
                                           );
-                                        }else if (_Role.value == "admin" || _Role.value == "مشرف" || _Role.value == "موجه" ||_Role.value == "مدير " ||_Role.value == "مدير") {
+                                        } else if (Role.value == "admin" ||
+                                            Role.value == "مشرف" ||
+                                            Role.value == "موجه" ||
+                                            Role.value == "مدير " ||
+                                            Role.value == "مدير") {
                                           Get.to(
-                                            () => UnderDevelopmentScrean(name: authController.currentUser.value!.Name ),
+                                            () => UnderDevelopmentScrean(
+                                              name: authController
+                                                  .currentUser
+                                                  .value!
+                                                  .Name,
+                                            ),
                                           );
                                         } else {
                                           Get.snackbar(
                                             'تنبيه',
-                                            'تم تسجيل الدخول بنجاح، لكن واجهة المستخدم ${_Role.value} غير متوفرة بعد.',
+                                            'تم تسجيل الدخول بنجاح، لكن واجهة المستخدم ${Role.value} غير متوفرة بعد.',
                                             snackPosition: SnackPosition.BOTTOM,
                                           );
                                         }
                                       } else {
-                                        Get.to(()=>Errorscreen(error: userController.errorMessage.value,));
+                                        if (userController.errorMessage.value ==
+                                            "بيانات الدخول غير صحيحة") {
+                                          Get.dialog(
+                                            Dialog(
+                                              backgroundColor: Colors
+                                                  .transparent, // لجعل الخلفية تعتمد على الحاوية الخاصة بنا
+                                              insetPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                  ),
+                                              child: Container(
+                                                width: double.infinity,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                      maxWidth: 340,
+                                                    ),
+                                                padding: const EdgeInsets.all(
+                                                  24,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 15,
+                                                      offset: const Offset(
+                                                        0,
+                                                        10,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            12,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.1),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.error_outline,
+                                                        color: Colors.redAccent,
+                                                        size: 60,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    Text(
+                                                      "بيانات الدخول غير صحيحة",
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Appcolors
+                                                            .appmaincolor,
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontFamily: 'Cairo',
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 30),
+                                                    Wrap(
+                                                      spacing: 12,
+                                                      runSpacing: 12,
+                                                      alignment:
+                                                          WrapAlignment.center,
+                                                      children: [
+                                                        _buildButton(
+                                                          "إعادة المحاولة",
+                                                          () => Get.back(),
+                                                        ),
+                                                        _buildButton(
+                                                          "نسيت كلمة المرور",
+                                                          () {
+                                                            // منطق استعادة كلمة المرور
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        } else {
+                                         Get.dialog(
+                                            Dialog(
+                                              backgroundColor: Colors
+                                                  .transparent, // لجعل الخلفية تعتمد على الحاوية الخاصة بنا
+                                              insetPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                  ),
+                                              child: Container(
+                                                width: double.infinity,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                      maxWidth: 340,
+                                                    ),
+                                                padding: const EdgeInsets.all(
+                                                  24,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 15,
+                                                      offset: const Offset(
+                                                        0,
+                                                        10,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            12,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.1),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.network_check,
+                                                        color: Colors.redAccent,
+                                                        size: 60,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    Column(
+                                                      children: [
+                                                        Text(
+                                                          "خطأ أثناء محاولة الاتصال بالخادم",
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            color: Appcolors
+                                                                .appmaincolor,
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily: 'Cairo',
+                                                          ),
+                                                        ),
+                                                          Text(
+                                                          "تأكد من اتصالك بالانترنت",
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            color: Appcolors
+                                                                .appmaincolor,
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily: 'Cairo',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 30),
+                                                    Wrap(
+                                                      spacing: 12,
+                                                      runSpacing: 12,
+                                                      alignment:
+                                                          WrapAlignment.center,
+                                                      children: [
+                                                        _buildButton(
+                                                          "إعادة المحاولة",
+                                                          () => Get.back(),
+                                                        ),
+                                                      
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
                                       }
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Appcolors.appmaincolor,
+                              backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,
-                              elevation: 3,
-                              shadowColor: Appcolors.appmaincolor.withOpacity(0.3),
+                              shadowColor: Colors.transparent,
+                              elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
@@ -221,7 +431,7 @@ class _LoginscreanState extends State<Loginscrean> {
                         ),
                       ),
                       const SizedBox(height: 20),
-        
+
                       // Register Link
                     ],
                   ),
@@ -233,6 +443,53 @@ class _LoginscreanState extends State<Loginscrean> {
       ),
     );
   }
+}
 
-  // Removed internal _buildTextField in favor of CustomTextField widget
+Widget _buildButton(String text, VoidCallback onTap) {
+  return Material(
+    color: Colors.transparent, // للحفاظ على شكل الحواف عند النقر
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12), // تحسين الانحناء
+      child: Ink(
+        decoration: BoxDecoration(
+          // gradient: Appcolors.glossyGradient,
+          color: Appcolors.appmaincolor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: SizedBox(
+          width: 140, // عرض متناسب
+          height: 48, // ارتفاع مريح للمس
+          child: Stack(
+            alignment: Alignment.center, // توسيط المحتويات تلقائياً
+            children: [
+              // الخلفية الفنية (CustomPaint)
+              // Positioned.fill(
+              //   child: CustomPaint(
+              //     painter: Customcontainer(), // تسمية أكثر دقة
+              //   ),
+              // ),
+              Text(
+                text,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

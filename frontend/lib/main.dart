@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'Screans/assistscrean/splashscrean.dart';
 import "package:get/get.dart";
 import 'Controller/splashscreancontroller.dart';
+import 'package:get_storage/get_storage.dart';
 
-
-void main() {
+Future<void> main() async {
+  await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }

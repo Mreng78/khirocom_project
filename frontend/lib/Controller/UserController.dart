@@ -1,9 +1,10 @@
 import 'package:frontend/models/Student.model.dart';
 import 'package:get/get.dart';
 import '../models/User.model.dart';
-import '../Services/UserServivices.dart';
+import 'Auth_controller.dart';
 
 class UserController extends GetxController {
+  final AuthController authController =Get.put(AuthController());
   final UserbaseUrl = 'http://192.168.0.3:8000/api/users';
 
   final RxList<User> users = <User>[].obs;
@@ -13,6 +14,19 @@ class UserController extends GetxController {
   final RxBool isLoggedIn = RxBool(false);
   final RxString Role = RxString('');
   final Rx<Student?> currentStudent = Rx<Student?>(null);
+
+  String getuserbyfirstandlastname() {
+    final user = authController.currentUser.value;
+    if (user == null) return "مستخدم غير معروف";
+    
+    String name = user.Name;
+    List<String> nameparts = name.split(' ');
+    if (nameparts.isEmpty) return name;
+    
+    String firstname = nameparts[0];
+    String lastname = nameparts.length > 1 ? nameparts[nameparts.length - 1] : "";
+    return lastname.isNotEmpty ? "$firstname $lastname" : firstname;
+  }
 
   // Future<bool> login(String usernameOrPhoneNumber, String password) async {
   //   isLoading.value = true;

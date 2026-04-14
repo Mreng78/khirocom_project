@@ -33,7 +33,7 @@ class Dropdown extends StatelessWidget {
     final effectiveBorderColor = borderColor ?? Appcolors.appmaincolor;
 
     return DropdownButtonFormField<dynamic>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       icon: Icon(Icons.arrow_drop_down, color: effectiveIconColor),
       dropdownColor: fillColor ?? Colors.white,

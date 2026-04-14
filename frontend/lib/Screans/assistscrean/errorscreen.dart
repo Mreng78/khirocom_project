@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Errorscreen extends StatelessWidget {
   String error;
   int? errorcode;
-  Errorscreen({required this.error, this.errorcode});
+  Errorscreen({super.key, required this.error, this.errorcode});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -24,5 +24,8 @@ router.post('/getstudentscountbycenter',userauth, studentsController.getstudents
 router.post('/getstudentsbyarea',userauth,studentsController.getallstudentsbyarea)
 router.post('/getstudentsbycenter',userauth, studentsController.getallstudentsbycenter);
 router.post('/getstudentsbynameandhalaqatid', studentsController.getstudentsbynameandhalaqatid);
+router.post('/getstudentsbystatusandhalakahid', studentsController.getstudentsbystatusandhalakahid);
+router.post('/getstudentsbycategoryandhalakahid', studentsController.getstudentsbycatigoryandhalaqahid);
+
 
 module.exports = router;

@@ -1,176 +1,192 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:frontend/Screans/TeacherScrean/AddStudent.dart';
+import 'package:frontend/Screans/TeacherScrean/TeacherHomescrean.dart';
+import 'package:frontend/Widgets/AppColors.dart';
+import 'package:frontend/Controller/navigation_controller.dart';
 import 'package:get/get.dart';
-import 'AppColors.dart';
-import '../Controller/UserController.dart';
 
-class CustomBottomNavBar extends StatelessWidget {
-  final VoidCallback onProfileTap;
-  final VoidCallback onCenterTap;
-  final VoidCallback onRecordsTap;
-  final IconData centerIcon;
+class Custombottomnavbar extends StatelessWidget {
+  /// The page name used for the center floating button action.
+  final String centerbutton;
 
-  const CustomBottomNavBar({
+  /// The page name that identifies THIS screen (used to mark active tab).
+  final String currentpage;
+
+  const Custombottomnavbar({
     super.key,
-    required this.onProfileTap,
-    required this.onCenterTap,
-    required this.onRecordsTap,
-    this.centerIcon = Icons.home,
+    required this.centerbutton,
+    required this.currentpage,
   });
+
+  // Safe controller access: find if already registered, otherwise create.
+  NavigationController get _navController =>
+      Get.isRegistered<NavigationController>()
+          ? Get.find<NavigationController>()
+          : Get.put(NavigationController());
 
   @override
   Widget build(BuildContext context) {
-    final UserController userController = Get.find<UserController>();
-
-    return Positioned(
-      bottom: 20,
-      left: 60,
-      right: 60,
-      height: 100,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background "Tab" shape
-          Container(
-            height: 60,
-            decoration: BoxDecoration(
-              color: Appcolors.appmaincolor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-              borderRadius: const BorderRadius.all(Radius.circular(30)),
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 60,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Appcolors.appmaincolor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        // Refined Glass Layer (Flush to Bottom)
+        ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Appcolors.appBarbackground.withOpacity(0.9),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1.0,
                   ),
                 ),
-                Expanded(
-                  flex: 40,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Appcolors.appmaincolor, width: 1),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30),
-                      ),
-                    ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
                   ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildnavbaritems(
+                      icon: Icons.auto_graph_outlined,
+                      windowname: 'activities',
+                      label: 'الأنشطة',
+                    ),
+                    _buildnavbaritems(
+                      icon: Icons.history_edu,
+                      windowname: 'record',
+                      label: 'السجل',
+                    ),
+                    // Space for center button
+                    const SizedBox(width: 50),
+                    _buildnavbaritems(
+                      icon: Icons.tune,
+                      windowname: 'settings',
+                      label: 'الإعدادات',
+                    ),
+                    _buildnavbaritems(
+                      icon: Icons.account_circle_outlined,
+                      windowname: 'profile',
+                      label: 'الملف',
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-          // Icons Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        ),
+        // Positioned Center Action Button (Crisp & Modern)
+        Positioned(
+          top: -26,
+          child: _buildCenterButton(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCenterButton() {
+    return Container(
+      width: 62,
+      height: 62,
+      decoration: BoxDecoration(
+        //color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.2),
+            blurRadius: 15,
+            spreadRadius: 1,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () {
+            _navController.changePage(centerbutton);
+            if (centerbutton == 'add') {
+               Get.to(() => const Addstudent());
+            } else {
+               Get.offAll(() => const TeacherHomescrean());
+            }
+          },
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Appcolors.appmaincolor, width: 3),
+            ),
+            child: Icon(
+              centerbutton == 'add' ? Icons.add : Icons.close,
+              color: Appcolors.appmaincolor,
+              size: 32,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildnavbaritems({
+    required IconData icon,
+    required String windowname,
+    required String label,
+  }) {
+    return Obx(() {
+      final bool isSelected = _navController.page.value == windowname;
+
+      return GestureDetector(
+        onTap: () => _navController.changePage(windowname),
+        child: Container(
+          color: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Profile
-              Obx(() {
-                final imageUrl = userController.currentUser.value?.ImageUrl;
-                final hasImage = imageUrl != null && imageUrl.isNotEmpty;
-                return _buildNavItem(
-                  onTap: onProfileTap,
-                  label: "الملف الشخصي",
-                  icon: Container(
-                    height: 35,
-                    width: 35,
-                    decoration: BoxDecoration(
-                      color: Appcolors.appBarbackground,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      image: hasImage
-                          ? DecorationImage(
-                              image: NetworkImage(imageUrl),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                    child: !hasImage
-                        ? const Icon(Icons.person, color: Colors.white, size: 28)
-                        : null,
-                  ),
-                );
-              }),
-              // Center Action (Home / Add)
-              _buildCenterButton(onTap: onCenterTap, icon: centerIcon),
-              // Records
-              _buildNavItem(
-                onTap: onRecordsTap,
-                label: "السجل",
-                icon: Container(
-                  height: 35,
-                  width: 35,
-                  decoration: BoxDecoration(
-                    color: Appcolors.appBarbackground,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Icon(Icons.assessment, color: Colors.white, size: 28),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 30,
+                width: 30,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withOpacity(0.15)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+                  size: 24,
+                ),
+              ),
+             // const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+                  fontSize: 10,
+                  fontFamily: 'Cairo',
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 ),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem({required VoidCallback onTap, required String label, required Widget icon}) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          icon,
-          Text(
-            label,
-            style: TextStyle(
-              color: Appcolors.appmaincolor,
-              fontSize: 13,
-              fontFamily: 'Cairo',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCenterButton({required VoidCallback onTap, required IconData icon}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 55,
-        height: 55,
-        decoration: BoxDecoration(
-          color: Appcolors.appBarbackground,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Appcolors.appBarbackground.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
-        child: Icon(icon, color: Colors.white, size: 35),
-      ),
-    );
+      );
+    });
   }
 }

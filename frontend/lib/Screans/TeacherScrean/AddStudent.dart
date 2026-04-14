@@ -19,17 +19,17 @@ class Addstudent extends StatelessWidget {
     final HalaqatController halaqatController = Get.find<HalaqatController>();
     final UploadsController uploadsController = Get.put(UploadsController());
 
-    final _formKey = GlobalKey<FormState>();
-    final _nameController = TextEditingController();
-    final _genderController = TextEditingController();
-    final _ageController = TextEditingController();
-    final _current_Memorization_SorahController = TextEditingController();
-    final _current_Memorization_AyaController = TextEditingController();
-    final _phoneNumberController = TextEditingController();
-    final _fatherNumberController = TextEditingController();
-    final _categoryController = TextEditingController();
-    final _usernameController = TextEditingController();
-    final _passwordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final genderController = TextEditingController();
+    final ageController = TextEditingController();
+    final current_Memorization_SorahController = TextEditingController();
+    final current_Memorization_AyaController = TextEditingController();
+    final phoneNumberController = TextEditingController();
+    final fatherNumberController = TextEditingController();
+    final categoryController = TextEditingController();
+    final usernameController = TextEditingController();
+    final passwordController = TextEditingController();
 
     List<String> genderOptions = ['ذكر', 'أنثى'];
     List<String> categoryOptions = [
@@ -100,7 +100,7 @@ class Addstudent extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 120), // Space for bottom nav
                 child: Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     children: [
                       const SizedBox(height: 15),
@@ -188,7 +188,7 @@ class Addstudent extends StatelessWidget {
                         child: Column(
                           children: [
                             CustomTextField(
-                              controller: _nameController,
+                              controller: nameController,
                               hintText: 'إسم الطالب',
                               labelText: 'إسم الطالب',
                               fillColor: Colors.white,
@@ -204,13 +204,13 @@ class Addstudent extends StatelessWidget {
                                     label: 'الجنس',
                                     icon: Icons.person_outline,
                                     fillColor: Colors.white,
-                                    onChanged: (value) => _genderController.text = value.toString(),
+                                    onChanged: (value) => genderController.text = value.toString(),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: CustomTextField(
-                                    controller: _ageController,
+                                    controller: ageController,
                                     hintText: 'العمر',
                                     labelText: 'العمر',
                                     fillColor: Colors.white,
@@ -222,7 +222,7 @@ class Addstudent extends StatelessWidget {
                             ),
                             const SizedBox(height: 15),
                             CustomTextField(
-                              controller: _phoneNumberController,
+                              controller: phoneNumberController,
                               hintText: 'رقم الهاتف (اختياري)',
                               labelText: 'رقم الهاتف (اختياري)',
                               fillColor: Colors.white,
@@ -230,7 +230,7 @@ class Addstudent extends StatelessWidget {
                             ),
                             const SizedBox(height: 15),
                             CustomTextField(
-                              controller: _fatherNumberController,
+                              controller: fatherNumberController,
                               hintText: 'هاتف ولي الأمر',
                               labelText: 'هاتف ولي الأمر',
                               fillColor: Colors.white,
@@ -244,7 +244,7 @@ class Addstudent extends StatelessWidget {
                               label: 'الفئة',
                               icon: Icons.category,
                               fillColor: Colors.white,
-                              onChanged: (value) => _categoryController.text = value.toString(),
+                              onChanged: (value) => categoryController.text = value.toString(),
                             ),
                             const SizedBox(height: 15),
                             const Divider(color: Colors.green),
@@ -254,7 +254,7 @@ class Addstudent extends StatelessWidget {
                                 Expanded(
                                   flex: 2,
                                   child: CustomTextField(
-                                    controller: _current_Memorization_SorahController,
+                                    controller: current_Memorization_SorahController,
                                     hintText: 'السورة الحالية',
                                     labelText: 'السورة',
                                     fillColor: Colors.white,
@@ -265,7 +265,7 @@ class Addstudent extends StatelessWidget {
                                 Expanded(
                                   flex: 1,
                                   child: CustomTextField(
-                                    controller: _current_Memorization_AyaController,
+                                    controller: current_Memorization_AyaController,
                                     hintText: 'الآية',
                                     labelText: 'الآية',
                                     fillColor: Colors.white,
@@ -276,7 +276,7 @@ class Addstudent extends StatelessWidget {
                             ),
                             const SizedBox(height: 15),
                             CustomTextField(
-                              controller: _usernameController,
+                              controller: usernameController,
                               hintText: 'اسم المستخدم',
                               labelText: 'اسم المستخدم',
                               fillColor: Colors.white,
@@ -284,7 +284,7 @@ class Addstudent extends StatelessWidget {
                             ),
                             const SizedBox(height: 15),
                             CustomTextField(
-                              controller: _passwordController,
+                              controller: passwordController,
                               hintText: 'كلمة المرور',
                               labelText: 'كلمة المرور',
                               fillColor: Colors.white,
@@ -300,18 +300,18 @@ class Addstudent extends StatelessWidget {
                                     onPressed: studentController.isStudentsLoading.value
                                         ? null
                                         : () async {
-                                            if (_formKey.currentState!.validate()) {
+                                            if (formKey.currentState!.validate()) {
                                               Map<String, dynamic> studentData = {
-                                                "Name": _nameController.text,
-                                                "Gender": _genderController.text,
-                                                "Age": int.tryParse(_ageController.text) ?? 0,
-                                                "phoneNumber": _phoneNumberController.text,
-                                                "FatherNumber": _fatherNumberController.text,
-                                                "Category": _categoryController.text,
-                                                "current_Memorization_Sorah": _current_Memorization_SorahController.text,
-                                                "current_Memorization_Aya": _current_Memorization_AyaController.text,
-                                                "Username": _usernameController.text,
-                                                "Password": _passwordController.text,
+                                                "Name": nameController.text,
+                                                "Gender": genderController.text,
+                                                "Age": int.tryParse(ageController.text) ?? 0,
+                                                "phoneNumber": phoneNumberController.text,
+                                                "FatherNumber": fatherNumberController.text,
+                                                "Category": categoryController.text,
+                                                "current_Memorization_Sorah": current_Memorization_SorahController.text,
+                                                "current_Memorization_Aya": current_Memorization_AyaController.text,
+                                                "Username": usernameController.text,
+                                                "Password": passwordController.text,
                                                 "ImageUrl": uploadsController.uploadedImageUrl.value,
                                                 "status": "مستمر",
                                                 "HalakatId": halaqatController.currentHalaqah.value?.Id ?? 0,
@@ -365,12 +365,7 @@ class Addstudent extends StatelessWidget {
             ),
           ),
           // Cleanly placed bottom nav bar
-          CustomBottomNavBar(
-            onProfileTap: () {},
-            onCenterTap: () => Get.to(() => const TeacherHomescrean()),
-            onRecordsTap: () {},
-            centerIcon: Icons.home,
-          ),
+        
         ],
       ),
     );
