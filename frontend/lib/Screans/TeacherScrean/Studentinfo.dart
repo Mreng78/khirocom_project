@@ -66,6 +66,10 @@ class Studentinfo extends StatelessWidget {
                               // ),
                               decoration: BoxDecoration(
                                 //borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
                                 border: Border.all(
                                   color: Appcolors.appmaincolor,
                                   width: 2,
@@ -80,6 +84,10 @@ class Studentinfo extends StatelessWidget {
                               ),
                               child: ClipRRect(
                                // borderRadius: BorderRadius.circular(18),
+                               borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
                                 child: Stack(
                                   children: [
                                     // Background with CustomPaint
@@ -93,7 +101,7 @@ class Studentinfo extends StatelessWidget {
                                       children: [
                                         Container(
                                           width: double.infinity,
-                                          padding: const EdgeInsets.all(20),
+                                          padding: const EdgeInsets.all(5),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
@@ -235,18 +243,20 @@ class Studentinfo extends StatelessWidget {
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(15),
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
+                                    // margin: const EdgeInsets.symmetric(
+                                    //   horizontal: 10,
+                                    // ),
+                                    height: double.infinity,
+                                    width: double.infinity,
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(20),
-                                      ),
-                                      border: Border.all(
-                                        color: Appcolors.appmaincolor,
-                                        width: 2,
-                                      ),
+                                      // borderRadius: const BorderRadius.all(
+                                      //   Radius.circular(20),
+                                      // ),
+                                      // border: Border.all(
+                                      //   color: Appcolors.appmaincolor,
+                                      //   width: 2,
+                                      // ),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.1),

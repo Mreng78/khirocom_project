@@ -97,11 +97,19 @@ class Custombottomnavbar extends StatelessWidget {
   }
 
   Widget _buildCenterButton() {
+    IconData centerIcon;
+    if (centerbutton == 'add') {
+      centerIcon = Icons.add;
+    } else if (centerbutton == 'Home' || centerbutton == 'home') {
+      centerIcon = Icons.home;
+    } else {
+      centerIcon = Icons.close;
+    }
+
     return Container(
       width: 62,
       height: 62,
       decoration: BoxDecoration(
-        //color: Colors.white,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
@@ -119,9 +127,9 @@ class Custombottomnavbar extends StatelessWidget {
           onTap: () {
             _navController.changePage(centerbutton);
             if (centerbutton == 'add') {
-               Get.to(() => const Addstudent());
+              Get.to(() => const Addstudent());
             } else {
-               Get.offAll(() => const TeacherHomescrean());
+              Get.to(() => const TeacherHomescrean());
             }
           },
           child: Container(
@@ -132,7 +140,7 @@ class Custombottomnavbar extends StatelessWidget {
               border: Border.all(color: Appcolors.appmaincolor, width: 3),
             ),
             child: Icon(
-              centerbutton == 'add' ? Icons.add : Icons.close,
+              centerIcon,
               color: Appcolors.appmaincolor,
               size: 32,
             ),
