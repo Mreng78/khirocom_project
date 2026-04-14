@@ -75,8 +75,9 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
         preferredSize: const Size.fromHeight(70),
         child: Obx(
           () => Appbarcontainer(
-            title: 'حلقة: ${halaqatController.currentHalaqah.value?.Name ?? ""}',
-            undertitel: 'المدرس: ${userController.getuserbyfirstandlastname()}'
+            title:
+                'حلقة: ${halaqatController.currentHalaqah.value?.Name ?? ""}',
+            undertitel: 'المدرس: ${userController.getuserbyfirstandlastname()}',
           ),
         ),
       ),
@@ -84,13 +85,13 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/appbackground.jpg"),
             fit: BoxFit.cover,
             opacity: 0.15, // Reduced opacity for cleaner background
           ),
-           //color: Appcolors.appBarbackground.withOpacity(0.5),
+          //color: Appcolors.appBarbackground.withOpacity(0.5),
         ),
         child: Column(
           children: [
@@ -112,24 +113,27 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                         child: Stack(
                           children: [
                             // Glass Painter Layer
-                          
+
                             // Content Layer
                             Column(
                               children: [
                                 Expanded(
                                   child: Container(
-                                   // padding: const EdgeInsets.all(12),
-                                   // margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                    // padding: const EdgeInsets.all(12),
+                                    // margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
-                                        image: AssetImage("assets/images/appbackground.jpg"),
+                                        image: AssetImage(
+                                          "assets/images/appbackground.jpg",
+                                        ),
                                         fit: BoxFit.cover,
                                         opacity: 0.5,
                                       ),
                                       color: Colors.white.withOpacity(0.75),
-                                     // borderRadius: BorderRadius.circular(24),
+                                      // borderRadius: BorderRadius.circular(24),
                                       border: Border.all(
-                                        color: Appcolors.appmaincolor.withOpacity(0.4),
+                                        color: Appcolors.appmaincolor
+                                            .withOpacity(0.4),
                                         width: 1.5,
                                       ),
                                       boxShadow: [
@@ -144,9 +148,9 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                                       children: [
                                         SizedBox(height: 10),
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
-                                            
                                             Text(
                                               "قائمة الطلاب",
                                               style: TextStyle(
@@ -171,12 +175,23 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                                                 labelText: "بحث عن طالب",
                                                 fillColor: Colors.white,
                                                 textColor: Colors.black87,
-                                                iconColor: Appcolors.appmaincolor,
-                                                borderColor: Appcolors.appmaincolor.withOpacity(0.15),
+                                                iconColor:
+                                                    Appcolors.appmaincolor,
+                                                borderColor: Appcolors
+                                                    .appmaincolor
+                                                    .withOpacity(0.15),
                                                 onChanged: (value) {
-                                                  final halaqahId = halaqatController.currentHalaqah.value?.Id;
+                                                  final halaqahId =
+                                                      halaqatController
+                                                          .currentHalaqah
+                                                          .value
+                                                          ?.Id;
                                                   if (halaqahId != null) {
-                                                    studentController.searchStudentsOnServer(value, halaqahId);
+                                                    studentController
+                                                        .searchStudentsOnServer(
+                                                          value,
+                                                          halaqahId,
+                                                        );
                                                   }
                                                 },
                                               ),
@@ -205,12 +220,9 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                 }),
               ),
             ),
-            
+
             // Integrated Flush Navigation Bar
-            Custombottomnavbar(
-              centerbutton: 'add',
-              currentpage: 'Home',
-            ),
+            Custombottomnavbar(centerbutton: 'add', currentpage: 'Home'),
           ],
         ),
       ),
@@ -251,10 +263,11 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
             label: 'تصفية الحالة',
             icon: Icons.person_outline,
             fillColor: Colors.white,
-            onChanged: (value) => studentController.searchStudentsByStatusAndHalaqatId(
-              value == "الكل" ? "" : value.toString(),
-              halaqahId,
-            ),
+            onChanged: (value) =>
+                studentController.searchStudentsByStatusAndHalaqatId(
+                  value == "الكل" ? "" : value.toString(),
+                  halaqahId,
+                ),
           );
         case "category":
           return Dropdown(
@@ -268,14 +281,19 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
               "25 جزء",
               "المصحف كامل",
             ],
-            value: studentController.selectedCategory.value.isEmpty ? null : studentController.selectedCategory.value,
+            value: studentController.selectedCategory.value.isEmpty
+                ? null
+                : studentController.selectedCategory.value,
             hintText: 'الفئة',
             label: 'تصفية الفئة',
             icon: Icons.category,
             fillColor: Colors.white,
             onChanged: (value) {
               _categoryController.text = value.toString();
-              studentController.searchStudentsByCategoryOnServer(value.toString(), halaqahId);
+              studentController.searchStudentsByCategoryOnServer(
+                value.toString(),
+                halaqahId,
+              );
             },
           );
         default:
@@ -288,7 +306,9 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
     return Obx(() {
       final students = studentController.filteredStudents;
       if (studentController.isStudentsLoading.value) {
-        return Center(child: CircularProgressIndicator(color: Appcolors.appmaincolor));
+        return Center(
+          child: CircularProgressIndicator(color: Appcolors.appmaincolor),
+        );
       }
 
       if (students.isEmpty) {
@@ -310,7 +330,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
   Widget _buildEmptyState() {
     String message = "لا يوجد طلاب حالياً";
     IconData icon = Icons.person_off_outlined;
-    
+
     if (_searchController.text.isNotEmpty) {
       message = "لا يوجد طلاب بهذا الاسم";
       icon = Icons.search_off;
@@ -322,7 +342,15 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
         children: [
           Icon(icon, size: 60, color: Appcolors.appmaincolor.withOpacity(0.2)),
           const SizedBox(height: 12),
-          Text(message, style: TextStyle(color: Appcolors.appmaincolor, fontSize: 16, fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+          Text(
+            message,
+            style: TextStyle(
+              color: Appcolors.appmaincolor,
+              fontSize: 16,
+              fontFamily: 'Cairo',
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -332,20 +360,29 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
     return Column(
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), bottomLeft: Radius.circular(30)),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            bottomLeft: Radius.circular(30),
+          ),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: InkWell(
               onTap: () {
                 studentController.setSelectedStudent(student);
-                Get.to(() =>  Studentinfo());
+                Get.to(() => Studentinfo());
               },
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Appcolors.appBarbackground.withOpacity(0.9),
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(30), bottomLeft: Radius.circular(30)),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    bottomLeft: Radius.circular(30),
+                  ),
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                   boxShadow: [
                     BoxShadow(
@@ -379,50 +416,52 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                       ),
                       const SizedBox(width: 8),
                       CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.white,
-                      backgroundImage: student.ImageUrl != null &&
-                              student.ImageUrl!.isNotEmpty
-                          ? NetworkImage(student.ImageUrl!)
-                          : null,
-                      child: student.ImageUrl == null ||
-                              student.ImageUrl!.isEmpty
-                          ? Icon(
-                              Icons.person,
-                              color: Appcolors.appBarbackground,
-                              size: 24,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            student.Name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontFamily: 'Cairo',
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          Text(
-                            'الحفظ الحالي: ${student.current_Memorization_Sorah} (${student.current_Memorization_Aya})',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                              fontFamily: 'Cairo',
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ],
+                        radius: 22,
+                        backgroundColor: Colors.white,
+                        backgroundImage:
+                            student.ImageUrl != null &&
+                                student.ImageUrl!.isNotEmpty
+                            ? NetworkImage(student.ImageUrl!)
+                            : null,
+                        child:
+                            student.ImageUrl == null ||
+                                student.ImageUrl!.isEmpty
+                            ? Icon(
+                                Icons.person,
+                                color: Appcolors.appBarbackground,
+                                size: 24,
+                              )
+                            : null,
                       ),
-                    ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              student.Name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontFamily: 'Cairo',
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            Text(
+                              'الحفظ الحالي: ${student.current_Memorization_Sorah} (${student.current_Memorization_Aya})',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                                fontFamily: 'Cairo',
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(width: 5),
                       const Icon(
                         Icons.arrow_circle_left,
@@ -469,14 +508,14 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
     //                   : null,
     //             ),
     //             Positioned(
-    //               bottom: 2, 
-    //               right: 2, 
+    //               bottom: 2,
+    //               right: 2,
     //               child: Container(
-    //                 width: 13, 
-    //                 height: 13, 
+    //                 width: 13,
+    //                 height: 13,
     //                 decoration: BoxDecoration(
-    //                   color: statusColor, 
-    //                   shape: BoxShape.circle, 
+    //                   color: statusColor,
+    //                   shape: BoxShape.circle,
     //                   border: Border.all(color: Colors.white, width: 2)
     //                 )
     //               )
@@ -484,18 +523,18 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
     //           ],
     //         ),
     //         title: Text(
-    //           student.Name, 
+    //           student.Name,
     //           style: const TextStyle(
-    //             fontFamily: 'Cairo', 
-    //             fontWeight: FontWeight.w700, 
+    //             fontFamily: 'Cairo',
+    //             fontWeight: FontWeight.w700,
     //             fontSize: 15
     //           )
     //         ),
     //         subtitle: Text(
-    //           "ما وصل اليه : ${student.current_Memorization_Sorah}", 
+    //           "ما وصل اليه : ${student.current_Memorization_Sorah}",
     //           style: TextStyle(
-    //             fontFamily: 'Cairo', 
-    //             fontSize: 12, 
+    //             fontFamily: 'Cairo',
+    //             fontSize: 12,
     //             color: Colors.grey.shade600
     //           )
     //         ),
