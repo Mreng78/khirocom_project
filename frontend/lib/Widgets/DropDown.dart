@@ -12,7 +12,8 @@ class Dropdown extends StatelessWidget {
   final Color? borderColor;
   final Color? iconColor;
   final Color? textColor;
-
+  final String? initialValue;
+  final bool isExpanded;
   const Dropdown({
     super.key,
     this.items,
@@ -25,6 +26,8 @@ class Dropdown extends StatelessWidget {
     this.borderColor,
     this.iconColor,
     this.textColor,
+    this.initialValue,
+    this.isExpanded=true,
   });
 
   @override
@@ -34,7 +37,7 @@ class Dropdown extends StatelessWidget {
 
     return DropdownButtonFormField<dynamic>(
       initialValue: value,
-      isExpanded: true,
+      isExpanded: isExpanded,
       icon: Icon(Icons.arrow_drop_down, color: effectiveIconColor),
       dropdownColor: fillColor ?? Colors.white,
       style: TextStyle(
@@ -52,7 +55,7 @@ class Dropdown extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
         
-        hintText: hintText,
+        hintText: hintText!=null?hintText:"",
         hintStyle: TextStyle(
           color: (textColor ?? Colors.black87).withOpacity(0.5),
           fontFamily: 'Cairo',

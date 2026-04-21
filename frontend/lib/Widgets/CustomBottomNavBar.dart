@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:frontend/Screans/TeacherScrean/AddStudent.dart';
-import 'package:frontend/Screans/TeacherScrean/TeacherHomescrean.dart';
+import 'package:frontend/Screens/TeacherScreen/AddStudent.dart';
+import 'package:frontend/Screens/TeacherScreen/TeacherHomeScreen.dart';
 import 'package:frontend/Widgets/AppColors.dart';
 import 'package:frontend/Controller/navigation_controller.dart';
 import 'package:get/get.dart';
@@ -127,9 +127,9 @@ class Custombottomnavbar extends StatelessWidget {
           onTap: () {
             _navController.changePage(centerbutton);
             if (centerbutton == 'add') {
-              Get.to(() => const Addstudent());
+              Get.to(() => Addstudent());
             } else {
-              Get.to(() => const TeacherHomescrean());
+              Get.to(() => TeacherHomeScreen());
             }
           },
           child: Container(

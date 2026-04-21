@@ -5,7 +5,7 @@ const studentauth=require("../middleware/StudentAuth")
 const studentsplancontroller = require("../controllers/StudentPlanControoller");
 
 
-router.post("/addstudentplan",userauth, studentsplancontroller.addStudentPlan);
+router.post("/addstudentplan", studentsplancontroller.addStudentPlan);
 router.get("/getstudentplans",userauth, studentsplancontroller.getStudentPlans);
 router.get('/studentgetme',studentauth,studentsplancontroller.getStudentPlanByStudentId)
 router.put("/updatestudentplan",userauth, studentsplancontroller.updateStudentPlan);

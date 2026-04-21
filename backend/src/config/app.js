@@ -26,7 +26,7 @@ app.use('/api/halaqat', HalakatRoutes);
 app.use('/api/areas', AreaRoutes);
 app.use('/api/students', StudentRoutes);
 app.use('/api/dailyprogress', DailyProgressRoutes);
-app.use('/api/studentsplan', StudentsPlanRoutes);
+app.use('/api/studentplan', StudentsPlanRoutes);
 app.use('/api/mentorvisit', MentorVisitRoutes);
 app.use('/api/monthlyrate', MonthlyRateRoutes);
 app.use('/api/notification', NotificationRoutes);

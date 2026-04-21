@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/Controller/UserController.dart';
-import 'package:frontend/Screans/TeacherScrean/TeacherHomescrean.dart';
 import 'package:frontend/Widgets/CustomBottomNavBar.dart';
 import 'package:get/get.dart';
-import '../../Controller/StudentController.dart';
-import '../../Controller/HalaqatController.dart';
-import '../../Controller/UploadsController.dart';
-import '../../Widgets/AppColors.dart';
-import '../../Widgets/CustomTextField.dart';
-import '../../Widgets/DropDown.dart';
+import 'package:frontend/Controller/StudentController.dart';
+import 'package:frontend/Controller/HalaqatController.dart';
+import 'package:frontend/Controller/UploadsController.dart';
+import 'package:frontend/Widgets/AppColors.dart';
+import 'package:frontend/Widgets/CustomTextField.dart';
+import 'package:frontend/Widgets/DropDown.dart';
+import 'package:frontend/models/surah_data.model.dart';
+import 'package:frontend/Controller/SurahController.dart';
 
 class Addstudent extends StatelessWidget {
   const Addstudent({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final StudentController studentController = Get.find<StudentController>();
-    final HalaqatController halaqatController = Get.find<HalaqatController>();
-    final UploadsController uploadsController = Get.put(UploadsController());
+    final StudentController studentController = Get.find();
+    final HalaqatController halaqatController = Get.find();
+    final UploadsController uploadsController = Get.find();
+    final SurahController surahController = Get.find();
 
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
@@ -42,20 +44,7 @@ class Addstudent extends StatelessWidget {
       "25 جزء",
       "المصحف كامل",
     ];
-    List<String> surahNames = [
-      "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
-      "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
-      "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم",
-      "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر",
-      "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق",
-      "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة",
-      "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج",
-      "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس",
-      "التكوير", "الانفطار", "المطغفين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد",
-      "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات",
-      "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر",
-      "المسد", "الإخلاص", "الفلق", "الناس"
-    ];
+    final List<String> surahNames = SurahData.surahnames();
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +87,9 @@ class Addstudent extends StatelessWidget {
               textDirection: TextDirection.rtl,
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 120), // Space for bottom nav
+                padding: const EdgeInsets.only(
+                  bottom: 120,
+                ), // Space for bottom nav
                 child: Form(
                   key: formKey,
                   child: Column(
@@ -112,10 +103,18 @@ class Addstudent extends StatelessWidget {
                               () => CircleAvatar(
                                 radius: 60,
                                 backgroundColor: Colors.white,
-                                backgroundImage: uploadsController.uploadedImageUrl.isNotEmpty
-                                    ? NetworkImage(uploadsController.uploadedImageUrl.value)
+                                backgroundImage:
+                                    uploadsController
+                                        .uploadedImageUrl
+                                        .isNotEmpty
+                                    ? NetworkImage(
+                                        uploadsController
+                                            .uploadedImageUrl
+                                            .value,
+                                      )
                                     : null,
-                                child: uploadsController.uploadedImageUrl.isEmpty
+                                child:
+                                    uploadsController.uploadedImageUrl.isEmpty
                                     ? Icon(
                                         Icons.person,
                                         size: 60,
@@ -128,7 +127,8 @@ class Addstudent extends StatelessWidget {
                               bottom: 0,
                               right: 0,
                               child: InkWell(
-                                onTap: () => uploadsController.pickAndUploadImage(),
+                                onTap: () =>
+                                    uploadsController.pickAndUploadImage(),
                                 child: CircleAvatar(
                                   radius: 20,
                                   backgroundColor: Appcolors.appmaincolor,
@@ -158,8 +158,13 @@ class Addstudent extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          border: Border.all(color: Appcolors.appmaincolor, width: 2),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(20),
+                          ),
+                          border: Border.all(
+                            color: Appcolors.appmaincolor,
+                            width: 2,
+                          ),
                         ),
                         child: Center(
                           child: Text(
@@ -182,8 +187,13 @@ class Addstudent extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 216, 241, 188),
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          border: Border.all(color: Appcolors.appmaincolor, width: 2),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(20),
+                          ),
+                          border: Border.all(
+                            color: Appcolors.appmaincolor,
+                            width: 2,
+                          ),
                         ),
                         child: Column(
                           children: [
@@ -192,7 +202,10 @@ class Addstudent extends StatelessWidget {
                               hintText: 'إسم الطالب',
                               labelText: 'إسم الطالب',
                               fillColor: Colors.white,
-                              validator: (value) => value == null || value.isEmpty ? 'الرجاء إدخال إسم الطالب' : null,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                  ? 'الرجاء إدخال إسم الطالب'
+                                  : null,
                             ),
                             const SizedBox(height: 15),
                             Row(
@@ -204,7 +217,9 @@ class Addstudent extends StatelessWidget {
                                     label: 'الجنس',
                                     icon: Icons.person_outline,
                                     fillColor: Colors.white,
-                                    onChanged: (value) => genderController.text = value.toString(),
+                                    onChanged: (value) =>
+                                        genderController.text = value
+                                            .toString(),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -215,7 +230,10 @@ class Addstudent extends StatelessWidget {
                                     labelText: 'العمر',
                                     fillColor: Colors.white,
                                     keyboardType: TextInputType.number,
-                                    validator: (value) => value == null || value.isEmpty ? 'الرجاء إدخال العمر' : null,
+                                    validator: (value) =>
+                                        value == null || value.isEmpty
+                                        ? 'الرجاء إدخال العمر'
+                                        : null,
                                   ),
                                 ),
                               ],
@@ -235,7 +253,10 @@ class Addstudent extends StatelessWidget {
                               labelText: 'هاتف ولي الأمر',
                               fillColor: Colors.white,
                               keyboardType: TextInputType.phone,
-                              validator: (value) => value == null || value.isEmpty ? 'الرجاء إدخال رقم ولي الأمر' : null,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                  ? 'الرجاء إدخال رقم ولي الأمر'
+                                  : null,
                             ),
                             const SizedBox(height: 15),
                             Dropdown(
@@ -244,7 +265,8 @@ class Addstudent extends StatelessWidget {
                               label: 'الفئة',
                               icon: Icons.category,
                               fillColor: Colors.white,
-                              onChanged: (value) => categoryController.text = value.toString(),
+                              onChanged: (value) =>
+                                  categoryController.text = value.toString(),
                             ),
                             const SizedBox(height: 15),
                             const Divider(color: Colors.green),
@@ -254,22 +276,32 @@ class Addstudent extends StatelessWidget {
                                 Expanded(
                                   flex: 2,
                                   child: CustomTextField(
-                                    controller: current_Memorization_SorahController,
+                                    controller:
+                                        current_Memorization_SorahController,
                                     hintText: 'السورة الحالية',
                                     labelText: 'السورة',
                                     fillColor: Colors.white,
-                                    items: surahNames,
+                                    items: surahController.getsurahnames(),
+                                    onChanged: (value) {
+                                      surahController.ayatcount.value =
+                                          surahController.getayatcount(
+                                            value ?? "",
+                                          );
+                                    },
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   flex: 1,
-                                  child: CustomTextField(
-                                    controller: current_Memorization_AyaController,
-                                    hintText: 'الآية',
-                                    labelText: 'الآية',
-                                    fillColor: Colors.white,
-                                    keyboardType: TextInputType.number,
+                                  child: Obx(
+                                    () => CustomTextField(
+                                      controller:
+                                          current_Memorization_AyaController,
+                                      labelText:
+                                          'الآية(1 - ${surahController.ayatcount.value})',
+                                      fillColor: Colors.white,
+                                      keyboardType: TextInputType.number,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -280,7 +312,10 @@ class Addstudent extends StatelessWidget {
                               hintText: 'اسم المستخدم',
                               labelText: 'اسم المستخدم',
                               fillColor: Colors.white,
-                              validator: (value) => value == null || value.isEmpty ? 'الرجاء إدخال اسم المستخدم' : null,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                  ? 'الرجاء إدخال اسم المستخدم'
+                                  : null,
                             ),
                             const SizedBox(height: 15),
                             CustomTextField(
@@ -289,7 +324,10 @@ class Addstudent extends StatelessWidget {
                               labelText: 'كلمة المرور',
                               fillColor: Colors.white,
                               obscureText: true,
-                              validator: (value) => value == null || value.isEmpty ? 'الرجاء إدخال كلمة المرور' : null,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                  ? 'الرجاء إدخال كلمة المرور'
+                                  : null,
                             ),
                             const SizedBox(height: 25),
                             Row(
@@ -297,46 +335,89 @@ class Addstudent extends StatelessWidget {
                               children: [
                                 Obx(
                                   () => ElevatedButton(
-                                    onPressed: studentController.isStudentsLoading.value
+                                    onPressed:
+                                        studentController
+                                            .isStudentsLoading
+                                            .value
                                         ? null
                                         : () async {
-                                            if (formKey.currentState!.validate()) {
-                                              Map<String, dynamic> studentData = {
+                                            if (formKey.currentState!
+                                                .validate()) {
+                                              Map<String, dynamic>
+                                              studentData = {
                                                 "Name": nameController.text,
                                                 "Gender": genderController.text,
-                                                "Age": int.tryParse(ageController.text) ?? 0,
-                                                "phoneNumber": phoneNumberController.text,
-                                                "FatherNumber": fatherNumberController.text,
-                                                "Category": categoryController.text,
-                                                "current_Memorization_Sorah": current_Memorization_SorahController.text,
-                                                "current_Memorization_Aya": current_Memorization_AyaController.text,
-                                                "Username": usernameController.text,
-                                                "Password": passwordController.text,
-                                                "ImageUrl": uploadsController.uploadedImageUrl.value,
+                                                "Age":
+                                                    int.tryParse(
+                                                      ageController.text,
+                                                    ) ??
+                                                    0,
+                                                "phoneNumber":
+                                                    phoneNumberController.text,
+                                                "FatherNumber":
+                                                    fatherNumberController.text,
+                                                "Category":
+                                                    categoryController.text,
+                                                "current_Memorization_Sorah":
+                                                    current_Memorization_SorahController
+                                                        .text,
+                                                "current_Memorization_Aya":
+                                                    current_Memorization_AyaController
+                                                        .text,
+                                                "Username":
+                                                    usernameController.text,
+                                                "Password":
+                                                    passwordController.text,
+                                                "ImageUrl": uploadsController
+                                                    .uploadedImageUrl
+                                                    .value,
                                                 "status": "مستمر",
-                                                "HalakatId": halaqatController.currentHalaqah.value?.Id ?? 0,
+                                                "HalakatId":
+                                                    halaqatController
+                                                        .currentHalaqah
+                                                        .value
+                                                        ?.Id ??
+                                                    0,
                                               };
 
-                                              bool success = await studentController.addStudent(studentData);
+                                              bool success =
+                                                  await studentController
+                                                      .addStudent(studentData);
                                               if (success) {
                                                 Get.back();
                                               }
                                             }
                                           },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Appcolors.appBarbackground,
-                                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                      backgroundColor:
+                                          Appcolors.appBarbackground,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 40,
+                                        vertical: 15,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
                                     ),
-                                    child: studentController.isStudentsLoading.value
+                                    child:
+                                        studentController
+                                            .isStudentsLoading
+                                            .value
                                         ? const SizedBox(
                                             height: 20,
                                             width: 20,
-                                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
                                           )
                                         : const Text(
                                             "إضافة الطالب",
-                                            style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Cairo'),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontFamily: 'Cairo',
+                                            ),
                                           ),
                                   ),
                                 ),
@@ -344,12 +425,21 @@ class Addstudent extends StatelessWidget {
                                   onPressed: () => Get.back(),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
-                                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 40,
+                                      vertical: 15,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
                                   ),
                                   child: const Text(
                                     "إلغاء",
-                                    style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Cairo'),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontFamily: 'Cairo',
+                                    ),
                                   ),
                                 ),
                               ],
@@ -364,8 +454,8 @@ class Addstudent extends StatelessWidget {
               ),
             ),
           ),
+
           // Cleanly placed bottom nav bar
-        
         ],
       ),
     );

@@ -14,6 +14,8 @@ class Student {
   int Age;
   String current_Memorization_Sorah;
   String current_Memorization_Aya;
+  String current_Revision_Sorah;
+  String current_Revision_Aya;
   String phoneNumber;
   String? ImageUrl;
   String FatherNumber;
@@ -39,6 +41,8 @@ class Student {
     required this.FatherNumber,
     required this.Category,
     required this.HalakatId,
+    required this.current_Revision_Sorah,
+    required this.current_Revision_Aya,
   });
 
   //! from json
@@ -54,13 +58,15 @@ class Student {
         DismissedDate: json['DismissedDate'] != null ? DateTime.parse(json['DismissedDate']) : null,
         DismissedReason: json['DismissedReason']??'',
         Age: json['Age']??0,
-        current_Memorization_Sorah: json['current_Memorization_Sorah']??'',
-        current_Memorization_Aya: json['current_Memorization_Aya']??'',
-        phoneNumber: json['phoneNumber']??'',
-        ImageUrl: json['ImageUrl']??'',
-        FatherNumber: json['FatherNumber']??'',
-        Category: json['Category']??'',
-        HalakatId: json['HalakatId']??0,
+        current_Memorization_Sorah: json['current_Memorization_Sorah']?.toString() ?? '',
+        current_Memorization_Aya: json['current_Memorization_Aya']?.toString() ?? '',
+        phoneNumber: json['phoneNumber']?.toString() ?? '',
+        ImageUrl: json['ImageUrl']?.toString() ?? '',
+        FatherNumber: json['FatherNumber']?.toString() ?? '',
+        Category: json['Category']?.toString() ?? '',
+        HalakatId: json['HalakatId'] ?? 0,
+        current_Revision_Sorah: json['current_Revision_Sorah']?.toString() ?? '',
+        current_Revision_Aya: json['current_Revision_Aya']?.toString() ?? '',
       );
 
   //! to json
@@ -83,5 +89,7 @@ class Student {
         'FatherNumber': FatherNumber,
         'Category': Category,
         'HalakatId': HalakatId,
+        'current_Revision_Sorah': current_Revision_Sorah,
+        'current_Revision_Aya': current_Revision_Aya,
       };
 }

@@ -99,14 +99,17 @@ class StudentServices {
 
   static Future<Map<String, dynamic>> updateStudent(int id, Map<String, dynamic> studentData) async {
     try {
-      final uri = Uri.parse('${StudentBaseUrl}updatestudent/$id');
+      final uri = Uri.parse('${StudentBaseUrl}updatestudent');
       final response = await http.put(
         uri,
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        body: jsonEncode(studentData),
+        body: jsonEncode({
+          ...studentData,
+          "Id": id,
+        }),
       );
 
       print("Update Student Response Status: ${response.statusCode}");

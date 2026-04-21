@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 
-class UnderDevelopmentScrean extends StatelessWidget {
-  String name;
-  UnderDevelopmentScrean({super.key, required this.name});
+class UnderDevelopmentScreen extends StatelessWidget {
+  final String name;
+  const UnderDevelopmentScreen({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {

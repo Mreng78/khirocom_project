@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../models/Halakat.model.dart';
-import '../Controller/StudentController.dart';
-import '../Services/HalaqatServices.dart';
+import 'package:frontend/models/Halakat.model.dart';
+import 'package:frontend/Controller/StudentController.dart';
+import 'package:frontend/Services/HalaqatServices.dart';
 
 class HalaqatController extends GetxController {
   final RxList<Halakat> halaqat = <Halakat>[].obs;
@@ -10,7 +10,7 @@ class HalaqatController extends GetxController {
   final RxBool isLoading = RxBool(false);
 
   // Injecting or getting the student controller instance
-  final StudentController studentController = Get.put(StudentController());
+  final StudentController studentController = Get.find<StudentController>();
 
   @override
   void onInit() {

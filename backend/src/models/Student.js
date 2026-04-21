@@ -61,6 +61,16 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    current_Revision_Sorah:
+    {
+      type:DataTypes.STRING,
+      allowNull:true
+    },
+    current_Revision_Aya:
+    {
+      type:DataTypes.INTEGER,
+      allowNull:true
+    },
     current_Memorization_Aya: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'Screans/assistscrean/splashscrean.dart';
+import 'package:frontend/Screens/assistscreen/SplashScreen.dart';
+import 'package:frontend/app_binding.dart';
 import "package:get/get.dart";
-import 'Controller/splashscreancontroller.dart';
+//import 'package:intl/date_symbol_data_file.dart';
+import 'Controller/SplashScreenController.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // خليه أول شيء
+
   await GetStorage.init();
-  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ar', null);
+
   runApp(const MyApp());
 }
 
@@ -19,14 +25,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialBinding: BindingsBuilder(() {
-        Get.put(Splashscreancontroller());
-      }),
+    initialBinding: AppBinding(),
       theme: ThemeData(
         primarySwatch: Colors.green,
         fontFamily: 'Cairo',
       ),
-      home: const Splashscrean(),
+      home: const SplashScreen(),
     );  
   }
 }
