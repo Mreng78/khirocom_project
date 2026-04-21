@@ -10,6 +10,10 @@ DailyProgress.init(
       primaryKey: true,
       autoIncrement: true,
     },
+    Attendance: {
+      type: DataTypes.ENUM("مستأذن", "غائب", "حاضر"),
+      allowNull: false,
+    },
     Memorization_Progress_Surah: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -5,7 +5,7 @@ const auth = require('../middleware/UserAuth');
 
 router.get('/getall',auth, dailyProgressController.getalldailyprogress);
 router.post('/getbystudentid',auth, dailyProgressController.getdailyprogressbystudentid);
-router.post('/add',auth, dailyProgressController.adddailyprogress);
+router.post('/add', dailyProgressController.adddailyprogress);
 router.put('/update',auth, dailyProgressController.updatedailyprogress);
 router.delete('/delete',auth, dailyProgressController.deletedailyprogress);
 router.delete('/deletebystudentid',auth, dailyProgressController.deletedailyprogressbystudentid);

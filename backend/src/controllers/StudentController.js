@@ -99,7 +99,7 @@ exports.getstudentbyhalaqatid=async(req,res)=>
 //*update student
 exports.updatestudent = async (req, res) => {
     try {
-        const id = req.body.id;
+        const id = req.body.Id;
         const student = await Student.findOne({ where: { id: id } });
         if (!student) {
             return res.status(404).json({ message: "الطالب غير موجود" });

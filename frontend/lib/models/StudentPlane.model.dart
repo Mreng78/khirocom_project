@@ -1,5 +1,5 @@
-class StudentPlane {
-  int Id;
+class StudentPlan {
+  int? Id;
   String Current_Memorization_Surah;
   int Current_Memorization_Ayah;
   double Daily_Memorization_Amount;
@@ -13,8 +13,8 @@ class StudentPlane {
   bool ItsDone;
   int StudentId;
 
-  StudentPlane({
-    required this.Id,
+  StudentPlan({
+    this.Id,
     required this.Current_Memorization_Surah,
     required this.Current_Memorization_Ayah,
     required this.Daily_Memorization_Amount,
@@ -30,7 +30,7 @@ class StudentPlane {
   });
 
   //! from Json - Backend sends PascalCase
-  factory StudentPlane.fromJson(Map<String, dynamic> json) => StudentPlane(
+  factory StudentPlan.fromJson(Map<String, dynamic> json) => StudentPlan(
     Id: json["Id"],
     Current_Memorization_Surah: json["Current_Memorization_Surah"],
     Current_Memorization_Ayah: json["Current_Memorization_Ayah"],

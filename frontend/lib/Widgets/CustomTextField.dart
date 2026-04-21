@@ -17,11 +17,16 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onSuffixIconPressed;
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final int? maxLines;
+  final bool expands;
+
 
   const CustomTextField({
     super.key,
     required this.controller,
-   this.hintText,
+    this.hintText,
     required this.labelText,
     this.prefixIcon,
     this.suffixIcon,
@@ -35,10 +40,16 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.items = const [],
+    this.readOnly = false,
+    this.onTap,
+    this.maxLines,
+    this.expands = false,
   });
+
 
   InputDecoration _buildDecoration(Color effectiveIconColor, Color effectiveBorderColor) {
     return InputDecoration(
+      
       labelText: labelText,
       labelStyle: TextStyle(
         color: textColor ?? Colors.black87,
@@ -46,12 +57,16 @@ class CustomTextField extends StatelessWidget {
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
-      // hintText: hintText,
-      // hintStyle: TextStyle(
-      //   color: (textColor ?? Colors.black87).withOpacity(0.5),
-      //   fontFamily: 'Cairo',
-      //   fontSize: 14,
-      // ),
+     
+      
+
+      hintText: hintText!=null?hintText:"",
+      hintStyle: TextStyle(
+        color: (textColor ?? Colors.black87).withOpacity(0.5),
+        fontFamily: 'Cairo',
+        fontSize: 14,
+      ),
+     
       prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: effectiveIconColor) : null,
       suffixIcon: suffixIcon != null
           ? IconButton(
@@ -109,11 +124,20 @@ class CustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         obscureText: obscureText,
         textAlign: TextAlign.right,
+        textAlignVertical: expands ? TextAlignVertical.top : null,
         validator: validator,
         onChanged: onChanged,
         style: _textStyle,
         decoration: _buildDecoration(effectiveIconColor, effectiveBorderColor),
+        maxLines: obscureText ? 1 : (expands ? null : maxLines),
+        expands: obscureText ? false : expands,
+        readOnly: readOnly,
+        onTap: onTap,
       );
+
+
+
+
     }
 
     // With items, return an Autocomplete field
@@ -152,11 +176,20 @@ class CustomTextField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: obscureText,
           textAlign: TextAlign.right,
+          textAlignVertical: expands ? TextAlignVertical.top : null,
           validator: validator,
           onChanged: onChanged,
           style: _textStyle,
           decoration: _buildDecoration(effectiveIconColor, effectiveBorderColor),
+          maxLines: obscureText ? 1 : (expands ? null : maxLines),
+          expands: obscureText ? false : expands,
+          readOnly: readOnly,
+          onTap: onTap,
         );
+
+
+
+
       },
       optionsViewBuilder: (
         BuildContext context,

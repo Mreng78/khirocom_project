@@ -14,6 +14,30 @@ class StudentController extends GetxController {
   final RxString selectedCategory = RxString('');
   final RxString filterType = RxString('');
   final Rx<Student?> selectedStudent = Rx<Student?>(null);
+
+  String getshortname() {
+    try {
+      String name = selectedStudent.value?.Name ?? "";
+      List<String> names = name.split(" ").where((s) => s.trim().isNotEmpty).toList();
+      if (names.isEmpty) return "";
+      
+      if (names.length >= 2) {
+        // Safe access to first and last initials
+        String first = names.first;
+        String last = names.last;
+        if (first.isEmpty || last.isEmpty) return "";
+        return (first +" "+ last).toUpperCase();
+      }
+      
+      // If only one name, return first two characters
+      return name.length >= 2 ? name.substring(0, 2).toUpperCase() : name.toUpperCase();
+    } catch (e) {
+      return "";
+    }
+  }
+
+
+
   List<Student> get filteredStudents {
     List<Student> filtered = students;
 
@@ -46,7 +70,15 @@ class StudentController extends GetxController {
     return filtered;
   }
 
+  get startMemorizationVerse => null;
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
+
   void searchStudents(String query) {
+
     searchQuery.value = query;
   }
 
@@ -135,6 +167,9 @@ class StudentController extends GetxController {
             halaqatController.currentHalaqah.value!.Id,
           );
         }
+
+        // Update the selected student locally to refresh the UI
+        selectedStudent.value = students.firstWhereOrNull((s) => s.Id == id);
 
         Get.snackbar(
           "نجاح",

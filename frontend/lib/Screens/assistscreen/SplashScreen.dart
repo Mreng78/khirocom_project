@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../Widgets/AppColors.dart';
-import '../../Controller/splashscreancontroller.dart';
-class Splashscrean extends StatefulWidget {
-  const Splashscrean({super.key});
+import 'package:frontend/Widgets/AppColors.dart';
+import 'package:frontend/Controller/SplashScreenController.dart';
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  State<Splashscrean> createState() => _SplashscreanState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashscreanState extends State<Splashscrean> {
-  Splashscreancontroller get splashcontroller =>
-      Get.find<Splashscreancontroller>();
+class _SplashScreenState extends State<SplashScreen> {
+  SplashScreenController get splashcontroller =>
+      Get.find<SplashScreenController>();
 
   @override
   Widget build(BuildContext context) {

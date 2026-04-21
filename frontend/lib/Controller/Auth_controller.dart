@@ -2,8 +2,8 @@ import 'package:frontend/Services/AuthService.dart';
 import 'package:flutter/material.dart';
 import "package:get/get.dart";
 import 'package:get_storage/get_storage.dart';
-import '../models/User.model.dart';
-import '../models/Student.model.dart';
+import 'package:frontend/models/User.model.dart';
+import 'package:frontend/models/Student.model.dart';
 
 class AuthController extends GetxController {
   final UserbaseUrl = 'http://192.168.0.3:8000/api/users';

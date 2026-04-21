@@ -9,7 +9,7 @@ router.get('/getallstudents', studentsController.getallstudents);
 router.post('/getallstudentsbyhalaqahid', studentsController.getstudentbyhalaqatid);
 router.post('/getstudentbyhalaqatid',userauth, studentsController.getstudentbyhalaqatid);
 router.put('/updateme',studentauth, studentsController.updateme);
-router.put('/updatestudent',userauth, studentsController.updatestudent);
+router.put('/updatestudent', studentsController.updatestudent);
 router.post('/addnewstudent', studentsController.addnewstudent);
 router.delete('/deletestudent',userauth, studentsController.deletestudent);
 router.post('/getstudentbyid',userauth, studentsController.getstudentbyid);

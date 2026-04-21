@@ -1,10 +1,10 @@
 import 'package:frontend/models/Student.model.dart';
 import 'package:get/get.dart';
-import '../models/User.model.dart';
-import 'Auth_controller.dart';
+import 'package:frontend/models/User.model.dart';
+import 'package:frontend/Controller/Auth_controller.dart';
 
 class UserController extends GetxController {
-  final AuthController authController =Get.put(AuthController());
+  final AuthController authController = Get.find<AuthController>();
   final UserbaseUrl = 'http://192.168.0.3:8000/api/users';
 
   final RxList<User> users = <User>[].obs;

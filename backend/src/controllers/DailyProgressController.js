@@ -51,9 +51,9 @@ exports.getdailyprogressbystudentid = async (req, res) => {
 exports.adddailyprogress = async (req, res) => {
     try {
         const dailyprogress = await DailyProgress.create(req.body);
-        res.status(201).json({ message: 'Daily progress added successfully', dailyprogress });
+        res.status(201).json({ success: true, message: 'Daily progress added successfully', data: dailyprogress });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 

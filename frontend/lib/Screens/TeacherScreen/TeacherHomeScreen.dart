@@ -1,32 +1,32 @@
 import 'dart:ui';
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:frontend/Controller/UserController.dart";
 import "package:frontend/Controller/HalaqatController.dart";
 import "package:frontend/Controller/StudentController.dart";
+import "package:frontend/Screens/TeacherScreen/StudentInfoScreen.dart";
 import "package:frontend/Widgets/CustomContainer.dart";
 import "package:frontend/Widgets/DropDown.dart";
 import "package:frontend/Widgets/appbarcontainer.dart";
 import "package:get/get.dart";
 import "package:frontend/Widgets/AppColors.dart";
 import "package:frontend/Widgets/CustomTextField.dart";
-import "package:frontend/Screans/TeacherScrean/Studentinfo.dart";
-import "package:frontend/Screans/TeacherScrean/AddStudent.dart";
 import "package:frontend/Widgets/CustomBottomNavBar.dart";
 import "package:frontend/Controller/Auth_controller.dart";
-import "package:frontend/Screans/authscrean/LoginScrean.dart";
+import "package:frontend/Screens/authscreen/LoginScreen.dart";
 
-class TeacherHomescrean extends StatefulWidget {
-  const TeacherHomescrean({super.key});
+class TeacherHomeScreen extends StatefulWidget {
+  const TeacherHomeScreen({super.key});
 
   @override
-  State<TeacherHomescrean> createState() => _TeacherHomescreanState();
+  State<TeacherHomeScreen> createState() => _TeacherHomeScreenState();
 }
 
-class _TeacherHomescreanState extends State<TeacherHomescrean> {
-  final HalaqatController halaqatController = Get.put(HalaqatController());
-  final StudentController studentController = Get.put(StudentController());
-  final UserController userController = Get.put(UserController());
-  final AuthController authController = Get.put(AuthController());
+class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
+  final HalaqatController halaqatController = Get.find();
+  final StudentController studentController = Get.find();
+  final UserController userController = Get.find();
+  final AuthController authController = Get.find();
   final TextEditingController _categoryController = TextEditingController();
   late final TextEditingController _searchController;
 
@@ -52,7 +52,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
       final user = authController.currentUser.value;
       if (user == null) {
         print("Error: No user logged in");
-        Get.to(() => const Loginscrean());
+        Get.to(() => const LoginScreen());
         return;
       }
 
@@ -69,18 +69,26 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // يخليه فوق المحتوى
+        statusBarIconBrightness: Brightness.light, // لون الأيقونات
+        statusBarBrightness: Brightness.dark, // iOS
+      ),
+      child: 
+     Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: Obx(
           () => Appbarcontainer(
             title:
+            
                 'حلقة: ${halaqatController.currentHalaqah.value?.Name ?? ""}',
             undertitel: 'المدرس: ${userController.getuserbyfirstandlastname()}',
+)),
           ),
-        ),
-      ),
+        
       backgroundColor: Appcolors.background,
       body: Container(
         width: double.infinity,
@@ -104,7 +112,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
 
                   return Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05), // Very light base
+                      color: Colors.white.withOpacity(0.05),
                       boxShadow: Appcolors.glossyShadow,
                     ),
                     child: ClipRect(
@@ -112,105 +120,103 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                         child: Stack(
                           children: [
-                            // Glass Painter Layer
-
                             // Content Layer
-                            Column(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    // padding: const EdgeInsets.all(12),
-                                    // margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: AssetImage(
-                                          "assets/images/appbackground.jpg",
+                            Positioned.fill(
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        image: const DecorationImage(
+                                          image: AssetImage(
+                                            "assets/images/appbackground.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                          opacity: 0.5,
                                         ),
-                                        fit: BoxFit.cover,
-                                        opacity: 0.5,
+                                        color: Colors.white.withOpacity(0.75),
+                                        border: Border.all(
+                                          color: Appcolors.appmaincolor
+                                              .withOpacity(0.4),
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.05),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 10),
+                                          ),
+                                        ],
                                       ),
-                                      color: Colors.white.withOpacity(0.75),
-                                      // borderRadius: BorderRadius.circular(24),
-                                      border: Border.all(
-                                        color: Appcolors.appmaincolor
-                                            .withOpacity(0.4),
-                                        width: 1.5,
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "قائمة الطلاب",
+                                                style: TextStyle(
+                                                  color: Appcolors.appmaincolor,
+                                                  fontSize: 17,
+                                                  fontFamily: 'cairo',
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 5,
+                                                child: CustomTextField(
+                                                  controller: _searchController,
+                                                  hintText: "بحث عن طالب...",
+                                                  prefixIcon: Icons.search,
+                                                  labelText: "بحث عن طالب",
+                                                  fillColor: Colors.white,
+                                                  textColor: Colors.black87,
+                                                  iconColor:
+                                                      Appcolors.appmaincolor,
+                                                  borderColor: Appcolors
+                                                      .appmaincolor
+                                                      .withOpacity(0.15),
+                                                  onChanged: (value) {
+                                                    final halaqahId =
+                                                        halaqatController
+                                                            .currentHalaqah
+                                                            .value
+                                                            ?.Id;
+                                                    if (halaqahId != null) {
+                                                      studentController
+                                                          .searchStudentsOnServer(
+                                                            value,
+                                                            halaqahId,
+                                                          );
+                                                    }
+                                                  },
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              _buildFlatFilterButton(),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          _buildFilteringSection(),
+                                          const SizedBox(height: 10),
+                                          Expanded(
+                                            child: Container(
+                                              padding: EdgeInsets.all(10),
+                                              child: _buildStudentListView()),
+                                          ),
+                                        ],
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 10),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        SizedBox(height: 10),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "قائمة الطلاب",
-                                              style: TextStyle(
-                                                color: Appcolors.appmaincolor,
-                                                fontSize: 17,
-                                                fontFamily: 'cairo',
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 12),
-                                        // Unified Search & Filter Row
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              flex: 5,
-                                              child: CustomTextField(
-                                                controller: _searchController,
-                                                hintText: "بحث عن طالب...",
-                                                prefixIcon: Icons.search,
-                                                labelText: "بحث عن طالب",
-                                                fillColor: Colors.white,
-                                                textColor: Colors.black87,
-                                                iconColor:
-                                                    Appcolors.appmaincolor,
-                                                borderColor: Appcolors
-                                                    .appmaincolor
-                                                    .withOpacity(0.15),
-                                                onChanged: (value) {
-                                                  final halaqahId =
-                                                      halaqatController
-                                                          .currentHalaqah
-                                                          .value
-                                                          ?.Id;
-                                                  if (halaqahId != null) {
-                                                    studentController
-                                                        .searchStudentsOnServer(
-                                                          value,
-                                                          halaqahId,
-                                                        );
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            _buildFlatFilterButton(),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 10),
-                                        _buildFilteringSection(),
-                                        const SizedBox(height: 10),
-                                        Expanded(
-                                          child: _buildStudentListView(),
-                                        ),
-                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -226,6 +232,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
           ],
         ),
       ),
+     )
     );
   }
 
@@ -321,7 +328,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
         itemCount: students.length,
         itemBuilder: (context, index) {
           final student = students[index];
-          return _buildStudentCard(student);
+          return _buildStudentCard(student, index);
         },
       );
     });
@@ -356,7 +363,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
     );
   }
 
-  Widget _buildStudentCard(dynamic student) {
+  Widget _buildStudentCard(dynamic student, int index) {
     return Column(
       children: [
         ClipRRect(
@@ -369,7 +376,8 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
             child: InkWell(
               onTap: () {
                 studentController.setSelectedStudent(student);
-                Get.to(() => Studentinfo());
+                Get.to(() => StudentInfoScreen());
+                print(student.current_Revision_Sorah);
               },
               child: Container(
                 width: double.infinity,
@@ -399,7 +407,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
                         width: 35,
                         alignment: Alignment.center,
                         child: Text(
-                          student.Id.toString(),
+                          (index + 1).toString(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -474,6 +482,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
               ),
             ),
           ),
+          
         ),
         const SizedBox(height: 10),
       ],
@@ -484,7 +493,7 @@ class _TeacherHomescreanState extends State<TeacherHomescrean> {
     //     borderRadius: BorderRadius.circular(18),
     //     onTap: () {
     //       studentController.setSelectedStudent(student);
-    //       Get.to(() => Studentinfo());
+    //       Get.to(() => StudentInfoScreen());
     //     },
     //     child: Container(
     //       decoration: BoxDecoration(
