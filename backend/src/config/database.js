@@ -15,7 +15,12 @@ const sequelize =new Sequelize(
         logging:false,
         dialectOptions: {
             connectTimeout: 10000,
+            charset: 'utf8mb4',
         },
+        define: {
+            charset: 'utf8mb4',
+            collate: 'utf8mb4_unicode_ci'
+        }
     }
 )
 module.exports = sequelize;

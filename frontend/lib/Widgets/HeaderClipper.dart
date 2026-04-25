@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HeaderClipper extends CustomClipper<Path> {
+  const HeaderClipper();
   @override
   Path getClip(Size size) {
     Path path = Path();

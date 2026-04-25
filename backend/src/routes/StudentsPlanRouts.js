@@ -7,10 +7,10 @@ const studentsplancontroller = require("../controllers/StudentPlanControoller");
 
 router.post("/addstudentplan", studentsplancontroller.addStudentPlan);
 router.get("/getstudentplans",userauth, studentsplancontroller.getStudentPlans);
-router.get('/studentgetme',studentauth,studentsplancontroller.getStudentPlanByStudentId)
+router.get('/studentgetme',studentauth,studentsplancontroller.getStudentPlansByStudentId)
 router.put("/updatestudentplan",userauth, studentsplancontroller.updateStudentPlan);
 router.delete("/deletestudentplan",userauth, studentsplancontroller.deleteStudentPlan);
-router.get("/getstudentplanbystudentid",userauth, studentsplancontroller.getStudentPlanByStudentId);
+router.post("/getstudentplanbystudentid", studentsplancontroller.getStudentPlansByStudentId);
 router.get("/getstudentplanbyhalaqahid",userauth, studentsplancontroller.getStudentPlansByHalaqahId);
 
 module.exports=router

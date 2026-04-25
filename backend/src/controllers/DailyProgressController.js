@@ -1,5 +1,5 @@
 const { DailyProgress, Student } = require('../models');
-const { Op } = require('sequelize');
+const { Op,fn, col, literal } = require('sequelize');
 
 
 //* get all daily progress
@@ -227,5 +227,40 @@ exports.getdailyprogressbyhalaqahid = async (req, res) => {
         res.status(200).json({ message: "Daily progress fetched successfully", dailyprogress });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+//* get all monthyear names
+exports.getallmonthyearnames = async (req, res) => {
+    try {
+        const studentid = req.body.StudentId;
+        const dailyprogress = await DailyProgress.findAll({
+            where: { StudentId: studentid },
+            attributes: [[fn('DISTINCT', col('Month_year')), 'Month_year']]
+        });
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ success: false, message: "No daily progress found" });
+        }
+        res.status(200).json({ success: true, data: dailyprogress });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+//* get all monthyear history
+
+exports.getallmonthyearhistory = async (req, res) => {
+    try {
+        const studentid = req.body.StudentId;
+        const monthyear = req.body.Month_year;
+        const dailyprogress = await DailyProgress.findAll({
+            where: { StudentId: studentid, Month_year: monthyear },  
+        });
+        if (dailyprogress.length === 0) {
+            return res.status(404).json({ success: false, message: "No daily progress found" });
+        }
+        res.status(200).json({ success: true, message: "Daily progress fetched successfully", data: dailyprogress });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };

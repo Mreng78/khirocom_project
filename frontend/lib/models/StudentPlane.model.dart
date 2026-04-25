@@ -10,7 +10,11 @@ class StudentPlan {
   String target_Revision;
   DateTime StartsAt;
   DateTime EndsAt;
-  bool ItsDone;
+  bool Memorization_ItsDone;
+  bool Revision_ItsDone;
+  String Month;
+  String Year;
+  bool Is_Current_Month_Plan;
   int StudentId;
 
   StudentPlan({
@@ -25,8 +29,12 @@ class StudentPlan {
     required this.target_Revision,
     required this.StartsAt,
     required this.EndsAt,
-    required this.ItsDone,
+    required this.Memorization_ItsDone,
+    required this.Revision_ItsDone,
     required this.StudentId,
+    required this.Month,
+    required this.Year,
+    required this.Is_Current_Month_Plan,
   });
 
   //! from Json - Backend sends PascalCase
@@ -34,16 +42,24 @@ class StudentPlan {
     Id: json["Id"],
     Current_Memorization_Surah: json["Current_Memorization_Surah"],
     Current_Memorization_Ayah: json["Current_Memorization_Ayah"],
-    Daily_Memorization_Amount: json["Daily_Memorization_Amount"]?.toDouble() ?? 0.0,
+    Daily_Memorization_Amount: (json["Daily_Memorization_Amount"] is num) 
+        ? (json["Daily_Memorization_Amount"] as num).toDouble() 
+        : double.tryParse(json["Daily_Memorization_Amount"]?.toString() ?? "0") ?? 0.0,
     target_Memorization_Surah: json["target_Memorization_Surah"],
     target_Memorization_Ayah: json["target_Memorization_Ayah"],
-    Daily_Revision_Amount: json["Daily_Revision_Amount"]?.toDouble() ?? 0.0,
+    Daily_Revision_Amount: (json["Daily_Revision_Amount"] is num) 
+        ? (json["Daily_Revision_Amount"] as num).toDouble() 
+        : double.tryParse(json["Daily_Revision_Amount"]?.toString() ?? "0") ?? 0.0,
     Current_Revision: json["Current_Revision"],
     target_Revision: json["target_Revision"],
     StartsAt: DateTime.parse(json["StartsAt"]),
     EndsAt: DateTime.parse(json["EndsAt"]),
-    ItsDone: json["ItsDone"] ?? false,
-    StudentId: json["StudentId"],
+    Memorization_ItsDone: json["Memorization_ItsDone"] ?? false,
+    Revision_ItsDone: json["Revision_ItsDone"] ?? false,
+    StudentId: json["StudentId"] ??0,
+    Month: json["Month"] ?? "",
+    Year: json["Year"] ?? "",
+    Is_Current_Month_Plan: json["Is_Current_Month_Plan"] ?? false,
   );
 
   //! to Json - Backend expects PascalCase
@@ -59,7 +75,11 @@ class StudentPlan {
     "target_Revision": target_Revision,
     "StartsAt": StartsAt.toIso8601String(),
     "EndsAt": EndsAt.toIso8601String(),
-    "ItsDone": ItsDone,
+    "Memorization_ItsDone": Memorization_ItsDone,
+    "Revision_ItsDone": Revision_ItsDone,
     "StudentId": StudentId,
+    "Month": Month,
+    "Year": Year,
+    "Is_Current_Month_Plan": Is_Current_Month_Plan,
   };
 }

@@ -40,4 +40,76 @@ class StudentPlanService {
       return {"success": false, "message": "خطأ في الاتصال بالسيرفر: $e"};
     }
   }
+
+  //* get student plans by student id
+  Future<Map<String, dynamic>> getStudentPlans(int studentId) async {
+    try {
+      final uri = Uri.parse('${baseUrl}/getstudentplanbystudentid');
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({"StudentId": studentId}),
+      ).timeout(const Duration(seconds: 10));
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        return {
+          "success": false,
+          "message":
+              "السيرفر أرجع استجابة غير صالحة. تأكد من عمل السيرفر وصحة الرابط: $uri",
+        };
+      }
+      final responsebody = jsonDecode(response.body);
+      if (responsebody['success'] == true) {
+        return {"success": true, "message": "تم جلب الخطط بنجاح", "data": responsebody['data']};
+      } else {
+        return {
+          "success": false,
+          "message": responsebody['message'] ?? responsebody['error'] ?? "فشل العملية"
+        };
+      }
+    } catch (e) {
+      print(e);
+      return {"success": false, "message": "خطأ في الاتصال بالسيرفر: $e"};
+    }
+  }
+
+  //* delete student plan
+  Future<Map<String, dynamic>> deleteStudentPlan(int planId) async {
+    try {
+      final uri = Uri.parse('${baseUrl}/deletestudentplan');
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({"Id": planId}),
+      ).timeout(const Duration(seconds: 10));
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        return {
+          "success": false,
+          "message":
+              "السيرفر أرجع استجابة غير صالحة. تأكد من عمل السيرفر وصحة الرابط: $uri",
+        };
+      }
+      final responsebody = jsonDecode(response.body);
+      if (responsebody['success'] == true) {
+        return {"success": true, "message": "تم حذف الخطة بنجاح"};
+      } else {
+        return {
+          "success": false,
+          "message": responsebody['message'] ?? responsebody['error'] ?? "فشل العملية"
+        };
+      }
+    } catch (e) {
+      print(e);
+      return {"success": false, "message": "خطأ في الاتصال بالسيرفر: $e"};
+    }
+  }
 }

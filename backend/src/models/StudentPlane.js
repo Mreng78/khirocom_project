@@ -50,7 +50,25 @@ StudentPlane.init(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    ItsDone: {
+    Month: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Year: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Is_Current_Month_Plan: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    Memorization_ItsDone: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    Revision_ItsDone: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false,

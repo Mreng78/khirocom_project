@@ -9,7 +9,6 @@ import 'package:frontend/models/Student.model.dart';
 import 'package:get/get.dart';
 import 'package:frontend/Controller/Auth_controller.dart';
 import 'package:frontend/Controller/StudentController.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/Controller/StudentInfoScreenController.dart';
 import 'package:frontend/Widgets/CustomTextField.dart';
 import 'package:frontend/Controller/UploadsController.dart';
@@ -18,6 +17,8 @@ import 'package:frontend/Controller/SurahController.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:frontend/Controller/DailyProgresscontroller.dart';
 import 'package:frontend/Controller/StudentPlancontroller.dart';
+import 'package:frontend/models/DailyProgress.model.dart';
+import 'package:frontend/models/StudentPlane.model.dart';
 
 class StudentInfoScreen extends StatelessWidget {
   StudentInfoScreen({super.key});
@@ -33,14 +34,14 @@ class StudentInfoScreen extends StatelessWidget {
       ? Get.find<StudentPlanController>()
       : Get.put(StudentPlanController());
 
-  final List<String> attendanceOptions = const ["حضر", "غاب", "اعتذر"];
+  final List<String> attendanceOptions = const ["حاضر", "غائب", "مستأذن"];
   final List<String> levelOptions = const [
     "ضعيف",
     "مقبول",
     "جيد",
     "جيد جدا",
     "ممتاز",
-    "ــ",
+    "-",
   ];
   final List<String> revisionlevelOptions = const [
     "ضعيف",
@@ -78,6 +79,7 @@ class StudentInfoScreen extends StatelessWidget {
     "فصل",
     "الأداء اليومي",
     "الخطة",
+    "السجل",
     "إيقاف",
     "نقل",
   ];
@@ -94,7 +96,7 @@ class StudentInfoScreen extends StatelessWidget {
 
   String getyear() {
     DateTime now = DateTime.now();
-    return intl.DateFormat('yyyy', 'ar').format(now);
+    return intl.DateFormat('yyyy', 'en').format(now);
   }
 
   @override
@@ -125,7 +127,7 @@ class StudentInfoScreen extends StatelessWidget {
                       _buildnavbaritems(icon: Icons.edit, windowname: "تعديل"),
                       _buildnavbaritems(icon: Icons.delete, windowname: "فصل"),
                       _buildnavbaritems(
-                        icon: FontAwesomeIcons.listCheck,
+                        icon: Icons.checklist_rtl,
                         windowname: "الخطة",
                       ),
                       _buildnavbaritems(
@@ -133,16 +135,20 @@ class StudentInfoScreen extends StatelessWidget {
                         windowname: "البيانات",
                       ),
                       _buildnavbaritems(
-                        icon: FontAwesomeIcons.calendarCheck,
+                        icon: Icons.event_available,
                         windowname: "الأداء اليومي",
                       ),
                       _buildnavbaritems(
-                        icon: FontAwesomeIcons.rightLeft,
+                        icon: Icons.swap_horiz,
                         windowname: "نقل",
                       ),
                       _buildnavbaritems(
-                        icon: FontAwesomeIcons.circleStop,
+                        icon: Icons.stop_circle_outlined,
                         windowname: "إيقاف",
+                      ),
+                      _buildnavbaritems(
+                        icon: Icons.history,
+                        windowname: "السجل",
                       ),
                     ],
                   ),
@@ -226,6 +232,8 @@ class StudentInfoScreen extends StatelessWidget {
                                       return _builddailyprograssWindow(context);
                                     case 'الخطة':
                                       return _studentplanwindow(context);
+                                    case 'السجل':
+                                      return _buildhistorywindow(studentData);
                                     default:
                                       return _buildUnderDevelopment();
                                   }
@@ -742,7 +750,7 @@ class StudentInfoScreen extends StatelessWidget {
                       ).format(pickedDate);
                       String year = intl.DateFormat(
                         'yyyy',
-                        'ar',
+                        'en',
                       ).format(pickedDate);
                       dailyprogresscontroller.dateController.text =
                           intl.DateFormat('yyyy-MM-dd').format(pickedDate);
@@ -759,25 +767,25 @@ class StudentInfoScreen extends StatelessWidget {
 
           Row(
             children: [
-              Obx(
-                () => Expanded(
-                  child: _builddatecard(
+              Expanded(
+                child: Obx(
+                  () => _builddatecard(
                     "اليوم",
                     dailyprogresscontroller.dayName.value ?? getdayname(),
                   ),
                 ),
               ),
-              Obx(
-                () => Expanded(
-                  child: _builddatecard(
+              Expanded(
+                child: Obx(
+                  () => _builddatecard(
                     "الشهر",
                     dailyprogresscontroller.month.value ?? getmounthname(),
                   ),
                 ),
               ),
-              Obx(
-                () => Expanded(
-                  child: _builddatecard(
+              Expanded(
+                child: Obx(
+                  () => _builddatecard(
                     "السنة",
                     dailyprogresscontroller.year.value ?? getyear(),
                   ),
@@ -958,55 +966,88 @@ class StudentInfoScreen extends StatelessWidget {
                 if (student == null) return;
 
                 Map<String, dynamic> studentUpdates = {};
-                
+
                 // Only update student position if level is not 'Weak' (ضعيف)
-                if (dailyprogresscontroller.memorizationSorahController.text.isNotEmpty && 
+                if (dailyprogresscontroller
+                        .memorizationSorahController
+                        .text
+                        .isNotEmpty &&
                     dailyprogresscontroller.memorizationLevel.value != 'ضعيف') {
                   studentUpdates.addAll({
-                    "current_Memorization_Sorah": dailyprogresscontroller.memorizationSorahController.text,
-                    "current_Memorization_Aya": dailyprogresscontroller.memorizationAyahController.text,
+                    "current_Memorization_Sorah": dailyprogresscontroller
+                        .memorizationSorahController
+                        .text,
+                    "current_Memorization_Aya":
+                        dailyprogresscontroller.memorizationAyahController.text,
                   });
                 }
 
-                if (dailyprogresscontroller.revisionSorahController.text.isNotEmpty && 
+                if (dailyprogresscontroller
+                        .revisionSorahController
+                        .text
+                        .isNotEmpty &&
                     dailyprogresscontroller.revisionLevel.value != 'ضعيف') {
                   studentUpdates.addAll({
-                    "current_Revision_Sorah": dailyprogresscontroller.revisionSorahController.text,
-                    "current_Revision_Aya": int.tryParse(dailyprogresscontroller.revisionAyahController.text) ?? 0,
+                    "current_Revision_Sorah":
+                        dailyprogresscontroller.revisionSorahController.text,
+                    "current_Revision_Aya":
+                        int.tryParse(
+                          dailyprogresscontroller.revisionAyahController.text,
+                        ) ??
+                        0,
                   });
                 }
 
+                bool isAbsent =
+                    dailyprogresscontroller.attendance.value != "حاضر";
                 Map<String, dynamic> dailyProgressData = {
                   "Attendance": dailyprogresscontroller.attendance.value,
-                  "Memorization_Progress_Surah":
-                      dailyprogresscontroller.memorizationSorahController.text,
-                  "Memorization_Progress_Ayah":
-                      int.tryParse(
-                        dailyprogresscontroller.memorizationAyahController.text,
-                      ) ??
-                      0,
-                  "Revision_Progress_Surah":
-                      dailyprogresscontroller.revisionSorahController.text,
-                  "Revision_Progress_Ayah":
-                      int.tryParse(
-                        dailyprogresscontroller.revisionAyahController.text,
-                      ) ??
-                      0,
-                  "Memorization_Level":
-                      dailyprogresscontroller.memorizationLevel.value,
-                  "Revision_Level": dailyprogresscontroller.revisionLevel.value,
+                  "Memorization_Progress_Surah": isAbsent
+                      ? "-"
+                      : dailyprogresscontroller
+                            .memorizationSorahController
+                            .text,
+                  "Memorization_Progress_Ayah": isAbsent
+                      ? 0
+                      : int.tryParse(
+                              dailyprogresscontroller
+                                  .memorizationAyahController
+                                  .text,
+                            ) ??
+                            0,
+                  "Revision_Progress_Surah": isAbsent
+                      ? "-"
+                      : dailyprogresscontroller.revisionSorahController.text,
+                  "Revision_Progress_Ayah": isAbsent
+                      ? 0
+                      : int.tryParse(
+                              dailyprogresscontroller
+                                  .revisionAyahController
+                                  .text,
+                            ) ??
+                            0,
+                  "Memorization_Level": isAbsent
+                      ? "-"
+                      : dailyprogresscontroller.memorizationLevel.value,
+                  "Revision_Level": isAbsent
+                      ? "-"
+                      : dailyprogresscontroller.revisionLevel.value,
                   "Notes": dailyprogresscontroller.notesController.text,
-                  "month": DateTime.now().month.toString(),
+                  "month": dailyprogresscontroller.monthController.text,
                   "DayName": dailyprogresscontroller.dayNameController.text,
                   "Date": dailyprogresscontroller.dateController.text,
-                  "year": DateTime.now().year,
+                  "year": dailyprogresscontroller.yearController.text,
+                  "Month_year":
+                      "${dailyprogresscontroller.monthController.text}-${dailyprogresscontroller.yearController.text}",
                   "StudentId": student.Id,
                 };
-                
+
                 _showadddailyprogressDialog(
-                  context, 
-                  dailyProgressData, 
-                  studentUpdates: studentUpdates.isNotEmpty ? studentUpdates : null,
+                  context,
+                  dailyProgressData,
+                  studentUpdates: studentUpdates.isNotEmpty
+                      ? studentUpdates
+                      : null,
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -1103,17 +1144,21 @@ class StudentInfoScreen extends StatelessWidget {
                     ? null
                     : () async {
                         print("Submitting Daily Progress: $dailyProgressData");
-                        
+
                         // 1. Update student position if needed
                         if (studentUpdates != null) {
-                          int studentId = studentController.selectedStudent.value!.Id;
-                          await studentController.updateStudent(studentId, studentUpdates);
+                          int studentId =
+                              studentController.selectedStudent.value!.Id;
+                          await studentController.updateStudent(
+                            studentId,
+                            studentUpdates,
+                          );
                         }
 
                         // 2. Add daily progress record
                         bool success = await dailyprogresscontroller
                             .adddailyprogress(dailyProgressData);
-                            
+
                         if (success) {
                           studentInfoScreenController.changeWindow("البيانات");
                         }
@@ -1640,6 +1685,10 @@ class StudentInfoScreen extends StatelessWidget {
         'yyyy-MM-dd',
       ).format(DateTime.now());
     }
+    final student = studentController.selectedStudent.value;
+    if (student != null) {
+      studentPlanController.getStudentPlans(student.Id);
+    }
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -1648,598 +1697,1101 @@ class StudentInfoScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              const SizedBox(height: 10),
-
-              // ─── تاريخ البدء ───────────────────────────────────────────
-              _buildcard(
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            readOnly: true,
-                            controller:
-                                studentPlanController.startdatecontroller,
-                            labelText: "تاريخ البدء",
-                            onTap: () async {
-                              DateTime? picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (picked != null) {
-                                studentPlanController.startdatecontroller.text =
-                                    intl.DateFormat(
-                                      'yyyy-MM-dd',
-                                    ).format(picked);
-                                studentPlanController.setstartday(
-                                  intl.DateFormat('EEEE', 'ar').format(picked),
-                                );
-                                studentPlanController.setstartmonth(
-                                  intl.DateFormat('MMMM', 'ar').format(picked),
-                                );
-                                studentPlanController.setstartyear(
-                                  intl.DateFormat('yyyy').format(picked),
-                                );
-                                final end = DateTime.tryParse(
-                                  studentPlanController.enddatecontroller.text,
-                                );
-                                if (end != null) {
-                                  final months =
-                                      ((end.year - picked.year) * 12 +
-                                              end.month -
-                                              picked.month)
-                                          .clamp(1, 9999);
-                                  final perMonth =
-                                      int.tryParse(
-                                        studentPlanController
-                                            .daysController
-                                            .text,
-                                      ) ??
-                                      20;
-                                  studentPlanController.days.value =
-                                      (perMonth * months).toString();
-                                 // studentPlanController.getplanetarget();
-                                }
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Obx(
-                          () => Expanded(
-                            child: _builddatecard(
-                              "اليوم",
-                              studentPlanController.startday.value != '-'
-                                  ? studentPlanController.startday.value
-                                  : getdayname(),
-                            ),
-                          ),
-                        ),
-                        Obx(
-                          () => Expanded(
-                            child: _builddatecard(
-                              "الشهر",
-                              studentPlanController.startmonth.value != '-'
-                                  ? studentPlanController.startmonth.value
-                                  : getmounthname(),
-                            ),
-                          ),
-                        ),
-                        Obx(
-                          () => Expanded(
-                            child: _builddatecard(
-                              "السنة",
-                              studentPlanController.startyear.value != '-'
-                                  ? studentPlanController.startyear.value
-                                  : getyear(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // ─── تاريخ الانتهاء ────────────────────────────────────────
-              _buildcard(
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            readOnly: true,
-                            controller: studentPlanController.enddatecontroller,
-                            labelText: "تاريخ الانتهاء",
-                            onTap: () async {
-                              DateTime? picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (picked != null) {
-                                studentPlanController.enddatecontroller.text =
-                                    intl.DateFormat(
-                                      'yyyy-MM-dd',
-                                    ).format(picked);
-                                studentPlanController.setendday(
-                                  intl.DateFormat('EEEE', 'ar').format(picked),
-                                );
-                                studentPlanController.setendmonth(
-                                  intl.DateFormat('MMMM', 'ar').format(picked),
-                                );
-                                studentPlanController.setendyear(
-                                  intl.DateFormat('yyyy').format(picked),
-                                );
-                                // احسب إجمالي أيام الحفظ = أيام/شهر × عدد الأشهر
-                                final start = DateTime.tryParse(
-                                  studentPlanController
-                                      .startdatecontroller
-                                      .text,
-                                );
-                                if (start != null) {
-                                  final months =
-                                      ((picked.year - start.year) * 12 +
-                                              picked.month -
-                                              start.month)
-                                          .clamp(1, 9999);
-                                  final perMonth =
-                                      int.tryParse(
-                                        studentPlanController
-                                            .daysController
-                                            .text,
-                                      ) ??
-                                      20;
-                                  studentPlanController.days.value =
-                                      (perMonth * months).toString();
-                                  studentPlanController.getplanetarget();
-                                }
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Obx(
-                          () => Expanded(
-                            child: _builddatecard(
-                              "اليوم",
-                              studentPlanController.endday.value != '-'
-                                  ? studentPlanController.endday.value
-                                  : getdayname(),
-                            ),
-                          ),
-                        ),
-                        Obx(
-                          () => Expanded(
-                            child: _builddatecard(
-                              "الشهر",
-                              studentPlanController.endmonth.value != '-'
-                                  ? studentPlanController.endmonth.value
-                                  : getmounthname(),
-                            ),
-                          ),
-                        ),
-                        Obx(
-                          () => Expanded(
-                            child: _builddatecard(
-                              "السنة",
-                              studentPlanController.endyear.value != '-'
-                                  ? studentPlanController.endyear.value
-                                  : getyear(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buildcard(
-                CustomTextField(
-                  controller: studentPlanController.daysController,
-                  labelText: "أيام الحفظ والمراجعة في الشهر",
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) {
-                    // إجمالي الأيام = أيام/شهر × عدد الأشهر بين التاريخين
-                    final perMonth = int.tryParse(v) ?? 20;
-                    final start = DateTime.tryParse(
-                      studentPlanController.startdatecontroller.text,
-                    );
-                    final end = DateTime.tryParse(
-                      studentPlanController.enddatecontroller.text,
-                    );
-                    if (start != null && end != null) {
-                      final months =
-                          ((end.year - start.year) * 12 +
-                                  end.month -
-                                  start.month)
-                              .clamp(1, 9999);
-                      studentPlanController.days.value = (perMonth * months)
-                          .toString();
-                    } else {
-                      studentPlanController.days.value = perMonth.toString();
+              _buildPlanNavigation(),
+              const SizedBox(height: 15),
+              Obx(() {
+                switch (studentPlanController.currentplanewindow.value) {
+                  case "addplan":
+                    return addplane(context);
+                  case "reviseplan":
+                    return reviseplan(context);
+                  case "allplans":
+                    return allplans(context);
+                  default:
+                    // Set default if empty
+                    if (studentPlanController
+                        .currentplanewindow
+                        .value
+                        .isEmpty) {
+                      Future.delayed(Duration.zero, () {
+                        studentPlanController.currentplanewindow.value =
+                            "addplan";
+                      });
                     }
-                    studentPlanController.getplanetarget();
-                  },
-                ),
+                    return addplane(context);
+                }
+              }),
+            ],
+          ),
+          // addplane(context),
+        ),
+      ),
+    );
+  }
+
+  Column addplane(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+
+        // ─── تاريخ البدء ───────────────────────────────────────────
+        _buildcard(
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      readOnly: true,
+                      controller: studentPlanController.startdatecontroller,
+                      labelText: "تاريخ البدء",
+                      onTap: () async {
+                        DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          studentPlanController.startdatecontroller.text =
+                              intl.DateFormat('yyyy-MM-dd').format(picked);
+                          studentPlanController.setstartday(
+                            intl.DateFormat('EEEE', 'ar').format(picked),
+                          );
+                          studentPlanController.setstartmonth(
+                            intl.DateFormat('MMMM', 'ar').format(picked),
+                          );
+                          studentPlanController.setstartyear(
+                            intl.DateFormat('yyyy').format(picked),
+                          );
+                          final end = DateTime.tryParse(
+                            studentPlanController.enddatecontroller.text,
+                          );
+                          if (end != null) {
+                            final months =
+                                ((end.year - picked.year) * 12 +
+                                        end.month -
+                                        picked.month)
+                                    .clamp(1, 9999);
+                            final perMonth =
+                                int.tryParse(
+                                  studentPlanController.daysController.text,
+                                ) ??
+                                20;
+                            studentPlanController.days.value =
+                                (perMonth * months).toString();
+                            // studentPlanController.getplanetarget();
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
-
-              // ─── خطة الحفظ ────────────────────────────────────────────
-              _buildpalndatecard(
-                "خطة الحفظ",
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            controller: studentPlanController
-                                .dailyMemorizationAmountController,
-                            labelText: "مقدار الحفظ (وجه/يوم)",
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) {
-                              studentPlanController
-                                  .dailyMemorizationAmount
-                                  .value = v.isNotEmpty
-                                  ? v
-                                  : "1";
-                              studentPlanController.getplanetarget();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _buildpalndatecard(
-                            "من",
-                            Column(
-                              children: [
-                                Obx(() {
-                                  final controller = studentPlanController;
-                                  final student =
-                                      studentController.selectedStudent.value;
-
-                                  String surahInput = student?.current_Memorization_Sorah ?? "114";
-
-                                  String surahName;
-
-                                  // ✅ التصحيح هنا
-                                  int? surahNumber = int.tryParse(surahInput);
-
-                                  if (surahNumber != null) {
-                                    surahName = surahController.getsurahname(
-                                      surahNumber,
-                                    );
-                                  } else {
-                                    surahName = surahInput; // إذا كان اسم جاهز
-                                  }
-
-                                  return _buildverticalcard(
-                                    "السورة",
-                                    Text(
-                                      surahName,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  );
-                                }),
-
-                                Obx(() {
-                                  final controller = studentPlanController;
-                                  final student =
-                                      studentController.selectedStudent.value;
-
-                                  String ayah =
-                                      controller
-                                          .startMemorizationVerseController
-                                          .text
-                                          .isNotEmpty
-                                      ? controller
-                                            .startMemorizationVerseController
-                                            .text
-                                      : student?.current_Memorization_Aya ?? "1";
-                                return Column(
-                                  children: [
-                                    _buildverticalcard(
-                                      "الآية",
-                                      Text(
-                                        ayah,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: Appcolors.appmaincolor,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    _buildverticalcard(
-                                      "الصفحة",
-                                      Text(
-                                        studentPlanController.Currentpage.value.toString(),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: Appcolors.appmaincolor,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: _buildpalndatecard(
-                            "إلى",
-                            Obx(() {
-                              final r = studentPlanController.result.value;
-                              return Column(
-                                children: [
-                                  _buildverticalcard(
-                                    "السورة",
-                                    Text(
-                                      r?.surahName ?? "—",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  _buildverticalcard(
-                                    "الآية",
-                                    Text(
-                                      r != null ? r.verse.toString() : "—",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  _buildverticalcard(
-                                    "الصفحة",
-                                    Text(
-                                      r != null ? r.page.toString() : "—",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // ─── خطة المراجعة ─────────────────────────────────────────
-              _buildpalndatecard(
-                "خطة المراجعة",
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            controller: studentPlanController
-                                .dailyRevisionAmountController,
-                            labelText: "مقدار المراجعة (جزء/يوم)",
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) {
-                              int juz = int.tryParse(v) ?? 0;
-                              studentPlanController.dailyRevisionAmount.value =
-                                  v.isNotEmpty ? (juz * 20).toString() : "1";
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _buildpalndatecard(
-                            "من",
-                            Column(
-                              children: [
-                                Obx(() {
-                                  int surahIndex = studentPlanController.startRevisionSurah.value;
-                                  String surahName = surahController.getsurahname(surahIndex);
-
-                                  return _buildverticalcard(
-                                    "السورة",
-                                    Text(
-                                      surahName,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  );
-                                }),
-
-                                Obx(() {
-                                  int verse = studentPlanController.startRevisionVerse.value;
-                                return Column(
-                                  children: [
-                                    _buildverticalcard(
-                                      "الآية",
-                                      Text(
-                                        verse.toString(),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: Appcolors.appmaincolor,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    _buildverticalcard(
-                                      "الصفحة",
-                                      Text(
-                                        studentPlanController.CurrentRevisionPage.value.toString(),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
-                                          color: Appcolors.appmaincolor,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: _buildpalndatecard(
-                            "إلى",
-                            Obx(() {
-                              final r = studentPlanController.revisionResult.value;
-                              return Column(
-                                children: [
-                                  _buildverticalcard(
-                                    "السورة",
-                                    Text(
-                                      r?.surahName ?? "—",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  _buildverticalcard(
-                                    "الآية",
-                                    Text(
-                                      r != null ? r.verse.toString() : "—",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  _buildverticalcard(
-                                    "الصفحة",
-                                    Text(
-                                      r != null ? r.page.toString() : "—",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Appcolors.appmaincolor,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                height: 55,
-                decoration: BoxDecoration(
-                  color: Appcolors.appmaincolor,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Appcolors.appmaincolor.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Obx(() {
-                  return ElevatedButton(
-                    onPressed: studentPlanController.isLoading.value
-                        ? null
-                        : () => studentPlanController.saveCurrentPlan(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+              Row(
+                children: [
+                  Expanded(
+                    child: Obx(
+                      () => _builddatecard(
+                        "اليوم",
+                        studentPlanController.startday.value != '-'
+                            ? studentPlanController.startday.value
+                            : getdayname(),
                       ),
                     ),
-                    child: studentPlanController.isLoading.value
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            "حفظ الخطة",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Cairo',
-                            ),
-                          ),
-                  );
-                }),
-              ),   
+                  ),
+                  Expanded(
+                    child: Obx(
+                      () => _builddatecard(
+                        "الشهر",
+                        studentPlanController.startmonth.value != '-'
+                            ? studentPlanController.startmonth.value
+                            : getmounthname(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Obx(
+                      () => _builddatecard(
+                        "السنة",
+                        studentPlanController.startyear.value != '-'
+                            ? studentPlanController.startyear.value
+                            : getyear(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
+        const SizedBox(height: 10),
+
+        // ─── تاريخ الانتهاء ────────────────────────────────────────
+        _buildcard(
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      readOnly: true,
+                      controller: studentPlanController.enddatecontroller,
+                      labelText: "تاريخ الانتهاء",
+                      onTap: () async {
+                        DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          studentPlanController.enddatecontroller.text =
+                              intl.DateFormat('yyyy-MM-dd').format(picked);
+                          studentPlanController.setendday(
+                            intl.DateFormat('EEEE', 'ar').format(picked),
+                          );
+                          studentPlanController.setendmonth(
+                            intl.DateFormat('MMMM', 'ar').format(picked),
+                          );
+                          studentPlanController.setendyear(
+                            intl.DateFormat('yyyy').format(picked),
+                          );
+                          // احسب إجمالي أيام الحفظ = أيام/شهر × عدد الأشهر
+                          final start = DateTime.tryParse(
+                            studentPlanController.startdatecontroller.text,
+                          );
+                          if (start != null) {
+                            final months =
+                                ((picked.year - start.year) * 12 +
+                                        picked.month -
+                                        start.month)
+                                    .clamp(1, 9999);
+                            final perMonth =
+                                int.tryParse(
+                                  studentPlanController.daysController.text,
+                                ) ??
+                                20;
+                            studentPlanController.days.value =
+                                (perMonth * months).toString();
+                            studentPlanController.getplanetarget();
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Obx(
+                      () => _builddatecard(
+                        "اليوم",
+                        studentPlanController.endday.value != '-'
+                            ? studentPlanController.endday.value
+                            : getdayname(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Obx(
+                      () => _builddatecard(
+                        "الشهر",
+                        studentPlanController.endmonth.value != '-'
+                            ? studentPlanController.endmonth.value
+                            : getmounthname(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Obx(
+                      () => _builddatecard(
+                        "السنة",
+                        studentPlanController.endyear.value != '-'
+                            ? studentPlanController.endyear.value
+                            : getyear(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        _buildcard(
+          CustomTextField(
+            controller: studentPlanController.daysController,
+            labelText: "أيام الحفظ والمراجعة في الشهر",
+            keyboardType: TextInputType.number,
+            onChanged: (v) {
+              // إجمالي الأيام = أيام/شهر × عدد الأشهر بين التاريخين
+              final perMonth = int.tryParse(v) ?? 20;
+              final start = DateTime.tryParse(
+                studentPlanController.startdatecontroller.text,
+              );
+              final end = DateTime.tryParse(
+                studentPlanController.enddatecontroller.text,
+              );
+              if (start != null && end != null) {
+                final months =
+                    ((end.year - start.year) * 12 + end.month - start.month)
+                        .clamp(1, 9999);
+                studentPlanController.days.value = (perMonth * months)
+                    .toString();
+              } else {
+                studentPlanController.days.value = perMonth.toString();
+              }
+              studentPlanController.getplanetarget();
+            },
+          ),
+        ),
+
+        // ─── خطة الحفظ ────────────────────────────────────────────
+        _buildpalndatecard(
+          "خطة الحفظ",
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      controller: studentPlanController
+                          .dailyMemorizationAmountController,
+                      labelText: "مقدار الحفظ (وجه/يوم)",
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) {
+                        studentPlanController.dailyMemorizationAmount.value =
+                            v.isNotEmpty ? v : "1";
+                        studentPlanController.getplanetarget();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildpalndatecard(
+                      "من",
+                      Column(
+                        children: [
+                          Obx(() {
+                            final controller = studentPlanController;
+                            final student =
+                                studentController.selectedStudent.value;
+
+                            String surahInput =
+                                student?.current_Memorization_Sorah ?? "114";
+
+                            String surahName;
+
+                            // ✅ التصحيح هنا
+                            int? surahNumber = int.tryParse(surahInput);
+
+                            if (surahNumber != null) {
+                              surahName = surahController.getsurahname(
+                                surahNumber,
+                              );
+                            } else {
+                              surahName = surahInput; // إذا كان اسم جاهز
+                            }
+
+                            return _buildverticalcard(
+                              "السورة",
+                              Text(
+                                surahName,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }),
+
+                          Obx(() {
+                            final controller = studentPlanController;
+                            final student =
+                                studentController.selectedStudent.value;
+
+                            String ayah =
+                                controller
+                                    .startMemorizationVerseController
+                                    .text
+                                    .isNotEmpty
+                                ? controller
+                                      .startMemorizationVerseController
+                                      .text
+                                : student?.current_Memorization_Aya ?? "1";
+                            return Column(
+                              children: [
+                                _buildverticalcard(
+                                  "الآية",
+                                  Text(
+                                    ayah,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Appcolors.appmaincolor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                _buildverticalcard(
+                                  "الصفحة",
+                                  Text(
+                                    studentPlanController.Currentpage.value
+                                        .toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Appcolors.appmaincolor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _buildpalndatecard(
+                      "إلى",
+                      Obx(() {
+                        final r = studentPlanController.result.value;
+                        return Column(
+                          children: [
+                            _buildverticalcard(
+                              "السورة",
+                              Text(
+                                r?.surahName ?? "—",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            _buildverticalcard(
+                              "الآية",
+                              Text(
+                                r != null ? r.verse.toString() : "—",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            _buildverticalcard(
+                              "الصفحة",
+                              Text(
+                                r != null ? r.page.toString() : "—",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // ─── خطة المراجعة ─────────────────────────────────────────
+        _buildpalndatecard(
+          "خطة المراجعة",
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      controller:
+                          studentPlanController.dailyRevisionAmountController,
+                      labelText: "مقدار المراجعة (جزء/يوم)",
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) {
+                        int juz = int.tryParse(v) ?? 0;
+                        studentPlanController.dailyRevisionAmount.value =
+                            v.isNotEmpty ? (juz * 20).toString() : "1";
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildpalndatecard(
+                      "من",
+                      Column(
+                        children: [
+                          Obx(() {
+                            int surahIndex =
+                                studentPlanController.startRevisionSurah.value;
+                            String surahName = surahController.getsurahname(
+                              surahIndex,
+                            );
+
+                            return _buildverticalcard(
+                              "السورة",
+                              Text(
+                                surahName,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }),
+
+                          Obx(() {
+                            int verse =
+                                studentPlanController.startRevisionVerse.value;
+                            return Column(
+                              children: [
+                                _buildverticalcard(
+                                  "الآية",
+                                  Text(
+                                    verse.toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Appcolors.appmaincolor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                _buildverticalcard(
+                                  "الصفحة",
+                                  Text(
+                                    studentPlanController
+                                        .CurrentRevisionPage
+                                        .value
+                                        .toString(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Appcolors.appmaincolor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _buildpalndatecard(
+                      "إلى",
+                      Obx(() {
+                        final r = studentPlanController.revisionResult.value;
+                        return Column(
+                          children: [
+                            _buildverticalcard(
+                              "السورة",
+                              Text(
+                                r?.surahName ?? "—",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            _buildverticalcard(
+                              "الآية",
+                              Text(
+                                r != null ? r.verse.toString() : "—",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            _buildverticalcard(
+                              "الصفحة",
+                              Text(
+                                r != null ? r.page.toString() : "—",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          width: double.infinity,
+          height: 55,
+          decoration: BoxDecoration(
+            color: Appcolors.appmaincolor,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Appcolors.appmaincolor.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Obx(() {
+            return ElevatedButton(
+              onPressed: studentPlanController.isLoading.value
+                  ? null
+                  : () => studentPlanController.saveCurrentPlan(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              child: studentPlanController.isLoading.value
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      "حفظ الخطة",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlanNavigation() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildNavButton(
+              "إضافة خطة",
+              "addplan",
+              Icons.add_circle_outline,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _buildNavButton("الخطط السابقة", "allplans", Icons.history),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavButton(
+    String title,
+    String window,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
+    return Obx(() {
+      bool isActive =
+          studentPlanController.currentplanewindow.value == window ||
+          (studentPlanController.currentplanewindow.value.isEmpty &&
+              window == "addplan");
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap:
+            onTap ??
+            () {
+              studentPlanController.currentplanewindow.value = window;
+              if (window == "allplans") {
+                final student = studentController.selectedStudent.value;
+                if (student != null) {
+                  studentPlanController.getStudentPlans(student.Id);
+                }
+              }
+            },
+        child: AnimatedContainer(
+          width: double.infinity,
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive
+                ? Appcolors.appmaincolor
+                : Appcolors.appmaincolor.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: isActive
+                  ? Appcolors.appmaincolor
+                  : Appcolors.appmaincolor.withOpacity(0.1),
+              width: 1,
+            ),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: Appcolors.appmaincolor.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isActive ? Colors.white : Appcolors.appmaincolor,
+                size: 24,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isActive ? Colors.white : Colors.grey[600],
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 13,
+                  fontFamily: 'Cairo',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget reviseplan(BuildContext context) {
+    return _buildUnderDevelopment();
+  }
+
+  Widget allplans(BuildContext context) {
+    return Obx(() {
+      if (studentPlanController.isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(40.0),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      if (studentPlanController.studentPlans.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.assignment_late_outlined,
+                  size: 60,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "لا توجد خطط مسجلة لهذا الطالب",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                    fontFamily: 'Cairo',
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    studentPlanController.setcurrentplanewindow("addplan");
+                  },
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text(
+                    "إضافة خطة",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Cairo',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Appcolors.appmaincolor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "سجل الخطط الدراسية",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Cairo',
+                    color: Appcolors.appmaincolor,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    studentPlanController.setcurrentplanewindow("addplan");
+                  },
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text(
+                    "خطة جديدة",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Cairo',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Appcolors.appmaincolor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...studentPlanController.studentPlans
+              .map((plan) => _buildPlanRecordCard(plan))
+              .toList(),
+        ],
+      );
+    });
+  }
+
+  Widget _buildPlanRecordCard(StudentPlan plan) {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: ExpansionTile(
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          //mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+          
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    " خطة شهر${plan.Month} ${plan.Year}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    "الفترة: ${intl.DateFormat('yyyy/MM/dd').format(plan.StartsAt)} - ${intl.DateFormat('yyyy/MM/dd').format(plan.EndsAt)}",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Cairo',
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        collapsedBackgroundColor: Appcolors.appmaincolor,
+        backgroundColor: Appcolors.appmaincolor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        iconColor: Colors.white,
+        collapsedIconColor: Colors.white,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color:Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20))
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.book_outlined,
+                  size: 20,
+                  color: Appcolors.appmaincolor,
+                ),
+                Text(
+                  "الحفظ",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Appcolors.appmaincolor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Cairo',
+                  ),
+                ),
+                Column(
+                  children: [
+                    Text("الخطة",style: TextStyle(
+                      fontSize: 16,
+                      color: Appcolors.appmaincolor,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                    ),),
+                  Divider(color: Appcolors.appmaincolor,thickness: 2,),
+                    Row(
+                      children: [
+                        Text(plan.target_Memorization_Surah,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Appcolors.appmaincolor,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cairo',
+                        ),),
+                        Text("${plan.Current_Memorization_Ayah.toString()}",style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cairo',
+                        ),),
+                      ],
+                    )
+                  ],
+                )
+              ],
+            ),
+          )
+          // Container(
+          //   padding: const EdgeInsets.all(20),
+          //   decoration: BoxDecoration(
+          //     color: Colors.grey[50],
+          //     borderRadius: const BorderRadius.only(
+          //       bottomLeft: Radius.circular(20),
+          //       bottomRight: Radius.circular(20),
+          //     ),
+          //     border: Border.all(color: Appcolors.appmaincolor,width: 40),
+          //   ),
+          //   child: Column(
+          //     children: [
+          //       Column(
+          //         children: [
+          //           Row(
+          //             mainAxisAlignment: MainAxisAlignment.center,
+          //             children: [
+          //              Text('خطة الحفظ',
+          //              style: TextStyle(
+          //               fontSize:18,
+          //               color:Appcolors.appmaincolor,
+          //               fontWeight: FontWeight.bold,
+          //               fontFamily: 'Cairo',
+          //              ),)
+          //             ]
+          //           ),
+          //           Row(
+          //             mainAxisAlignment: MainAxisAlignment.center,
+          //             children: [
+          //               Text('الخطة',
+          //               style: TextStyle(
+          //               fontSize:18,
+          //               color:Appcolors.appmaincolor,
+          //               fontWeight: FontWeight.bold,
+          //               fontFamily: 'Cairo',
+          //              ),)
+          //             ]
+          //           ),
+          //         ],
+          //       ),
+                
+          //       const SizedBox(height: 12),
+          //       _buildPlanInfoItem(
+          //         Icons.loop,
+          //         "المراجعة",
+          //         "${plan.Current_Revision} ➔ ${plan.target_Revision}",
+          //       ),
+          //       const Divider(height: 30),
+          //       Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           _buildStatusTag(plan.Memorization_ItsDone, plan.Is_Current_Month_Plan),
+          //           IconButton(
+          //             onPressed: () => _confirmDeletePlan(plan),
+          //             icon: const Icon(Icons.delete_outline, color: Colors.red),
+          //             tooltip: "حذف الخطة",
+          //           ),
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusTag(bool isDone, bool isCurrent) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: isDone
+                ? Colors.green.withOpacity(0.1)
+                : Colors.orange.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            isDone ? "مكتملة" : "قيد التنفيذ",
+            style: TextStyle(
+              color: isDone ? Colors.green : Colors.orange,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Cairo',
+            ),
+          ),
+        ),
+        if (isCurrent) ...[
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Appcolors.appmaincolor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              "خطة الشهر الحالية",
+              style: TextStyle(
+                color: Appcolors.appmaincolor,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Cairo',
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildPlanInfoItem(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey[600]),
+        const SizedBox(width: 5),
+        Text(
+          "$label: ",
+          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _confirmDeletePlan(StudentPlan plan) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text("حذف الخطة", style: TextStyle(fontFamily: 'Cairo')),
+        content: const Text(
+          "هل أنت متأكد من رغبتك في حذف هذه الخطة؟",
+          style: TextStyle(fontFamily: 'Cairo'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("إلغاء", style: TextStyle(fontFamily: 'Cairo')),
+          ),
+          TextButton(
+            onPressed: () {
+              if (plan.Id != null) {
+                studentPlanController.deleteStudentPlan(plan.Id!);
+              }
+              Get.back();
+            },
+            child: const Text(
+              "حذف",
+              style: TextStyle(color: Colors.red, fontFamily: 'Cairo'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2291,7 +2843,10 @@ class StudentInfoScreen extends StatelessWidget {
       elevation: 3,
       borderOnForeground: true,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(16),bottomLeft: Radius.circular(16)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          bottomLeft: Radius.circular(16),
+        ),
         side: BorderSide(color: Appcolors.appmaincolor, width: 1),
       ),
       //margin: const EdgeInsets.all(5),
@@ -2342,6 +2897,570 @@ class StudentInfoScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildhistorywindow(Student studentData) {
+    // Reset if student changed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (dailyprogresscontroller.monthyearnames.isEmpty) {
+        dailyprogresscontroller.fetchMonthYearNames(studentData.Id).then((_) {
+          if (dailyprogresscontroller.monthyearnames.isNotEmpty) {
+            String currentMonthYear = "${getmounthname()}-${getyear()}";
+            if (dailyprogresscontroller.monthyearnames.contains(
+              currentMonthYear,
+            )) {
+              dailyprogresscontroller.selectedMonthYear.value =
+                  currentMonthYear;
+              dailyprogresscontroller.fetchHistory(
+                studentData.Id,
+                currentMonthYear,
+              );
+            } else {
+              dailyprogresscontroller.selectedMonthYear.value =
+                  dailyprogresscontroller.monthyearnames.first;
+              dailyprogresscontroller.fetchHistory(
+                studentData.Id,
+                dailyprogresscontroller.monthyearnames.first,
+              );
+            }
+          }
+        });
+      }
+    });
+
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        // Horizontal Month Bar
+        Obx(() {
+          if (dailyprogresscontroller.monthyearnames.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Center(
+            child: Container(
+              height: 50,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: dailyprogresscontroller.monthyearnames.length,
+                itemBuilder: (context, index) {
+                  String monthYear =
+                      dailyprogresscontroller.monthyearnames[index];
+                  bool isSelected =
+                      dailyprogresscontroller.selectedMonthYear.value ==
+                      monthYear;
+                  return GestureDetector(
+                    onTap: () {
+                      dailyprogresscontroller.selectedMonthYear.value =
+                          monthYear;
+                      dailyprogresscontroller.fetchHistory(
+                        studentData.Id,
+                        monthYear,
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Appcolors.appmaincolor
+                            : Colors.white.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: Appcolors.appmaincolor.withOpacity(
+                                    0.3,
+                                  ),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: Center(
+                        child: Text(
+                          monthYear,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }),
+
+        Expanded(
+          child: Obx(() {
+            if (dailyprogresscontroller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (dailyprogresscontroller.monthyearhistory.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.history_edu,
+                      size: 60,
+                      color: Colors.grey.withOpacity(0.5),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "لا توجد سجلات لهذا الشهر",
+                      style: TextStyle(fontFamily: 'Cairo', color: Colors.grey),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: dailyprogresscontroller.monthyearhistory.length,
+              itemBuilder: (context, index) {
+                final record = dailyprogresscontroller.monthyearhistory[index];
+                return _buildHistoryCard(record);
+              },
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHistoryCard(DailyProgress record) {
+    final bool isPresent = record.Attendance == "حاضر";
+    final bool hasNotes =
+        record.Notes != null && record.Notes!.trim().isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        border: Border.all(
+          color: isPresent
+              ? Appcolors.appmaincolor.withOpacity(0.1)
+              : Colors.red.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── شريط الحالة الجانبي ──
+              Container(
+                width: 55,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isPresent
+                        ? [
+                            Appcolors.appmaincolor,
+                            Appcolors.appmaincolor.withOpacity(0.8),
+                          ]
+                        : [Colors.red.shade400, Colors.red.shade600],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isPresent
+                          ? Icons.check_circle_rounded
+                          : Icons.cancel_rounded,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isPresent ? "حاضر" : "غائب",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── منطقة المحتوى ──
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // اليوم والتاريخ
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            record.DayName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              fontFamily: 'Cairo',
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            record.Date,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                              fontFamily: 'Cairo',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Divider(height: 1, thickness: 0.5),
+                      ),
+
+                      if (isPresent) ...[
+                        _buildWideDetail(
+                          Icons.menu_book_rounded,
+                          "الحفظ",
+                          "سورة ${record.Memorization_Progress_Surah} (${record.Memorization_Progress_Ayah})",
+                          record.Memorization_Level,
+                        ),
+                        const SizedBox(height: 10),
+                        _buildWideDetail(
+                          Icons.replay_rounded,
+                          "المراجعة",
+                          "سورة ${record.Revision_Progress_Surah} (${record.Revision_Progress_Ayah})",
+                          record.Revision_Level,
+                        ),
+                      ] else
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                color: Colors.red.shade400,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "عذراً، الطالب غائب في هذا اليوم",
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontFamily: 'Cairo',
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      if (hasNotes) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFBE6),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFFFE58F)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.sticky_note_2_rounded,
+                                    size: 16,
+                                    color: Color(0xFFD48806),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    "الملاحظات",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFD48806),
+                                      fontFamily: 'Cairo',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                record.Notes!,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                  fontFamily: 'Cairo',
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWideDetail(
+    IconData icon,
+    String label,
+    String value,
+    String level,
+  ) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Appcolors.appmaincolor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 18, color: Appcolors.appmaincolor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey.shade500,
+                  fontFamily: 'Cairo',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Cairo',
+                  color: Colors.black87,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        _buildLevelBadge(level),
+      ],
+    );
+  }
+
+  Widget _buildLevelBadge(String level) {
+    Color color;
+    switch (level) {
+      case "ممتاز":
+        color = Colors.green.shade700;
+        break;
+      case "جيد جدا":
+        color = Colors.blue.shade700;
+        break;
+      case "جيد":
+        color = Colors.orange.shade700;
+        break;
+      case "مقبول":
+        color = Colors.amber.shade700;
+        break;
+      case "ضعيف":
+        color = Colors.red.shade700;
+        break;
+      default:
+        color = Colors.grey.shade600;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        level,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Cairo',
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+  Widget _buildSectionTitle(String title, IconData icon, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 5),
+          Text(
+            title,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              fontFamily: 'Cairo',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateChip(String label, String date, IconData icon, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: Colors.grey,
+            fontFamily: 'Cairo',
+          ),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 5),
+            Text(
+              date,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Cairo',
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLabelValue(String label, String value, IconData icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            color: Colors.grey,
+            fontFamily: 'Cairo',
+          ),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          children: [
+            Icon(icon, size: 16, color: Colors.grey.shade600),
+            const SizedBox(width: 5),
+            Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Cairo',
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusBadge(String status, Color color) {
+    String text;
+
+    switch (status) {
+      case 'active':
+        text = 'فعال';
+        break;
+      case 'finished':
+        text = 'منتهي';
+        break;
+      case 'archived':
+        text = 'مؤرشف';
+        break;
+      case 'pending':
+        text = 'قيد التنفيذ';
+        break;
+      case 'passed':
+        text = 'ناجح';
+        break;
+      case 'failed':
+        text = 'راسب';
+        break;
+      default:
+        text = status;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          fontFamily: 'Cairo',
         ),
       ),
     );

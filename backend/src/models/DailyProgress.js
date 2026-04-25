@@ -31,13 +31,13 @@ DailyProgress.init(
       allowNull: false,
     },
     Memorization_Level: {
-      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز"),
-      defaultValue: "ضعيف",
+      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز","-"),
+      defaultValue: "-",
       allowNull: false,
     },
     Revision_Level: {
-      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز"),
-      defaultValue: "ضعيف",
+      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز","-"),
+      defaultValue: "-",
       allowNull: false,
     },
     Notes: {
@@ -58,6 +58,10 @@ DailyProgress.init(
     },
     year: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    Month_year:{
+      type: DataTypes.STRING,
       allowNull: false,
     },
    

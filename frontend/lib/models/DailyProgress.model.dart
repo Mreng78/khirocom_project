@@ -12,6 +12,7 @@ class DailyProgress {
   String DayName;
   String Date;
   int year;
+  String Month_year;
   int StudentId;
 
   DailyProgress({
@@ -28,6 +29,7 @@ class DailyProgress {
     required this.DayName,
     required this.Date,
     required this.year,
+    required this.Month_year,
     required this.StudentId,
   });
 
@@ -46,6 +48,7 @@ class DailyProgress {
         DayName: json["DayName"]?.toString() ?? "",
         Date: json["Date"]?.toString() ?? "",
         year: json["year"] is int ? json["year"] : int.tryParse(json["year"]?.toString() ?? "0") ?? 0,
+        Month_year: json["Month_year"]?.toString() ?? "",
         StudentId: json["StudentId"] is int ? json["StudentId"] : int.tryParse(json["StudentId"]?.toString() ?? "0") ?? 0,
       );
 
@@ -64,6 +67,7 @@ class DailyProgress {
         "DayName": DayName,
         "Date": Date,
         "year": year,
+        "Month_year": Month_year,
         "StudentId": StudentId,
       };
 }
