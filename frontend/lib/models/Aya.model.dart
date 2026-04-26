@@ -1,5 +1,11 @@
 import 'package:frontend/models/Quran.Model%20.dart';
 
+class PlanResult {
+  final Ayah target;
+  final int cycles;
+  PlanResult({required this.target, this.cycles = 0});
+}
+
 class Ayah {
   final int surahNumber;
   final String surahName;
@@ -39,20 +45,19 @@ class Ayah {
     };
   }
 
-  static Ayah calculatePlanEnd(
+  static PlanResult calculatePlanEnd(
     QuranModel quran,
     int startSurah,
     int startVerse,
-    int dailyAmount,
-    int days,
-  ) {
-   
-
-    final int targetPages = (dailyAmount * days).clamp(1, 999999);
+    double dailyAmount,
+    int days, {
+    int? limitSurah, // السورة التي قبل الحفظ (أو حد التوقف)
+  }) {
+    final int targetPages = (dailyAmount * days).floor().clamp(1, 999999);
     int currentS = startSurah;
     int currentV = startVerse;
+    int cycles = 0;
 
-    
     int getPage(int s, int v) {
       final list = quran.surahs[s];
       if (list == null || list.isEmpty) return -1;
@@ -60,21 +65,29 @@ class Ayah {
     }
 
     int currentPage = getPage(currentS, currentV);
-    int pagesCount = 1; 
+    int pagesCount = 1;
 
-    
     while (pagesCount < targetPages) {
       final surahAyahs = quran.surahs[currentS];
       if (surahAyahs == null) break;
 
-    
       if (currentV < surahAyahs.length) {
         currentV++;
-      } else if (currentS > 2) {
-        currentS--;
-        currentV = 1;
       } else {
-        break; 
+        // انتقل للسورة التالية (بالرجوع للخلف)
+        int nextS = currentS - 1;
+        
+        // التحقق من الحد (قبل الحفظ)
+        if (limitSurah != null && nextS == limitSurah) {
+          nextS = 114; // العودة للسورة 114 (144 كما طلب المستخدم)
+          cycles++;
+        } else if (nextS < 1) {
+          nextS = 114;
+          cycles++;
+        }
+        
+        currentS = nextS;
+        currentV = 1;
       }
 
       final newPage = getPage(currentS, currentV);
@@ -84,25 +97,27 @@ class Ayah {
       }
     }
 
-   
+    // تعبئة بقية الصفحة الحالية لضمان الوقوف عند نهاية الصفحة
     while (true) {
       final surahAyahs = quran.surahs[currentS];
       if (surahAyahs == null) break;
 
-      
       int peekS = currentS;
       int peekV = currentV;
 
       if (peekV < surahAyahs.length) {
         peekV++;
-      } else if (peekS > 2) {
-        peekS--;
-        peekV = 1;
       } else {
-        break; 
+        int nextS = peekS - 1;
+        if (limitSurah != null && nextS == limitSurah) {
+          break; // توقف عند الحد في peek أيضاً
+        } else if (nextS < 1) {
+          nextS = 114;
+        }
+        peekS = nextS;
+        peekV = 1;
       }
 
-      
       final peekPage = getPage(peekS, peekV);
       if (peekPage != currentPage) break;
 
@@ -110,11 +125,13 @@ class Ayah {
       currentV = peekV;
     }
 
-    final resultSurah = quran.surahs[currentS] ?? quran.surahs[2]!;
-    return resultSurah.firstWhere(
+    final resultSurah = quran.surahs[currentS] ?? quran.surahs[114]!;
+    final targetAyah = resultSurah.firstWhere(
       (a) => a.verse == currentV,
       orElse: () => resultSurah.last,
     );
+    
+    return PlanResult(target: targetAyah, cycles: cycles);
   }
   
   static int getPage(QuranModel? quran, int s, int v) {

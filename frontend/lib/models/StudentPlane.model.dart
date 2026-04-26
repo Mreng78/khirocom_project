@@ -16,6 +16,8 @@ class StudentPlan {
   String Year;
   bool Is_Current_Month_Plan;
   int StudentId;
+  int Revision_Cycles;
+  String status;
 
   StudentPlan({
     this.Id,
@@ -35,6 +37,8 @@ class StudentPlan {
     required this.Month,
     required this.Year,
     required this.Is_Current_Month_Plan,
+    this.Revision_Cycles = 0,
+    this.status = "قيد التنفيذ",
   });
 
   //! from Json - Backend sends PascalCase
@@ -60,6 +64,8 @@ class StudentPlan {
     Month: json["Month"] ?? "",
     Year: json["Year"] ?? "",
     Is_Current_Month_Plan: json["Is_Current_Month_Plan"] ?? false,
+    Revision_Cycles: json["Revision_Cycles"] ?? 0,
+    status: json["status"] ?? "قيد التنفيذ",
   );
 
   //! to Json - Backend expects PascalCase
@@ -81,5 +87,7 @@ class StudentPlan {
     "Month": Month,
     "Year": Year,
     "Is_Current_Month_Plan": Is_Current_Month_Plan,
+    "Revision_Cycles": Revision_Cycles,
+    "status": status,
   };
 }

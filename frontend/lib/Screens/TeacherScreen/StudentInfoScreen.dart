@@ -2256,6 +2256,19 @@ class StudentInfoScreen extends StatelessWidget {
                                 textAlign: TextAlign.center,
                               ),
                             ),
+                            _buildverticalcard(
+                              "الدورات",
+                              Text(
+                                studentPlanController.revisionCycles.value
+                                    .toString(),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Appcolors.appmaincolor,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ],
                         );
                       }),
@@ -2533,170 +2546,148 @@ class StudentInfoScreen extends StatelessWidget {
   }
 
   Widget _buildPlanRecordCard(StudentPlan plan) {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ExpansionTile(
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          //mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-          
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    " خطة شهر${plan.Month} ${plan.Year}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Cairo',
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    "الفترة: ${intl.DateFormat('yyyy/MM/dd').format(plan.StartsAt)} - ${intl.DateFormat('yyyy/MM/dd').format(plan.EndsAt)}",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Cairo',
-                      color: Colors.white,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    final bool itsdone = plan.status == "منفذة";
+    final bool isunder = plan.status == "قيد التنفيذ";
+    final bool isended = plan.status == "منتهية";
 
-        collapsedBackgroundColor: Appcolors.appmaincolor,
-        backgroundColor: Appcolors.appmaincolor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        tilePadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        iconColor: Colors.white,
-        collapsedIconColor: Colors.white,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color:Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(20))
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.book_outlined,
-                  size: 20,
-                  color: Appcolors.appmaincolor,
-                ),
-                Text(
-                  "الحفظ",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Appcolors.appmaincolor,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Cairo',
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        border: Border.all(
+          color: isended
+              ? Appcolors.appmaincolor.withOpacity(0.1)
+              : isunder
+                  ? Colors.orange.withOpacity(0.2)
+                  : Appcolors.appmaincolor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 55,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: itsdone
+                        ? [
+                            Appcolors.appmaincolor,
+                            Appcolors.appmaincolor.withOpacity(0.8),
+                          ]
+                        : isunder
+                            ? [Colors.orange.shade400, Colors.orange.shade600]
+                            : [Colors.red.shade400, Colors.red.shade600],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
-                Column(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("الخطة",style: TextStyle(
-                      fontSize: 16,
-                      color: Appcolors.appmaincolor,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Cairo',
-                    ),),
-                  Divider(color: Appcolors.appmaincolor,thickness: 2,),
-                    Row(
-                      children: [
-                        Text(plan.target_Memorization_Surah,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Appcolors.appmaincolor,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
-                        ),),
-                        Text("${plan.Current_Memorization_Ayah.toString()}",style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
-                        ),),
-                      ],
-                    )
+                    Icon(
+                      isunder
+                          ? Icons.star_rounded
+                          : itsdone
+                              ? Icons.check_circle_rounded
+                              : Icons.history_rounded,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      plan.status,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
                   ],
-                )
-              ],
-            ),
-          )
-          // Container(
-          //   padding: const EdgeInsets.all(20),
-          //   decoration: BoxDecoration(
-          //     color: Colors.grey[50],
-          //     borderRadius: const BorderRadius.only(
-          //       bottomLeft: Radius.circular(20),
-          //       bottomRight: Radius.circular(20),
-          //     ),
-          //     border: Border.all(color: Appcolors.appmaincolor,width: 40),
-          //   ),
-          //   child: Column(
-          //     children: [
-          //       Column(
-          //         children: [
-          //           Row(
-          //             mainAxisAlignment: MainAxisAlignment.center,
-          //             children: [
-          //              Text('خطة الحفظ',
-          //              style: TextStyle(
-          //               fontSize:18,
-          //               color:Appcolors.appmaincolor,
-          //               fontWeight: FontWeight.bold,
-          //               fontFamily: 'Cairo',
-          //              ),)
-          //             ]
-          //           ),
-          //           Row(
-          //             mainAxisAlignment: MainAxisAlignment.center,
-          //             children: [
-          //               Text('الخطة',
-          //               style: TextStyle(
-          //               fontSize:18,
-          //               color:Appcolors.appmaincolor,
-          //               fontWeight: FontWeight.bold,
-          //               fontFamily: 'Cairo',
-          //              ),)
-          //             ]
-          //           ),
-          //         ],
-          //       ),
-                
-          //       const SizedBox(height: 12),
-          //       _buildPlanInfoItem(
-          //         Icons.loop,
-          //         "المراجعة",
-          //         "${plan.Current_Revision} ➔ ${plan.target_Revision}",
-          //       ),
-          //       const Divider(height: 30),
-          //       Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //         children: [
-          //           _buildStatusTag(plan.Memorization_ItsDone, plan.Is_Current_Month_Plan),
-          //           IconButton(
-          //             onPressed: () => _confirmDeletePlan(plan),
-          //             icon: const Icon(Icons.delete_outline, color: Colors.red),
-          //             tooltip: "حذف الخطة",
-          //           ),
-          //         ],
-          //       ),
-          //     ],
-          //   ),
-          // ),
-        ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "خطة شهر: ${plan.Month} ${plan.Year}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              fontFamily: 'Cairo',
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () => _confirmDeletePlan(plan),
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  size: 20,
+                                  color: Colors.red.shade300,
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                              IconButton(
+                                onPressed: () => {},
+                                icon: Icon(
+                                  Icons.edit,
+                                  size: 20,
+                                  color: Colors.red.shade300,
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Divider(height: 1, thickness: 0.5),
+                      ),
+                      _buildplanstatusbadge(
+                        plan.status,
+                        Icons.menu_book_rounded,
+                        "خطة الحفظ",
+                        "سورة ${plan.target_Memorization_Surah} (${plan.target_Memorization_Ayah})",
+                        "الحفظ",
+                      ),
+                      const SizedBox(height: 10),
+                      _buildplanstatusbadge(
+                        plan.status,
+                        Icons.replay_rounded,
+                        "خطة المراجعة",
+                        "من ${plan.Current_Revision} إلى ${plan.target_Revision}",
+                        "المراجعة",
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -2764,6 +2755,36 @@ class StudentInfoScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+  
+
+  Widget _buldlapevaluecard(String laple,String Value)
+  {
+    return Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  laple,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    fontFamily: 'Cairo',
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                    fontFamily: 'Cairo',
+                  ),
+                ),
+              ],
+            ),
+          ),
   }
 
   void _confirmDeletePlan(StudentPlan plan) {
@@ -3293,6 +3314,72 @@ class StudentInfoScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildplanstatusbadge(
+    String status,
+    IconData icon,
+    String label,
+    String value,
+    //String level,
+    
+    String title,
+  ) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Appcolors.appmaincolor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: Appcolors.appmaincolor),
+              const SizedBox(width: 6),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Appcolors.appmaincolor,
+                  fontFamily: 'Cairo',
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey.shade500,
+                  fontFamily: 'Cairo',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Cairo',
+                  color: Colors.black87,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        _buildplanstatustrillerbadge(status),
+      ],
+    );
+  }
+
   Widget _buildLevelBadge(String level) {
     Color color;
     switch (level) {
@@ -3334,9 +3421,41 @@ class StudentInfoScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildplanstatustrillerbadge(String status) {
+    Color color;
+    switch (status) {
+      case "منفذة":
+        color = Colors.green.shade700;
+        break;
 
+      case "قيد التنفيذ":
+        color = Colors.orange.shade700;
+        break;
+      case "منتهية":
+        color = Colors.red.shade700;
+        break;
+      default:
+        color = Colors.grey.shade600;
+    }
 
-
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Cairo',
+        ),
+      ),
+    );
+  }
 
   Widget _buildSectionTitle(String title, IconData icon, Color color) {
     return Padding(

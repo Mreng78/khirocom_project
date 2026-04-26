@@ -81,6 +81,16 @@ StudentPlane.init(
         key: "Id",
       },
     },
+    Revision_Cycles: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("منتهية", "منفذة", "قيد التنفيذ"),
+      defaultValue: "قيد التنفيذ",
+      allowNull: false,
+    },
   },
   {
     sequelize,

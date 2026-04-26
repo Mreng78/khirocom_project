@@ -21,6 +21,7 @@ class Student {
   String FatherNumber;
   String Category;
   int HalakatId;
+  int total_Revision_Cycles;
 
   Student({
     required this.Id,
@@ -43,6 +44,7 @@ class Student {
     required this.HalakatId,
     required this.current_Revision_Sorah,
     required this.current_Revision_Aya,
+    this.total_Revision_Cycles = 0,
   });
 
   //! from json
@@ -67,6 +69,7 @@ class Student {
         HalakatId: json['HalakatId'] ?? 0,
         current_Revision_Sorah: json['current_Revision_Sorah']?.toString() ?? '',
         current_Revision_Aya: json['current_Revision_Aya']?.toString() ?? '',
+        total_Revision_Cycles: json['total_Revision_Cycles'] ?? 0,
       );
 
   //! to json
@@ -91,5 +94,6 @@ class Student {
         'HalakatId': HalakatId,
         'current_Revision_Sorah': current_Revision_Sorah,
         'current_Revision_Aya': current_Revision_Aya,
+        'total_Revision_Cycles': total_Revision_Cycles,
       };
 }
