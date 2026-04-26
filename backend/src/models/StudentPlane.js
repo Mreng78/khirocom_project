@@ -50,7 +50,25 @@ StudentPlane.init(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    ItsDone: {
+    Month: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Year: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    Is_Current_Month_Plan: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    Memorization_ItsDone: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    Revision_ItsDone: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: false,
@@ -62,6 +80,16 @@ StudentPlane.init(
         model: "students",
         key: "Id",
       },
+    },
+    Revision_Cycles: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("منتهية", "منفذة", "قيد التنفيذ"),
+      defaultValue: "قيد التنفيذ",
+      allowNull: false,
     },
   },
   {

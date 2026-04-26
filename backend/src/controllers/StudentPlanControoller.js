@@ -7,9 +7,9 @@ const { Op } = require("sequelize");
 exports.addStudentPlan = async (req, res) => {
   try {
     const plan = await StudentPlane.create(req.body);
-    return res.status(201).json({ message: "Plan added successfully", plan });
+    return res.status(201).json({ success: true, message: "Plan added successfully", data: plan });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };
 
@@ -24,9 +24,9 @@ exports.getStudentPlans = async (req, res) => {
     );
     return res
       .status(200)
-      .json({ message: "Plans fetched successfully", plans });
+      .json({ success: true, message: "Plans fetched successfully", data: plans });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };
 
@@ -35,15 +35,15 @@ exports.getStudentPlans = async (req, res) => {
 //* get plane py student id
 exports.getStudentPlan = async (req, res) => {
   try {
-    const plan = await StudentPlane.findOne({
+    const plan = await StudentPlane.findAll({
       where: {
         StudentId: req.body.StudentId,
       },
       include: [{ model: Student, as: "PlaneStudent", attributes: ["Name"] }],
     });
-    return res.status(200).json({ message: "Plan fetched successfully", plan });
+    return res.status(200).json({ success: true, message: "Plans fetched successfully", data: plan });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };
 
@@ -66,9 +66,9 @@ exports.updateStudentPlan = async (req, res) => {
     });
 
 
-    return res.status(200).json({ message: "Plan updated successfully", planId: planid });
+    return res.status(200).json({ success: true, message: "Plan updated successfully", planId: planid });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };
 
@@ -78,26 +78,32 @@ exports.deleteStudentPlan = async (req, res) => {
   try {
     const plan = await StudentPlane.destroy({
       where: {
-        id: req.body.planId,
+        id: req.body.Id || req.body.planId,
       },
     });
-    return res.status(200).json({ message: "Plan deleted successfully", plan });
+    return res.status(200).json({ success: true, message: "Plan deleted successfully", plan });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };
 
-exports.getStudentPlanByStudentId = async (req, res) => {
+exports.getStudentPlansByStudentId = async (req, res) => {
   try {
-    const plan = await StudentPlane.findOne({
+    const studentId = req.body.StudentId || (req.user ? req.user.Id : null);
+    
+    if (!studentId) {
+      return res.status(400).json({ success: false, message: "StudentId is required" });
+    }
+
+    const plan = await StudentPlane.findAll({
       where: {
-        StudentId: req.body.StudentId,
+        StudentId: studentId,
       },
       include: [{ model: Student, as: "PlaneStudent", attributes: ["Name"] }],
     });
-    return res.status(200).json({ message: "Plan fetched successfully", plan });
+    return res.status(200).json({ success: true, message: "Plan fetched successfully", data: plan });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };
 
@@ -127,8 +133,8 @@ exports.getStudentPlansByHalaqahId = async (req, res) => {
       }))
     );
     
-    return res.status(200).json({ message: "Plans fetched successfully", plans });
+    return res.status(200).json({ success: true, message: "Plans fetched successfully", data: plans });
   } catch (error) {
-    return res.status(500).json({ message: "Error", error: error.message });
+    return res.status(500).json({ success: false, message: "Error", error: error.message });
   }
 };

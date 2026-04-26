@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:frontend/Widgets/AppColors.dart';
 import 'package:frontend/models/StudentPlane.model.dart';
 import 'package:get/get.dart';
@@ -40,6 +41,7 @@ class StudentPlanController extends GetxController {
   final RxInt startRevisionVerse = 1.obs;
   final RxInt CurrentRevisionPage = 1.obs;
   final RxString dailyRevisionAmount = "1".obs;
+  final RxString currentplanewindow = "addplan".obs;
   final RxList<StudentPlan> studentPlans = <StudentPlan>[].obs;
   final startRevisionSurahController = TextEditingController();
   final startRevisionVerseController = TextEditingController();
@@ -48,6 +50,7 @@ class StudentPlanController extends GetxController {
 
   final result = Rx<Ayah?>(null);
   final revisionResult = Rx<Ayah?>(null);
+  final revisionCycles = 0.obs;
   
   final startday = "-".obs;
   final startmonth = "-".obs;
@@ -58,6 +61,7 @@ class StudentPlanController extends GetxController {
 
 
 
+  void setcurrentplanewindow(String window) => currentplanewindow.value = window;
 
   void setstartday(String day) => startday.value = day;
   void setstartmonth(String month) => startmonth.value = month;
@@ -69,7 +73,15 @@ class StudentPlanController extends GetxController {
 
   void getplanetarget() => getPlanTarget();
 
-  // ───────────────── Init ─────────────────
+  String getmounthname() {
+    return intl.DateFormat('MMMM', 'ar').format(DateTime.now());
+  }
+
+  String getyear() {
+    return intl.DateFormat('yyyy', 'en').format(DateTime.now());
+  }
+
+  // ───────────────── Initialization ─────────────────
   @override
   void onInit() {
     super.onInit();
@@ -109,32 +121,58 @@ class StudentPlanController extends GetxController {
 
     if (student != null) {
       // Memorization
-      int surahIndex = int.tryParse(student.current_Memorization_Sorah)
-          ?? surahController.getsurahindex(student.current_Memorization_Sorah);
+      int surahIndex = int.tryParse(student.current_Memorization_Sorah) ??
+          surahController.getsurahindex(student.current_Memorization_Sorah);
 
+      if (surahIndex == -1) surahIndex = 114;
       startMemorizationSurah.value = surahIndex;
 
       startMemorizationVerse.value =
           int.tryParse(student.current_Memorization_Aya) ?? 1;
-      Currentpage.value = Ayah.getPage(quran.value, surahIndex, startMemorizationVerse.value);
+      
       // تعبئة الحقول
       startMemorizationSurahController.text =
           surahController.getsurahname(surahIndex);
-
       startMemorizationVerseController.text =
           startMemorizationVerse.value.toString();
+      
+      // مقدار الحفظ الافتراضي (إذا لم يكن هناك قيمة سابقة، نفترض 1)
+      dailyMemorizationAmountController.text = "1";
+      dailyMemorizationAmount.value = "1";
 
       // Revision
-      int revisionSurahIndex = int.tryParse(student.current_Revision_Sorah)
-          ?? surahController.getsurahindex(student.current_Revision_Sorah);
+      int revisionSurahIndex = int.tryParse(student.current_Revision_Sorah) ??
+          surahController.getsurahindex(student.current_Revision_Sorah);
       
+      if (revisionSurahIndex == -1) revisionSurahIndex = 114;
       startRevisionSurah.value = revisionSurahIndex;
-      startRevisionVerse.value = 
+      startRevisionVerse.value =
           int.tryParse(student.current_Revision_Aya) ?? 1;
-      CurrentRevisionPage.value = Ayah.getPage(quran.value, revisionSurahIndex, startRevisionVerse.value);
 
-      startRevisionSurahController.text = surahController.getsurahname(revisionSurahIndex);
-      startRevisionVerseController.text = startRevisionVerse.value.toString();
+      startRevisionSurahController.text =
+          surahController.getsurahname(revisionSurahIndex);
+      startRevisionVerseController.text =
+          startRevisionVerse.value.toString();
+      
+      // مقدار المراجعة الافتراضي (1 جزء = 20 صفحة)
+      dailyRevisionAmountController.text = "1";
+      dailyRevisionAmount.value = "20";
+
+      // تحديث الصفحات والحسابات فورية بمجرد توفر البيانات
+      if (quran.value != null) {
+        Currentpage.value = Ayah.getPage(
+          quran.value,
+          surahIndex,
+          startMemorizationVerse.value,
+        );
+        CurrentRevisionPage.value = Ayah.getPage(
+          quran.value,
+          revisionSurahIndex,
+          startRevisionVerse.value,
+        );
+        getPlanTarget();
+        getRevisionPlanTarget();
+      }
     }
   }
 
@@ -165,7 +203,8 @@ class StudentPlanController extends GetxController {
       int startSurah = startMemorizationSurah.value;
       int currentAya = startMemorizationVerse.value;
 
-      int daily = int.tryParse(dailyMemorizationAmount.value) ?? 1;
+      // تحويل المقادير إلى أرقام عشرية لدعم الكسور
+      double daily = double.tryParse(dailyMemorizationAmount.value) ?? 1.0;
       int totalDays = int.tryParse(days.value) ?? 1;
 
       // تحديث رقم الصفحة الحالية
@@ -173,13 +212,14 @@ class StudentPlanController extends GetxController {
 
       print("CALC: s=$startSurah a=$currentAya d=$daily days=$totalDays");
 
-      result.value = Ayah.calculatePlanEnd(
+      final planResult = Ayah.calculatePlanEnd(
         quran.value!,
         startSurah,
         currentAya,
         daily,
         totalDays,
       );
+      result.value = planResult.target;
       print(studentController.selectedStudent.value?.current_Memorization_Sorah);
 
       print("RESULT: ${result.value?.surahName} - ${result.value?.verse}");
@@ -197,19 +237,31 @@ class StudentPlanController extends GetxController {
       int startSurah = startRevisionSurah.value;
       int currentAya = startRevisionVerse.value;
 
-      int daily = int.tryParse(dailyRevisionAmount.value) ?? 1;
+      double daily = double.tryParse(dailyRevisionAmount.value) ?? 20.0;
       int totalDays = int.tryParse(days.value) ?? 1;
 
       // تحديث رقم الصفحة الحالية للمراجعة
-      CurrentRevisionPage.value = Ayah.getPage(quran.value, startSurah, currentAya);
+      CurrentRevisionPage.value =
+          Ayah.getPage(quran.value, startSurah, currentAya);
 
-      revisionResult.value = Ayah.calculatePlanEnd(
+      // الحد هو السورة التي قبل الحفظ الخاص به
+      int? limitS;
+      final student = studentController.selectedStudent.value;
+      if (student != null) {
+        limitS = surahController.getsurahindex(student.current_Memorization_Sorah);
+      }
+
+      final planResult = Ayah.calculatePlanEnd(
         quran.value!,
         startSurah,
         currentAya,
         daily,
         totalDays,
+        limitSurah: limitS,
       );
+      revisionResult.value = planResult.target;
+      revisionCycles.value = planResult.cycles;
+      print("REVISION RESULT: ${revisionResult.value?.surahName} Cycles: ${revisionCycles.value}");
     } catch (e) {
       print("Error in revision calculation: $e");
       revisionResult.value = null;
@@ -246,9 +298,11 @@ class StudentPlanController extends GetxController {
   }
 
   void onDailyRevisionAmountChanged(String value) {
-    int juz = int.tryParse(value) ?? 0;
-    dailyRevisionAmount.value = (juz * 20).toString();
-    print("REVISION AMOUNT CHANGED: ${dailyRevisionAmount.value} (from $value juz)");
+    double juz = double.tryParse(value) ?? 0.0;
+    dailyRevisionAmount.value = (juz * 20.0).toString();
+    print(
+      "REVISION AMOUNT CHANGED: ${dailyRevisionAmount.value} (from $value juz)",
+    );
   }
 
 
@@ -324,13 +378,64 @@ class StudentPlanController extends GetxController {
         target_Revision: r.surahName,
         StartsAt: DateTime.parse(startdatecontroller.text),
         EndsAt: DateTime.parse(enddatecontroller.text),
-        ItsDone: false,
+        Memorization_ItsDone: false,
+        Revision_ItsDone: false,
         StudentId: student.Id,
+        Month: getmounthname(),
+        Year: getyear(),
+        Is_Current_Month_Plan: true,
+        Revision_Cycles: revisionCycles.value,
       );
 
       addstudentplan(studentPlan.toJson());
     } catch (e) {
       Get.snackbar("خطأ", "بيانات المدخلات غير صالحة: $e", backgroundColor: Colors.red, colorText: Colors.white);
+    }
+  }
+
+  // ───────────────── جلب خطط الطالب ─────────────────
+  Future<void> getStudentPlans(int studentId) async {
+    isLoading.value = true;
+    errormessage.value = "";
+    try {
+      final response = await StudentPlanService().getStudentPlans(studentId);
+      if (response["success"] == true) {
+        // تحويل الـ List<dynamic> إلى List<StudentPlan>
+        final List<dynamic> jsonList = response["data"];
+        studentPlans.assignAll(
+          jsonList.map((json) => StudentPlan.fromJson(json)).toList()
+        );
+        isLoading.value = false;
+      } else {
+        errormessage.value = response["message"] ?? "فشل جلب الخطط";
+        Get.snackbar("خطأ", errormessage.value, backgroundColor: Colors.red, colorText: Colors.white);
+        isLoading.value = false;
+      }
+    } catch (e) {
+      print("Error in getStudentPlans: $e");
+      errormessage.value = "خطأ في الاتصال بالسيرفر: $e";
+      Get.snackbar("خطأ", errormessage.value, backgroundColor: Colors.red, colorText: Colors.white);
+      isLoading.value = false;
+    }
+  }
+
+  // ───────────────── حذف خطة ─────────────────
+  Future<bool> deleteStudentPlan(int planId) async {
+    try {
+      final response = await StudentPlanService().deleteStudentPlan(planId);
+      if (response["success"] == true) {
+        // إزالة الخطة من القائمة
+        studentPlans.removeWhere((plan) => plan.Id == planId);
+        Get.snackbar("نجاح", "تم حذف الخطة بنجاح", backgroundColor: Colors.green, colorText: Colors.white);
+        return true;
+      } else {
+        Get.snackbar("خطأ", response["message"] ?? "فشل حذف الخطة", backgroundColor: Colors.red, colorText: Colors.white);
+        return false;
+      }
+    } catch (e) {
+      print("Error in deleteStudentPlan: $e");
+      Get.snackbar("خطأ", "فشل حذف الخطة: $e", backgroundColor: Colors.red, colorText: Colors.white);
+      return false;
     }
   }
 

@@ -110,6 +110,11 @@ Student.init(
         key: "Id",
       },
     },
+    total_Revision_Cycles: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    },
   },
   {
     sequelize,

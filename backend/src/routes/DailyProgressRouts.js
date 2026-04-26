@@ -13,6 +13,8 @@ router.post('/getbydate',auth, dailyProgressController.getdailyprogressbydate);
 router.post('/getbydaterange',auth, dailyProgressController.getdailyprogressbydaterange);
 router.post('/getbydateandstudentid',auth, dailyProgressController.getdailyprogressbydateandstudentid);
 router.post('/getbydaterangeandstudentid',auth, dailyProgressController.getdailyprogressbydaterangeandstudentid);
+router.post('/getallmonthyearnames', dailyProgressController.getallmonthyearnames);
+router.post('/getallmonthyearhistory', dailyProgressController.getallmonthyearhistory);
 
 
 module.exports = router;
