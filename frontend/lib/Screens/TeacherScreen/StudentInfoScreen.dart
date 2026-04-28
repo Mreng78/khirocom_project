@@ -1963,9 +1963,7 @@ class StudentInfoScreen extends StatelessWidget {
                       labelText: "مقدار الحفظ (وجه/يوم)",
                       keyboardType: TextInputType.number,
                       onChanged: (v) {
-                        studentPlanController.dailyMemorizationAmount.value =
-                            v.isNotEmpty ? v : "1";
-                        studentPlanController.getplanetarget();
+                        studentPlanController.onDailyAmountChanged(v);
                       },
                     ),
                   ),
@@ -2135,9 +2133,7 @@ class StudentInfoScreen extends StatelessWidget {
                       labelText: "مقدار المراجعة (جزء/يوم)",
                       keyboardType: TextInputType.number,
                       onChanged: (v) {
-                        int juz = int.tryParse(v) ?? 0;
-                        studentPlanController.dailyRevisionAmount.value =
-                            v.isNotEmpty ? (juz * 20).toString() : "1";
+                        studentPlanController.onDailyRevisionAmountChanged(v);
                       },
                     ),
                   ),
@@ -2775,7 +2771,7 @@ class StudentInfoScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  value,
+                  Value,
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
@@ -2784,7 +2780,7 @@ class StudentInfoScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
+          );
   }
 
   void _confirmDeletePlan(StudentPlan plan) {

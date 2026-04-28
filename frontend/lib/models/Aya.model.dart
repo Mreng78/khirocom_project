@@ -54,6 +54,7 @@ class Ayah {
     int? limitSurah, // السورة التي قبل الحفظ (أو حد التوقف)
   }) {
     final int targetPages = (dailyAmount * days).floor().clamp(1, 999999);
+    print("CALCULATE PLAN END: targetPages=$targetPages (daily=$dailyAmount, days=$days)");
     int currentS = startSurah;
     int currentV = startVerse;
     int cycles = 0;
@@ -88,14 +89,21 @@ class Ayah {
         
         currentS = nextS;
         currentV = 1;
+
+        // Skip incrementing pagesCount for the jump itself
+        final newPage = getPage(currentS, currentV);
+        currentPage = newPage;
+        continue; // Go to next iteration without checking page change again
       }
 
       final newPage = getPage(currentS, currentV);
       if (newPage != -1 && newPage != currentPage) {
         pagesCount++;
+        print("Page change: $currentPage -> $newPage (count: $pagesCount) at S:$currentS V:$currentV");
         currentPage = newPage;
       }
     }
+    print("FINISHED LOOP: finalS=$currentS finalV=$currentV steps=$pagesCount");
 
     // تعبئة بقية الصفحة الحالية لضمان الوقوف عند نهاية الصفحة
     while (true) {

@@ -40,7 +40,7 @@ class StudentPlanController extends GetxController {
   final RxInt startRevisionSurah = 114.obs;
   final RxInt startRevisionVerse = 1.obs;
   final RxInt CurrentRevisionPage = 1.obs;
-  final RxString dailyRevisionAmount = "1".obs;
+  final RxString dailyRevisionAmount = "1".obs; // Store as Juz
   final RxString currentplanewindow = "addplan".obs;
   final RxList<StudentPlan> studentPlans = <StudentPlan>[].obs;
   final startRevisionSurahController = TextEditingController();
@@ -154,9 +154,9 @@ class StudentPlanController extends GetxController {
       startRevisionVerseController.text =
           startRevisionVerse.value.toString();
       
-      // مقدار المراجعة الافتراضي (1 جزء = 20 صفحة)
+      // مقدار المراجعة الافتراضي (جزء واحد)
       dailyRevisionAmountController.text = "1";
-      dailyRevisionAmount.value = "20";
+      dailyRevisionAmount.value = "1";
 
       // تحديث الصفحات والحسابات فورية بمجرد توفر البيانات
       if (quran.value != null) {
@@ -255,13 +255,14 @@ class StudentPlanController extends GetxController {
         quran.value!,
         startSurah,
         currentAya,
-        daily,
+        daily * 20.0, // 🔥 Convert Juz to 20 Pages as requested
         totalDays,
         limitSurah: limitS,
       );
+      print("REVISION CALC: startS=$startSurah startV=$currentAya daily=$daily days=$totalDays targetPages=${planResult.target.page}");
       revisionResult.value = planResult.target;
       revisionCycles.value = planResult.cycles;
-      print("REVISION RESULT: ${revisionResult.value?.surahName} Cycles: ${revisionCycles.value}");
+      print("REVISION RESULT: ${revisionResult.value?.surahName} (Page: ${revisionResult.value?.page}) Cycles: ${revisionCycles.value}");
     } catch (e) {
       print("Error in revision calculation: $e");
       revisionResult.value = null;
@@ -279,7 +280,12 @@ class StudentPlanController extends GetxController {
   }
 
   void onDailyAmountChanged(String value) {
-    dailyMemorizationAmount.value = value.isNotEmpty ? value : "1";
+    if (value.isEmpty) {
+      dailyMemorizationAmount.value = "1";
+    } else {
+      double? val = double.tryParse(value);
+      dailyMemorizationAmount.value = val != null ? val.toString() : "1";
+    }
   }
 
   void onDaysChanged(String value) {
@@ -298,10 +304,14 @@ class StudentPlanController extends GetxController {
   }
 
   void onDailyRevisionAmountChanged(String value) {
-    double juz = double.tryParse(value) ?? 0.0;
-    dailyRevisionAmount.value = (juz * 20.0).toString();
+    if (value.isEmpty) {
+      dailyRevisionAmount.value = "1";
+    } else {
+      double? val = double.tryParse(value);
+      dailyRevisionAmount.value = val != null ? val.toString() : "1";
+    }
     print(
-      "REVISION AMOUNT CHANGED: ${dailyRevisionAmount.value} (from $value juz)",
+      "REVISION AMOUNT CHANGED: ${dailyRevisionAmount.value} Juz",
     );
   }
 
@@ -373,7 +383,7 @@ class StudentPlanController extends GetxController {
         Daily_Memorization_Amount: double.tryParse(dailyMemorizationAmount.value) ?? 1.0,
         target_Memorization_Surah: m.surahName,
         target_Memorization_Ayah: m.verse,
-        Daily_Revision_Amount: double.tryParse(dailyRevisionAmount.value) ?? 20.0,
+        Daily_Revision_Amount: double.tryParse(dailyRevisionAmount.value) ?? 1.0, // Store as Juz
         Current_Revision: surahController.getsurahname(startRevisionSurah.value),
         target_Revision: r.surahName,
         StartsAt: DateTime.parse(startdatecontroller.text),
@@ -385,6 +395,8 @@ class StudentPlanController extends GetxController {
         Year: getyear(),
         Is_Current_Month_Plan: true,
         Revision_Cycles: revisionCycles.value,
+        CreatedDate: DateTime.now(),
+        UpdatedDate: DateTime.now(),
       );
 
       addstudentplan(studentPlan.toJson());
