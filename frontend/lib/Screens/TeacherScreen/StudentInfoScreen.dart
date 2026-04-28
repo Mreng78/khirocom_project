@@ -19,6 +19,7 @@ import 'package:frontend/Controller/DailyProgresscontroller.dart';
 import 'package:frontend/Controller/StudentPlancontroller.dart';
 import 'package:frontend/models/DailyProgress.model.dart';
 import 'package:frontend/models/StudentPlane.model.dart';
+import 'package:frontend/models/Aya.model.dart';
 
 class StudentInfoScreen extends StatelessWidget {
   StudentInfoScreen({super.key});
@@ -1752,37 +1753,18 @@ class StudentInfoScreen extends StatelessWidget {
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null) {
-                          studentPlanController.startdatecontroller.text =
-                              intl.DateFormat('yyyy-MM-dd').format(picked);
-                          studentPlanController.setstartday(
-                            intl.DateFormat('EEEE', 'ar').format(picked),
-                          );
-                          studentPlanController.setstartmonth(
-                            intl.DateFormat('MMMM', 'ar').format(picked),
-                          );
-                          studentPlanController.setstartyear(
-                            intl.DateFormat('yyyy').format(picked),
-                          );
-                          final end = DateTime.tryParse(
-                            studentPlanController.enddatecontroller.text,
-                          );
-                          if (end != null) {
-                            final months =
-                                ((end.year - picked.year) * 12 +
-                                        end.month -
-                                        picked.month)
-                                    .clamp(1, 9999);
-                            final perMonth =
-                                int.tryParse(
-                                  studentPlanController.daysController.text,
-                                ) ??
-                                20;
-                            studentPlanController.days.value =
-                                (perMonth * months).toString();
-                            // studentPlanController.getplanetarget();
+                          if (picked != null) {
+                            studentPlanController.startdatecontroller.text =
+                                intl.DateFormat('yyyy-MM-dd').format(picked);
+                            studentPlanController.setstartday(
+                                intl.DateFormat('EEEE', 'ar').format(picked));
+                            studentPlanController.setstartmonth(
+                                intl.DateFormat('MMMM', 'ar').format(picked));
+                            studentPlanController.setstartyear(
+                                intl.DateFormat('yyyy').format(picked));
+
+                            studentPlanController.updateDaysFromDates();
                           }
-                        }
                       },
                     ),
                   ),
@@ -1849,33 +1831,13 @@ class StudentInfoScreen extends StatelessWidget {
                           studentPlanController.enddatecontroller.text =
                               intl.DateFormat('yyyy-MM-dd').format(picked);
                           studentPlanController.setendday(
-                            intl.DateFormat('EEEE', 'ar').format(picked),
-                          );
+                              intl.DateFormat('EEEE', 'ar').format(picked));
                           studentPlanController.setendmonth(
-                            intl.DateFormat('MMMM', 'ar').format(picked),
-                          );
+                              intl.DateFormat('MMMM', 'ar').format(picked));
                           studentPlanController.setendyear(
-                            intl.DateFormat('yyyy').format(picked),
-                          );
-                          // احسب إجمالي أيام الحفظ = أيام/شهر × عدد الأشهر
-                          final start = DateTime.tryParse(
-                            studentPlanController.startdatecontroller.text,
-                          );
-                          if (start != null) {
-                            final months =
-                                ((picked.year - start.year) * 12 +
-                                        picked.month -
-                                        start.month)
-                                    .clamp(1, 9999);
-                            final perMonth =
-                                int.tryParse(
-                                  studentPlanController.daysController.text,
-                                ) ??
-                                20;
-                            studentPlanController.days.value =
-                                (perMonth * months).toString();
-                            studentPlanController.getplanetarget();
-                          }
+                              intl.DateFormat('yyyy').format(picked));
+
+                          studentPlanController.updateDaysFromDates();
                         }
                       },
                     ),
@@ -1920,33 +1882,44 @@ class StudentInfoScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _buildcard(
-          CustomTextField(
-            controller: studentPlanController.daysController,
-            labelText: "أيام الحفظ والمراجعة في الشهر",
-            keyboardType: TextInputType.number,
-            onChanged: (v) {
-              // إجمالي الأيام = أيام/شهر × عدد الأشهر بين التاريخين
-              final perMonth = int.tryParse(v) ?? 20;
-              final start = DateTime.tryParse(
-                studentPlanController.startdatecontroller.text,
-              );
-              final end = DateTime.tryParse(
-                studentPlanController.enddatecontroller.text,
-              );
-              if (start != null && end != null) {
-                final months =
-                    ((end.year - start.year) * 12 + end.month - start.month)
-                        .clamp(1, 9999);
-                studentPlanController.days.value = (perMonth * months)
-                    .toString();
-              } else {
-                studentPlanController.days.value = perMonth.toString();
-              }
-              studentPlanController.getplanetarget();
-            },
-          ),
-        ),
+        Obx(() => _buildcard(
+              Column(
+                children: [
+                  Text(
+                    "إجمالي أيام الفترة: ${studentPlanController.totalPeriodDays.value}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Appcolors.appmaincolor),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextField(
+                          labelText: "أيام الحفظ",
+                          hintText: "عدد الأيام",
+                          controller: studentPlanController.memorizationDaysController,
+                          keyboardType: TextInputType.number,
+                          onChanged: (v) =>
+                              studentPlanController.memorizationDays.value = v,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: CustomTextField(
+                          labelText: "أيام المراجعة",
+                          hintText: "عدد الأيام",
+                          controller: studentPlanController.revisionDaysController,
+                          keyboardType: TextInputType.number,
+                          onChanged: (v) =>
+                              studentPlanController.revisionDays.value = v,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )),
 
         // ─── خطة الحفظ ────────────────────────────────────────────
         _buildpalndatecard(
@@ -2136,6 +2109,42 @@ class StudentInfoScreen extends StatelessWidget {
                         studentPlanController.onDailyRevisionAmountChanged(v);
                       },
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Obx(() => Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Appcolors.appmaincolor.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Appcolors.appmaincolor.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _buildDirectionOption(
+                                  "أمامي",
+                                  RevisionDirection.forward,
+                                  Icons.arrow_forward_ios,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: _buildDirectionOption(
+                                  "عكسي",
+                                  RevisionDirection.backward,
+                                  Icons.arrow_back_ios,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
                   ),
                 ],
               ),
@@ -2663,19 +2672,19 @@ class StudentInfoScreen extends StatelessWidget {
                         child: Divider(height: 1, thickness: 0.5),
                       ),
                       _buildplanstatusbadge(
-                        plan.status,
+                        plan,
                         Icons.menu_book_rounded,
+                        "الهدف",
                         "خطة الحفظ",
-                        "سورة ${plan.target_Memorization_Surah} (${plan.target_Memorization_Ayah})",
-                        "الحفظ",
+                        isRevision: false,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
                       _buildplanstatusbadge(
-                        plan.status,
+                        plan,
                         Icons.replay_rounded,
+                        "الهدف",
                         "خطة المراجعة",
-                        "من ${plan.Current_Revision} إلى ${plan.target_Revision}",
-                        "المراجعة",
+                        isRevision: true,
                       ),
                     ],
                   ),
@@ -3311,68 +3320,150 @@ class StudentInfoScreen extends StatelessWidget {
   }
 
   Widget _buildplanstatusbadge(
-    String status,
+    StudentPlan plan,
     IconData icon,
     String label,
-    String value,
-    //String level,
-    
-    String title,
-  ) {
-    return Row(
+    String title, {
+    required bool isRevision,
+  }) {
+    double progress =
+        studentPlanController.calculateProgress(plan, isRevision: isRevision);
+    final statusData = getPlanStatus(progress);
+
+    String value = isRevision
+        ? "من ${plan.Current_Revision} إلى ${plan.target_Revision}"
+        : "سورة ${plan.target_Memorization_Surah} (${plan.target_Memorization_Ayah})";
+
+    String currentVal = "";
+    if (isRevision) {
+      currentVal =
+          "الحالي: ${studentController.selectedStudent.value?.current_Revision_Sorah ?? "-"} (${studentController.selectedStudent.value?.current_Revision_Aya ?? "-"})";
+    } else {
+      currentVal =
+          "الحالي: ${studentController.selectedStudent.value?.current_Memorization_Sorah ?? "-"} (${studentController.selectedStudent.value?.current_Memorization_Aya ?? "-"})";
+    }
+
+    return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Appcolors.appmaincolor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: Appcolors.appmaincolor),
-              const SizedBox(width: 6),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Appcolors.appmaincolor,
-                  fontFamily: 'Cairo',
-                ),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: (statusData["color"] as Color).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
+              child: Row(
+                children: [
+                  Icon(icon, size: 18, color: statusData["color"]),
+                  const SizedBox(width: 6),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: statusData["color"],
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey.shade500,
+                      fontFamily: 'Cairo',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            _buildStatusChip(statusData),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              currentVal,
+              style: TextStyle(
+                fontSize: 11,
+                color: Appcolors.appmaincolor.withOpacity(0.8),
+                fontFamily: 'Cairo',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              "${progress.toStringAsFixed(0)}%",
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: statusData["color"],
+                fontFamily: 'Cairo',
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: progress / 100,
+            backgroundColor: (statusData["color"] as Color).withOpacity(0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(statusData["color"]),
+            minHeight: 6,
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey.shade500,
-                  fontFamily: 'Cairo',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Cairo',
-                  color: Colors.black87,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-        _buildplanstatustrillerbadge(status),
       ],
+    );
+  }
+
+  Widget _buildStatusChip(Map<String, dynamic> statusData) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: (statusData["color"] as Color).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: (statusData["color"] as Color).withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(statusData["icon"], size: 12, color: statusData["color"]),
+          const SizedBox(width: 4),
+          Text(
+            statusData["text"],
+            style: TextStyle(
+              color: statusData["color"],
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Cairo',
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -3407,42 +3498,6 @@ class StudentInfoScreen extends StatelessWidget {
       ),
       child: Text(
         level,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Cairo',
-        ),
-      ),
-    );
-  }
-
-  Widget _buildplanstatustrillerbadge(String status) {
-    Color color;
-    switch (status) {
-      case "منفذة":
-        color = Colors.green.shade700;
-        break;
-
-      case "قيد التنفيذ":
-        color = Colors.orange.shade700;
-        break;
-      case "منتهية":
-        color = Colors.red.shade700;
-        break;
-      default:
-        color = Colors.grey.shade600;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        status,
         style: TextStyle(
           color: color,
           fontSize: 10,
@@ -3579,5 +3634,88 @@ class StudentInfoScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildDirectionOption(
+    String title,
+    RevisionDirection direction,
+    IconData icon,
+  ) {
+    bool isSelected =
+        studentPlanController.revisionDirection.value == direction;
+    return GestureDetector(
+      onTap: () => studentPlanController.setRevisionDirection(direction),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Appcolors.appmaincolor : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Appcolors.appmaincolor.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Appcolors.appmaincolor,
+              size: 14,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Appcolors.appmaincolor,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Cairo',
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Map<String, dynamic> getPlanStatus(double progress) {
+    if (progress <= 0) {
+      return {
+        "text": "لم يبدأ",
+        "color": Colors.grey,
+        "icon": Icons.timer_outlined,
+      };
+    } else if (progress <= 30) {
+      return {
+        "text": "بداية الطريق",
+        "color": Colors.redAccent,
+        "icon": Icons.hourglass_top,
+      };
+    } else if (progress <= 70) {
+      return {
+        "text": "تقدم جيد",
+        "color": Colors.orange,
+        "icon": Icons.trending_up,
+      };
+    } else if (progress < 100) {
+      return {
+        "text": "قارب على الإنجاز",
+        "color": Colors.blue,
+        "icon": Icons.flag_outlined,
+      };
+    } else {
+      return {
+        "text": "مكتمل",
+        "color": Colors.green,
+        "icon": Icons.check_circle_rounded,
+      };
+    }
   }
 }
