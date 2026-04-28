@@ -70,59 +70,51 @@ class DailyProgress {
 
   //! from json
   factory DailyProgress.fromJson(Map<String, dynamic> json) => DailyProgress(
-    Id: json["Id"] is int
-        ? json["Id"]
-        : int.tryParse(json["Id"]?.toString() ?? "0") ?? 0,
-    Attendance: json["Attendance"]?.toString() ?? "",
-    Memorization_Progress_Surah:
-        json["Memorization_Progress_Surah"]?.toString() ?? "",
-    Memorization_Progress_Ayah: json["Memorization_Progress_Ayah"] is int
-        ? json["Memorization_Progress_Ayah"]
-        : int.tryParse(json["Memorization_Progress_Ayah"]?.toString() ?? "0") ??
-              0,
-    Revision_Progress_Surah: json["Revision_Progress_Surah"]?.toString() ?? "",
-    Revision_Progress_Ayah: json["Revision_Progress_Ayah"] is int
-        ? json["Revision_Progress_Ayah"]
-        : int.tryParse(json["Revision_Progress_Ayah"]?.toString() ?? "0") ?? 0,
-    Memorization_Level: json["Memorization_Level"]?.toString() ?? "",
-    Revision_Level: json["Revision_Level"]?.toString() ?? "",
-    Notes: json["Notes"]?.toString() ?? "",
-    month: json["month"]?.toString() ?? "",
-    DayName: json["DayName"]?.toString() ?? "",
-    Date: json["Date"]?.toString() ?? "",
-    year: json["year"] is int
-        ? json["year"]
-        : int.tryParse(json["year"]?.toString() ?? "0") ?? 0,
-    Month_year: json["Month_year"]?.toString() ?? "",
-    StudentId: json["StudentId"] is int
-        ? json["StudentId"]
-        : int.tryParse(json["StudentId"]?.toString() ?? "0") ?? 0,
-    IsSynced: json["IsSynced"] ?? false,
-    IsDeleted: json["IsDeleted"] ?? false,
-    CreatedDate: json["CreatedDate"] != null ? DateTime.parse(json["CreatedDate"]) : DateTime.now(),
-    UpdatedDate: json["UpdatedDate"] != null ? DateTime.parse(json["UpdatedDate"]) : DateTime.now(),
-  );
+        Id: json["Id"] is int ? json["Id"] : int.tryParse(json["Id"]?.toString() ?? "0") ?? 0,
+        Attendance: json["Attendance"]?.toString() ?? "",
+        Memorization_Progress_Surah: json["Memorization_Progress_Surah"]?.toString() ?? "",
+        Memorization_Progress_Ayah: json["Memorization_Progress_Ayah"] is int
+            ? json["Memorization_Progress_Ayah"]
+            : int.tryParse(json["Memorization_Progress_Ayah"]?.toString() ?? "0") ?? 0,
+        Revision_Progress_Surah: json["Revision_Progress_Surah"]?.toString() ?? "",
+        Revision_Progress_Ayah: json["Revision_Progress_Ayah"] is int
+            ? json["Revision_Progress_Ayah"]
+            : int.tryParse(json["Revision_Progress_Ayah"]?.toString() ?? "0") ?? 0,
+        Memorization_Level: json["Memorization_Level"]?.toString() ?? "",
+        Revision_Level: json["Revision_Level"]?.toString() ?? "",
+        Notes: json["Notes"]?.toString() ?? "",
+        month: json["month"]?.toString() ?? "",
+        DayName: json["DayName"]?.toString() ?? "",
+        Date: json["Date"]?.toString() ?? "",
+        year: json["year"] is int ? json["year"] : int.tryParse(json["year"]?.toString() ?? "0") ?? 0,
+        Month_year: json["Month_year"]?.toString() ?? "",
+        StudentId: json["StudentId"] is int ? json["StudentId"] : int.tryParse(json["StudentId"]?.toString() ?? "0") ?? 0,
+        IsSynced: json["IsSynced"] ?? false,
+        IsDeleted: json["IsDeleted"] ?? false,
+        CreatedDate: json["CreatedDate"] != null ? (json["CreatedDate"] is String ? DateTime.parse(json["CreatedDate"]) : json["CreatedDate"]) : DateTime.now(),
+        UpdatedDate: json["UpdatedDate"] != null ? (json["UpdatedDate"] is String ? DateTime.parse(json["UpdatedDate"]) : json["UpdatedDate"]) : DateTime.now(),
+      );
 
   //! to json
   Map<String, dynamic> toJson() => {
-    "Id": Id,
-    "Attendance": Attendance,
-    "Memorization_Progress_Surah": Memorization_Progress_Surah,
-    "Memorization_Progress_Ayah": Memorization_Progress_Ayah,
-    "Revision_Progress_Surah": Revision_Progress_Surah,
-    "Revision_Progress_Ayah": Revision_Progress_Ayah,
-    "Memorization_Level": Memorization_Level,
-    "Revision_Level": Revision_Level,
-    "Notes": Notes,
-    "month": month,
-    "DayName": DayName,
-    "Date": Date,
-    "year": year,
-    "Month_year": Month_year,
-    "StudentId": StudentId,
-    "IsSynced": IsSynced,
-    "IsDeleted": IsDeleted,
-    "CreatedDate": CreatedDate.toIso8601String(),
-    "UpdatedDate": UpdatedDate.toIso8601String(),
-  };
+        "Id": Id,
+        "Attendance": Attendance,
+        "Memorization_Progress_Surah": Memorization_Progress_Surah,
+        "Memorization_Progress_Ayah": Memorization_Progress_Ayah,
+        "Revision_Progress_Surah": Revision_Progress_Surah,
+        "Revision_Progress_Ayah": Revision_Progress_Ayah,
+        "Memorization_Level": Memorization_Level,
+        "Revision_Level": Revision_Level,
+        "Notes": Notes,
+        "month": month,
+        "DayName": DayName,
+        "Date": Date,
+        "year": year,
+        "Month_year": Month_year,
+        "StudentId": StudentId,
+        "IsSynced": IsSynced,
+        "IsDeleted": IsDeleted,
+        "CreatedDate": CreatedDate.toIso8601String(),
+        "UpdatedDate": UpdatedDate.toIso8601String(),
+      };
 }

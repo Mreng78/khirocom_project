@@ -67,7 +67,7 @@ class User {
   //! from json to object
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      localId: json['localId'] ?? 0,
+      localId: json['localId'] ?? uuid.v4(),
       Id: json['Id'] ?? 0,
       Name: json['Name'] ?? '',
       Username: json['Username'] ?? '',

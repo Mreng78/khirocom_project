@@ -237,7 +237,7 @@ class StudentPlanController extends GetxController {
       int startSurah = startRevisionSurah.value;
       int currentAya = startRevisionVerse.value;
 
-      double daily = double.tryParse(dailyRevisionAmount.value) ?? 20.0;
+      double daily = double.tryParse(dailyRevisionAmount.value) ?? 1.0;
       int totalDays = int.tryParse(days.value) ?? 1;
 
       // تحديث رقم الصفحة الحالية للمراجعة

@@ -1,58 +1,99 @@
+import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+
+@HiveType(typeId: 14)
 class Notification {
-  int Id;
-  String Title;
-  String Description;
-  DateTime Date;
-  DateTime Time;
-  String Type;
+  @HiveField(0)
+  String localId = uuid.v4();
+  @HiveField(1)
+  int? Id;
+  @HiveField(2)
+  String title; // Changed from Title to follow lowerCamelCase
+  @HiveField(3)
+  String description;
+  @HiveField(4)
+  DateTime date;
+  @HiveField(5)
+  DateTime time;
+  @HiveField(6)
+  String type;
+  @HiveField(7)
   String forWho;
-  bool IsRead;
-  DateTime? ReadAt;
-  int? UserId;
-  int? StudentId;
+  @HiveField(8)
+  bool isRead;
+  @HiveField(9)
+  DateTime? readAt;
+  @HiveField(10)
+  int? userId;
+  @HiveField(11)
+  int? studentId;
+  @HiveField(12)
+  bool isSynced;
+  @HiveField(13)
+  bool isDeleted;
+  @HiveField(14)
+  DateTime createdDate;
+  @HiveField(15)
+  DateTime updatedDate;
 
   Notification({
-    required this.Id,
-    required this.Title,
-    required this.Description,
-    required this.Date,
-    required this.Time,
-    required this.Type,
+    required this.localId,
+    this.Id,
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.time,
+    required this.type,
     required this.forWho,
-    required this.IsRead,
-    this.ReadAt,
-    this.UserId,
-    this.StudentId,
+    required this.isRead,
+    this.readAt,
+    this.userId,
+    this.studentId,
+    this.isSynced = false,
+    this.isDeleted = false,
+    required this.createdDate,
+    required this.updatedDate,
   });
 
   //! Convert JSON to Notification
-
   factory Notification.fromJson(Map<String, dynamic> json) => Notification(
-    Id: json["Id"],
-    Title: json["Title"],
-    Description: json["Description"],
-    Date: DateTime.parse(json["Date"]),
-    Time: DateTime.parse(json["Time"]),
-    Type: json["Type"],
-    forWho: json["forWho"],
-    IsRead: json["IsRead"],
-    ReadAt: json["ReadAt"] != null ? DateTime.parse(json["ReadAt"]) : null,
-    UserId: json["UserId"],
-    StudentId: json["StudentId"],
-  );
+        localId: json['localId'] ?? uuid.v4(),
+        Id: json["Id"] is int ? json["Id"] : int.tryParse(json["Id"]?.toString() ?? ""),
+        title: json["Title"]?.toString() ?? "",
+        description: json["Description"]?.toString() ?? "",
+        date: json["Date"] != null ? (json["Date"] is String ? DateTime.parse(json["Date"]) : json["Date"]) : DateTime.now(),
+        time: json["Time"] != null ? (json["Time"] is String ? DateTime.parse(json["Time"]) : json["Time"]) : DateTime.now(),
+        type: json["Type"]?.toString() ?? "",
+        forWho: json["forWho"]?.toString() ?? "",
+        isRead: json["IsRead"] ?? false,
+        readAt: json["ReadAt"] != null ? (json["ReadAt"] is String ? DateTime.parse(json["ReadAt"]) : json["ReadAt"]) : null,
+        userId: json["UserId"] is int ? json["UserId"] : int.tryParse(json["UserId"]?.toString() ?? ""),
+        studentId: json["StudentId"] is int ? json["StudentId"] : int.tryParse(json["StudentId"]?.toString() ?? ""),
+        isSynced: json['IsSynced'] ?? false,
+        isDeleted: json['IsDeleted'] ?? false,
+        createdDate: json['CreatedDate'] != null ? (json['CreatedDate'] is String ? DateTime.parse(json['CreatedDate']) : json['CreatedDate']) : DateTime.now(),
+        updatedDate: json['UpdatedDate'] != null ? (json['UpdatedDate'] is String ? DateTime.parse(json['UpdatedDate']) : json['UpdatedDate']) : DateTime.now(),
+      );
 
   //! Convert Notification to JSON
   Map<String, dynamic> toJson() => {
-    "Id": Id,
-    "Title": Title,
-    "Description": Description,
-    "Date": Date.toIso8601String(),
-    "Time": Time.toIso8601String(),
-    "Type": Type,
-    "forWho": forWho,
-    "IsRead": IsRead,
-    "ReadAt": ReadAt?.toIso8601String(),
-    "UserId": UserId,
-    "StudentId": StudentId,
-  };
+        "localId": localId,
+        "Id": Id,
+        "Title": title, // Map back to PascalCase for backend compatibility
+        "Description": description,
+        "Date": date.toIso8601String(),
+        "Time": time.toIso8601String(),
+        "Type": type,
+        "forWho": forWho,
+        "IsRead": isRead,
+        "ReadAt": readAt?.toIso8601String(),
+        "UserId": userId,
+        "StudentId": studentId,
+        "IsSynced": isSynced,
+        "IsDeleted": isDeleted,
+        "CreatedDate": createdDate.toIso8601String(),
+        "UpdatedDate": updatedDate.toIso8601String(),
+      };
 }
