@@ -1,41 +1,79 @@
+import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
+
+@HiveType(typeId: 5)
 class Activity {
-  int Id;
+  @HiveField(0)
+  String localId = uuid.v4();
+  @HiveField(1)
+  int? Id;
+  @HiveField(2)
   String Name;
+  @HiveField(3)
   DateTime Date;
+  @HiveField(4)
   String? Place;
+  @HiveField(5)
   String? Description;
+  @HiveField(6)
   String Kind;
+  @HiveField(7)
   int HalaqahId;
+  @HiveField(8)
+  bool IsSynced;
+  @HiveField(9)
+  bool IsDeleted;
+  @HiveField(10)
+  DateTime CreatedDate;
+  @HiveField(11)
+  DateTime UpdatedDate;
 
   Activity({
-    required this.Id,
+    required this.localId,
+    this.Id,
     required this.Name,
     required this.Date,
     this.Place,
     this.Description,
     required this.Kind,
     required this.HalaqahId,
+    required this.IsSynced,
+    required this.IsDeleted,
+    required this.CreatedDate,
+    required this.UpdatedDate,
   });
 
   //! fromJson method
   factory Activity.fromJson(Map<String, dynamic> json) => Activity(
-    Id: json["Id"],
-    Name: json["Name"],
-    Date: DateTime.parse(json["Date"]),
-    Place: json["Place"],
-    Description: json["Description"],
-    Kind: json["Kind"],
-    HalaqahId: json["HalaqahId"],
-  );
+        localId: json['localId'] ?? uuid.v4(),
+        Id: json["Id"] is int ? json["Id"] : int.tryParse(json["Id"]?.toString() ?? ""),
+        Name: json["Name"]?.toString() ?? "",
+        Date: json["Date"] != null ? (json["Date"] is String ? DateTime.parse(json["Date"]) : json["Date"]) : DateTime.now(),
+        Place: json["Place"]?.toString() ?? "",
+        Description: json["Description"]?.toString() ?? "",
+        Kind: json["Kind"]?.toString() ?? "",
+        HalaqahId: json["HalaqahId"] is int ? json["HalaqahId"] : int.tryParse(json["HalaqahId"]?.toString() ?? "0") ?? 0,
+        IsSynced: json['IsSynced'] ?? false,
+        IsDeleted: json['IsDeleted'] ?? false,
+        CreatedDate: json['CreatedDate'] != null ? (json['CreatedDate'] is String ? DateTime.parse(json['CreatedDate']) : json['CreatedDate']) : DateTime.now(),
+        UpdatedDate: json['UpdatedDate'] != null ? (json['UpdatedDate'] is String ? DateTime.parse(json['UpdatedDate']) : json['UpdatedDate']) : DateTime.now(),
+      );
 
   //! toJson method
   Map<String, dynamic> toJson() => {
-    "Id": Id,
-    "Name": Name,
-    "Date": Date.toIso8601String(),
-    "Place": Place,
-    "Description": Description,
-    "Kind": Kind,
-    "HalaqahId": HalaqahId,
-  };
+        "localId": localId,
+        "Id": Id,
+        "Name": Name,
+        "Date": Date.toIso8601String(),
+        "Place": Place,
+        "Description": Description,
+        "Kind": Kind,
+        "HalaqahId": HalaqahId,
+        'IsSynced': IsSynced,
+        'IsDeleted': IsDeleted,
+        'CreatedDate': CreatedDate.toIso8601String(),
+        'UpdatedDate': UpdatedDate.toIso8601String(),
+      };
 }
