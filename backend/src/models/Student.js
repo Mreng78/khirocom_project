@@ -1,6 +1,6 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-const DailyProgress = require("./DailyProgress");
+
 class Student extends Model {}
 
 Student.init(
@@ -22,22 +22,20 @@ Student.init(
     Username: {
       type: DataTypes.STRING,
       allowNull: true,
-      
     },
     Password: {
       type: DataTypes.STRING(256),
       defaultValue: "12345",
       allowNull: false,
     },
-    status:
-    {
-      type:DataTypes.ENUM("مستمر","منقطع","مفصول"),
-      defaultValue:"مستمر",
-      allowNull:false
+    status: {
+      type: DataTypes.ENUM("مستمر", "منقطع", "مفصول"),
+      defaultValue: "مستمر",
+      allowNull: false,
     },
     stopDate: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW(),
+      defaultValue: DataTypes.NOW,
       allowNull: true,
     },
     stopReason: {
@@ -46,7 +44,7 @@ Student.init(
     },
     DismissedDate: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW(),
+      defaultValue: DataTypes.NOW,
       allowNull: true,
     },
     DismissedReason: {
@@ -61,15 +59,13 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    current_Revision_Sorah:
-    {
-      type:DataTypes.STRING,
-      allowNull:true
+    current_Revision_Sorah: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
-    current_Revision_Aya:
-    {
-      type:DataTypes.INTEGER,
-      allowNull:true
+    current_Revision_Aya: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
     current_Memorization_Aya: {
       type: DataTypes.STRING,
@@ -115,12 +111,34 @@ Student.init(
       defaultValue: 0,
       allowNull: false,
     },
+    isSynced: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
+    updatedDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
   },
   {
     sequelize,
     tableName: "students",
     modelName: "Student",
     timestamps: true,
+    createdAt: 'createdDate',
+    updatedAt: 'updatedDate',
     hooks: {
       beforeCreate: (student) => {
         if (!student.Username) {
@@ -128,7 +146,7 @@ Student.init(
         }
       },
     },
-  },
+  }
 );
 
 module.exports = Student;

@@ -19,11 +19,10 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.2
   image_picker: ^1.0.4
-  flutter_launcher_icons: ^0.13.1
-  lottie: ^2.7.0
   intl: ^0.18.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  lottie: ^2.7.0
   connectivity_plus: ^6.0.3
   uuid: ^3.0.7
 
@@ -31,6 +30,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
 
@@ -58,3 +58,9 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/files/quran.json
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/applogo.png"
+  min_sdk_android: 21

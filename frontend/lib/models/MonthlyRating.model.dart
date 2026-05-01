@@ -9,86 +9,86 @@ class MonthlyRating {
   String localId = uuid.v4();
   @HiveField(1)
   int? Id;
+  @HiveField(1)
+  double Memoisation_degree;
   @HiveField(2)
-  double memoisationDegree;
+  double Telawah_degree;
   @HiveField(3)
-  double telawahDegree;
+  double Tajweed_degree;
   @HiveField(4)
-  double tajweedDegree;
+  double Motoon_degree;
   @HiveField(5)
-  double motoonDegree;
+  double Total_degree;
   @HiveField(6)
-  double totalDegree;
+  double Average;
   @HiveField(7)
-  double average;
+  String? Notes;
   @HiveField(8)
-  String? notes;
+  int StudentId;
   @HiveField(9)
-  int studentId;
+  int MentorVisetId;
   @HiveField(10)
-  int mentorVisetId;
+  bool IsSynced;
   @HiveField(11)
-  bool isSynced;
+  bool IsDeleted;
   @HiveField(12)
-  bool isDeleted;
+  DateTime CreatedDate;
   @HiveField(13)
-  DateTime createdDate;
-  @HiveField(14)
-  DateTime updatedDate;
+  DateTime UpdatedDate;
 
   MonthlyRating({
     required this.localId,
     this.Id,
-    required this.memoisationDegree,
-    required this.telawahDegree,
-    required this.tajweedDegree,
-    required this.motoonDegree,
-    required this.totalDegree,
-    required this.average,
-    this.notes,
-    required this.studentId,
-    required this.mentorVisetId,
-    this.isSynced = false,
-    this.isDeleted = false,
-    required this.createdDate,
-    required this.updatedDate,
+    required this.Memoisation_degree,
+    required this.Telawah_degree,
+    required this.Tajweed_degree,
+    required this.Motoon_degree,
+    required this.Total_degree,
+    required this.Average,
+    this.Notes,
+    required this.StudentId,
+    required this.MentorVisetId,
+    required this.IsSynced,
+    required this.IsDeleted,
+    required this.CreatedDate,
+    required this.UpdatedDate,
   });
 
   //! Convert JSON to MonthlyRating
   factory MonthlyRating.fromJson(Map<String, dynamic> json) => MonthlyRating(
-        localId: json['localId'] ?? uuid.v4(),
-        Id: json["Id"] is int ? json["Id"] : int.tryParse(json["Id"]?.toString() ?? ""),
-        memoisationDegree: json["Memoisation_degree"]?.toDouble() ?? 0.0,
-        telawahDegree: json["Telawah_degree"]?.toDouble() ?? 0.0,
-        tajweedDegree: json["Tajweed_degree"]?.toDouble() ?? 0.0,
-        motoonDegree: json["Motoon_degree"]?.toDouble() ?? 0.0,
-        totalDegree: json["Total_degree"]?.toDouble() ?? 0.0,
-        average: json["Average"]?.toDouble() ?? 0.0,
-        notes: json["Notes"]?.toString() ?? "",
-        studentId: json["StudentId"] is int ? json["StudentId"] : int.tryParse(json["StudentId"]?.toString() ?? "0") ?? 0,
-        mentorVisetId: json["MentorVisetId"] is int ? json["MentorVisetId"] : int.tryParse(json["MentorVisetId"]?.toString() ?? "0") ?? 0,
-        isSynced: json['IsSynced'] ?? false,
-        isDeleted: json['IsDeleted'] ?? false,
-        createdDate: json['CreatedDate'] != null ? (json['CreatedDate'] is String ? DateTime.parse(json['CreatedDate']) : json['CreatedDate']) : DateTime.now(),
-        updatedDate: json['UpdatedDate'] != null ? (json['UpdatedDate'] is String ? DateTime.parse(json['UpdatedDate']) : json['UpdatedDate']) : DateTime.now(),
-      );
+    localId: json['localId'] ?? uuid.v4(),
+    Id: json["Id"],
+    Memoisation_degree: json["Memoisation_degree"]?.toDouble() ?? 0.0,
+    Telawah_degree: json["Telawah_degree"]?.toDouble() ?? 0.0,
+    Tajweed_degree: json["Tajweed_degree"]?.toDouble() ?? 0.0,
+    Motoon_degree: json["Motoon_degree"]?.toDouble() ?? 0.0,
+    Total_degree: json["Total_degree"]?.toDouble() ?? 0.0,
+    Average: json["Average"]?.toDouble() ?? 0.0,
+    Notes: json["Notes"],
+    StudentId: json["StudentId"],
+    MentorVisetId: json["MentorVisetId"],
+    IsSynced: json['IsSynced'] ?? false,
+    IsDeleted: json['IsDeleted'] ?? false,
+    CreatedDate: json['CreatedDate'] ?? DateTime.now(),
+    UpdatedDate: json['UpdatedDate'] ?? DateTime.now(),
+  );
 
   //! Convert MonthlyRating to JSON
   Map<String, dynamic> toJson() => {
-        "localId": localId,
-        "Id": Id,
-        "Memoisation_degree": memoisationDegree,
-        "Telawah_degree": telawahDegree,
-        "Tajweed_degree": tajweedDegree,
-        "Motoon_degree": motoonDegree,
-        "Total_degree": totalDegree,
-        "Average": average,
-        "Notes": notes,
-        "StudentId": studentId,
-        "MentorVisetId": mentorVisetId,
-        'IsSynced': isSynced,
-        'IsDeleted': isDeleted,
-        'CreatedDate': createdDate.toIso8601String(),
-        'UpdatedDate': updatedDate.toIso8601String(),
-      };
+    "localId": localId,
+    "Id": Id,
+    "Memoisation_degree": Memoisation_degree,
+    "Telawah_degree": Telawah_degree,
+    "Tajweed_degree": Tajweed_degree,
+    "Motoon_degree": Motoon_degree,
+    "Total_degree": Total_degree,
+    "Average": Average,
+    "Notes": Notes,
+    "StudentId": StudentId,
+    "MentorVisetId": MentorVisetId,
+    'IsSynced': IsSynced,
+    'IsDeleted': IsDeleted,
+    'CreatedDate': CreatedDate,
+    'UpdatedDate': UpdatedDate,
+  };
 }

@@ -269,7 +269,7 @@ class Addstudent extends StatelessWidget {
                                   categoryController.text = value.toString(),
                             ),
                             const SizedBox(height: 15),
-                            const Divider(color: Colors.green),
+                            Divider(color: Appcolors.emeraldPrimary),
                             const SizedBox(height: 10),
                             Row(
                               children: [

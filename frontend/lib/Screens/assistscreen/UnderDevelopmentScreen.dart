@@ -1,4 +1,5 @@
-import "package:flutter/material.dart";
+import 'package:flutter/material.dart';
+import "package:frontend/Widgets/AppColors.dart";
 
 class UnderDevelopmentScreen extends StatelessWidget {
   final String name;
@@ -23,7 +24,7 @@ class UnderDevelopmentScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.construction, size: 100, color: Colors.green),
+                Icon(Icons.construction, size: 100, color: Appcolors.emeraldPrimary),
                 Text(
                   "مرحبا $name ",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

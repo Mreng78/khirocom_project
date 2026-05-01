@@ -381,7 +381,7 @@ class StudentInfoScreen extends StatelessWidget {
                   color: Appcolors.appmaincolor,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Appcolors.goldSecondary.withOpacity(0.4),
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -426,7 +426,7 @@ class StudentInfoScreen extends StatelessWidget {
                     color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: Appcolors.appmaincolor.withOpacity(0.3),
+                      color: Appcolors.emeraldPrimary.withOpacity(0.3),
                       width: 1.5,
                     ),
                   ),
@@ -605,10 +605,10 @@ class StudentInfoScreen extends StatelessWidget {
                         studentInfoScreenController.changeWindow("البيانات");
                       }
                     },
-              child: const Text(
+              child: Text(
                 "تأكيد",
                 style: TextStyle(
-                  color: Colors.green,
+                  color: Appcolors.emeraldPrimary,
                   fontSize: 16,
                   fontFamily: 'Cairo',
                   fontWeight: FontWeight.bold,
@@ -688,10 +688,10 @@ class StudentInfoScreen extends StatelessWidget {
                             .clear();
                       }
                     },
-              child: const Text(
+              child: Text(
                 "تأكيد",
                 style: TextStyle(
-                  color: Colors.green,
+                  color: Appcolors.emeraldPrimary,
                   fontSize: 16,
                   fontFamily: 'Cairo',
                   fontWeight: FontWeight.bold,
@@ -2712,7 +2712,7 @@ class StudentInfoScreen extends StatelessWidget {
           child: Text(
             isDone ? "مكتملة" : "قيد التنفيذ",
             style: TextStyle(
-              color: isDone ? Colors.green : Colors.orange,
+              color: isDone ? Appcolors.emeraldPrimary : Colors.orange,
               fontSize: 10,
               fontWeight: FontWeight.bold,
               fontFamily: 'Cairo',
