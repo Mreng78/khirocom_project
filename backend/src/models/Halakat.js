@@ -15,15 +15,14 @@ Halakat.init(
       allowNull: false,
     },
     studentsGender: {
-      type: DataTypes.ENUM("ذكور","إناث"),
-      defaultValue:"ذكور",
+      type: DataTypes.ENUM("ذكور", "إناث"),
+      defaultValue: "ذكور",
       allowNull: false,
     },
-    type:
-    {
-      type:DataTypes.ENUM("قراءة وكتاية","حفظ ومراجعة","إجازة","قراءات"),
-      defaultValue:"حفظ ومراجعة",
-      allowNull:false
+    type: {
+      type: DataTypes.ENUM("قراءة وكتاية", "حفظ ومراجعة", "إجازة", "قراءات"),
+      defaultValue: "حفظ ومراجعة",
+      allowNull: false,
     },
     TeacherId: {
       type: DataTypes.INTEGER,
@@ -41,12 +40,34 @@ Halakat.init(
         key: "Id",
       },
     },
+    isSynced: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
+    updatedDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
   },
   {
     sequelize,
     tableName: "halakat",
     modelName: "Halakat",
     timestamps: true,
+    createdAt: 'createdDate',
+    updatedAt: 'updatedDate',
   }
 );
 

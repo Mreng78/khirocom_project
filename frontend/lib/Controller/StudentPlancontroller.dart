@@ -485,7 +485,7 @@ class StudentPlanController extends GetxController {
       if (response["success"] == true) {
         // إزالة الخطة من القائمة
         studentPlans.removeWhere((plan) => plan.Id == planId);
-        Get.snackbar("نجاح", "تم حذف الخطة بنجاح", backgroundColor: Colors.green, colorText: Colors.white);
+        Get.snackbar("نجاح", "تم حذف الخطة بنجاح", backgroundColor: Appcolors.emeraldPrimary, colorText: Colors.white);
         return true;
       } else {
         Get.snackbar("خطأ", response["message"] ?? "فشل حذف الخطة", backgroundColor: Colors.red, colorText: Colors.white);

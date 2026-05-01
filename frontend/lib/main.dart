@@ -3,8 +3,6 @@ import 'package:frontend/Screens/assistscreen/SplashScreen.dart';
 import 'package:frontend/app_binding.dart';
 import "package:get/get.dart";
 import 'package:hive_flutter/adapters.dart';
-//import 'package:intl/date_symbol_data_file.dart';
-import 'Controller/SplashScreenController.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -27,7 +25,14 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialBinding: AppBinding(),
-      theme: ThemeData(primarySwatch: Colors.green, fontFamily: 'Cairo'),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF006837),
+          primary: const Color(0xFF006837),
+          secondary: const Color(0xFFC5A059),
+        ),
+        fontFamily: 'Cairo',
+      ),
       home: const SplashScreen(),
     );
   }

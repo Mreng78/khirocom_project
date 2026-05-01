@@ -91,12 +91,34 @@ StudentPlane.init(
       defaultValue: "قيد التنفيذ",
       allowNull: false,
     },
+    isSynced: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
+    updatedDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
   },
   {
     sequelize,
     tableName: "student_planes",
     modelName: "StudentPlane",
     timestamps: true,
+    createdAt: 'createdDate',
+    updatedAt: 'updatedDate',
   }
 );
 

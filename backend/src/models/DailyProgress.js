@@ -31,12 +31,12 @@ DailyProgress.init(
       allowNull: false,
     },
     Memorization_Level: {
-      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز","-"),
+      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز", "-"),
       defaultValue: "-",
       allowNull: false,
     },
     Revision_Level: {
-      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز","-"),
+      type: DataTypes.ENUM("ضعيف", "مقبول", "جيد", "جيد جدا", "ممتاز", "-"),
       defaultValue: "-",
       allowNull: false,
     },
@@ -60,11 +60,10 @@ DailyProgress.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    Month_year:{
+    Month_year: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-   
     StudentId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -73,12 +72,34 @@ DailyProgress.init(
         key: "Id",
       },
     },
+    isSynced: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
+    updatedDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
   },
   {
     sequelize,
     tableName: "daily_progress",
     modelName: "DailyProgress",
     timestamps: true,
+    createdAt: 'createdDate',
+    updatedAt: 'updatedDate',
   }
 );
 

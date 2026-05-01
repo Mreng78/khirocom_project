@@ -1,8 +1,8 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
-const Halakat = require("./Halakat");
 
 class Activity extends Model {}
+
 Activity.init(
   {
     Id: {
@@ -31,21 +31,43 @@ Activity.init(
       defaultValue: "مسابقة قرآنية",
       allowNull: false,
     },
-    HalaqahId:
-    {
-        type:DataTypes.INTEGER,
-        allowNull:false,
-        references:
-        {
-            model:'halakat',
-            key:'Id'
-        }
-    }
+    HalaqahId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'halakat',
+        key: 'Id'
+      }
+    },
+    isSynced: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
+    updatedDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
   },
   {
     sequelize,
     modelName: "Activity",
     tableName: "Activities",
+    timestamps: true,
+    createdAt: 'createdDate',
+    updatedAt: 'updatedDate',
   },
 );
+
 module.exports = Activity;

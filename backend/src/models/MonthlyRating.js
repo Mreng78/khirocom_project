@@ -50,21 +50,42 @@ MonthlyRating.init(
         key: "Id",
       },
     },
-    MentorVisetId:
-    {
+    MentorVisetId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "mentor_visits",
         key: "Id",
       },
-    }
+    },
+    isSynced: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
+    createdDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
+    updatedDate: {
+      type: DataTypes.DATE,
+      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: true,
+    },
   },
   {
     sequelize,
     modelName: "MonthlyRating",
     tableName: "monthly_rating",
     timestamps: true,
+    createdAt: 'createdDate',
+    updatedAt: 'updatedDate',
   }
 );
 

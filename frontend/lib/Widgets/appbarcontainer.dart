@@ -47,8 +47,8 @@ class Appbarcontainer extends StatelessWidget implements PreferredSizeWidget {
               color: Appcolors.appBarbackground.withOpacity(0.9),
               border: Border(
                 bottom: BorderSide(
-                  color: Colors.white.withOpacity(0.1),
-                  width: 1.0,
+                  color: Appcolors.goldSecondary.withOpacity(0.5),
+                  width: 2.0,
                 ),
               ),
               boxShadow: [
